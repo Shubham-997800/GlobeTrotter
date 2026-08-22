@@ -145,9 +145,9 @@ export const recentActivity: ActivityEvent[] = [
 /* ── Notifications ────────────────────────────────────────────── */
 
 export const notifications: AppNotification[] = [
-  { id: "n-1", title: "Flight price drop", description: "Delhi → Tokyo dropped ₹4,200 for your April dates.", timestamp: "1h ago", unread: true },
-  { id: "n-2", title: "Itinerary reminder", description: "Day 4 of Japan Adventure starts tomorrow — review your plan.", timestamp: "6h ago", unread: true },
-  { id: "n-3", title: "New community reply", description: "Maya replied to your Kyoto question.", timestamp: "1d ago", unread: false },
+  { id: "n-1", type: "trip", title: "Flight price drop", description: "Delhi → Tokyo dropped ₹4,200 for your April dates.", timestamp: "1h ago", unread: true },
+  { id: "n-2", type: "activity", title: "Itinerary reminder", description: "Day 4 of Japan Adventure starts tomorrow - review your plan.", timestamp: "6h ago", unread: true },
+  { id: "n-3", type: "comment", title: "New community reply", description: "Maya replied to your Kyoto question.", timestamp: "1d ago", unread: false },
 ];
 
 /* ── Insights ─────────────────────────────────────────────────── */

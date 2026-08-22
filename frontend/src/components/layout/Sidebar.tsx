@@ -1,8 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
 import {
+  Bell,
+  Bookmark,
   CalendarDays,
   Compass,
   Globe,
+  HelpCircle,
   LayoutDashboard,
   Map,
   PanelLeftClose,
@@ -38,11 +41,14 @@ const MAIN_NAV: NavItemDef[] = [
   { to: "/explore", label: "Explore", icon: Compass },
   { to: "/community", label: "Community", icon: UsersRound },
   { to: "/calendar", label: "Travel Calendar", icon: CalendarDays },
+  { to: "/saved", label: "Saved", icon: Bookmark },
+  { to: "/notifications", label: "Notifications", icon: Bell },
 ];
 
 const ACCOUNT_NAV: NavItemDef[] = [
   { to: "/profile", label: "Profile", icon: UserRound },
   { to: "/settings", label: "Settings", icon: Settings },
+  { to: "/help", label: "Help & Support", icon: HelpCircle },
 ];
 
 interface SidebarChromeProps {

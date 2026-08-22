@@ -85,8 +85,17 @@ export interface ActivityEvent {
   timestamp: string;
 }
 
+export type AppNotificationType =
+  | "trip"
+  | "activity"
+  | "like"
+  | "comment"
+  | "follow"
+  | "system";
+
 export interface AppNotification {
   id: string;
+  type: AppNotificationType;
   title: string;
   description: string;
   timestamp: string;

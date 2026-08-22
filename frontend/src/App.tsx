@@ -24,6 +24,32 @@ const CreateTripPage = lazy(() =>
 const MyTripsPage = lazy(() =>
   import("@/pages/trips/MyTripsPage").then((m) => ({ default: m.MyTripsPage })),
 );
+const TripDetailsPage = lazy(() =>
+  import("@/pages/trips/TripDetailsPage").then((m) => ({
+    default: m.TripDetailsPage,
+  })),
+);
+const BudgetPage = lazy(() =>
+  import("@/pages/trips/BudgetPage").then((m) => ({ default: m.BudgetPage })),
+);
+const ShareTripPage = lazy(() =>
+  import("@/pages/trips/ShareTripPage").then((m) => ({
+    default: m.ShareTripPage,
+  })),
+);
+const NotificationsPage = lazy(() =>
+  import("@/pages/NotificationsPage").then((m) => ({
+    default: m.NotificationsPage,
+  })),
+);
+const SavedPage = lazy(() =>
+  import("@/pages/SavedPage").then((m) => ({ default: m.SavedPage })),
+);
+const HelpSupportPage = lazy(() =>
+  import("@/pages/HelpSupportPage").then((m) => ({
+    default: m.HelpSupportPage,
+  })),
+);
 const ItineraryBuilderPage = lazy(
   () => import("@/pages/trips/ItineraryBuilderPage"),
 );
@@ -45,21 +71,6 @@ const CalendarPage = lazy(() =>
   import("@/pages/calendar/CalendarPage").then((m) => ({
     default: m.CalendarPage,
 })),
-);
-const ProfilePage = lazy(() =>
-  import("@/pages/profile/ProfilePage").then((m) => ({
-    default: m.ProfilePage,
-  })),
-);
-const SettingsPage = lazy(() =>
-  import("@/pages/settings/SettingsPage").then((m) => ({
-    default: m.SettingsPage,
-  })),
-);
-const NotificationsPage = lazy(() =>
-  import("@/pages/notifications/NotificationsPage").then((m) => ({
-    default: m.NotificationsPage,
-  })),
 );
 const ForgotPasswordPage = lazy(() =>
   import("@/pages/auth/ForgotPasswordPage").then((m) => ({
@@ -91,6 +102,13 @@ const MaintenancePage = lazy(() =>
 );
 const NetworkErrorPage = lazy(() =>
   import("@/pages/SystemErrorPage").then((m) => ({ default: m.NetworkErrorPage })),
+);
+
+const ProfilePage = lazy(() =>
+  import("@/pages/ProfilePage").then((m) => ({ default: m.ProfilePage })),
+);
+const SettingsPage = lazy(() =>
+  import("@/pages/SettingsPage").then((m) => ({ default: m.SettingsPage })),
 );
 
 function RouteFallback() {
@@ -200,7 +218,7 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Profile & settings */}
+            {/* Profile module */}
             <Route
               path="/profile"
               element={
@@ -209,6 +227,7 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            {/* Settings module */}
             <Route
               path="/settings"
               element={
@@ -223,6 +242,24 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <NotificationsPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Saved / wishlist */}
+            <Route
+              path="/saved"
+              element={
+                <ProtectedRoute>
+                  <SavedPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Help & support */}
+            <Route
+              path="/help"
+              element={
+                <ProtectedRoute>
+                  <HelpSupportPage />
                 </ProtectedRoute>
               }
             />
@@ -241,6 +278,31 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <CreateTripPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Trip detail / overview */}
+            <Route
+              path="/trips/:tripId"
+              element={
+                <ProtectedRoute>
+                  <TripDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/trips/:tripId/budget"
+              element={
+                <ProtectedRoute>
+                  <BudgetPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/trips/:tripId/share"
+              element={
+                <ProtectedRoute>
+                  <ShareTripPage />
                 </ProtectedRoute>
               }
             />
