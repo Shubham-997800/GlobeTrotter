@@ -1,28 +1,332 @@
-import { Router, type Request, type Response } from "express";
+import { Router, type Request } from "express";
+import { z } from "zod";
 
-/**
- * Placeholder auth routes.
- *
- * The contract mirrors the frontend mock layer — see the swap notes in
- * frontend/src/features/auth/auth.service.ts before wiring real handlers:
- *
- *   POST /api/auth/login     { identifier, password, remember }  → AuthSession
- *   POST /api/auth/register  { name, email, password }           → AuthSession
- *   POST /api/auth/logout                                        → 204
- *   GET  /api/auth/me        (Bearer token)                      → AuthSession
- */
+import { env } from "../config/env.js";
+import { assertSupabaseConfigured } from "../config/env.js";
+import { ApiError, asyncHandler } from "../lib/api-error.js";
+import { createEphemeralAdmin, getSupabaseAdmin, getSupabaseAnon } from "../lib/supabase.js";
+import { requireAuth } from "../middleware/auth.js";
+
 export const authRouter = Router();
 
-function placeholder(endpoint: string) {
-  return (_req: Request, res: Response) => {
-    res.status(501).json({
-      code: "NOT_IMPLEMENTED",
-      message: `${endpoint} is a placeholder — replace it with a real controller.`,
-    });
+/* ── Schemas (mirror frontend payloads) ─────────────────────────── */
+
+const loginSchema = z.object({
+  identifier: z.string().trim().min(1),
+  password: z.string().min(1),
+  remember: z.boolean().optional().default(true),
+});
+
+const registerSchema = z.object({
+  firstName: z.string().trim().min(1).max(80),
+  lastName: z.string().trim().max(80).optional().default(""),
+  email: z.string().trim().email(),
+  phone: z.string().trim().max(40).optional(),
+  city: z.string().trim().max(120).optional(),
+  country: z.string().trim().max(120).optional(),
+  bio: z.string().trim().max(500).optional(),
+  avatarUrl: z.string().trim().url().max(2048).optional(),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters.")
+    .max(72, "Password must be at most 72 characters."),
+});
+
+const forgotSchema = z.object({ email: z.string().trim().email() });
+
+const resetSchema = z
+  .object({
+    /** Access token from the recovery link (`#access_token=...`). */
+    accessToken: z.string().trim().min(10).optional(),
+    /** OTP token_hash from a custom recovery template (paid SMTP). */
+    token: z.string().trim().min(10).optional(),
+    email: z.string().trim().email().optional(),
+    password: z.string().min(8).max(72),
+  })
+  .refine((v) => Boolean(v.accessToken || v.token), {
+    message: "Provide either accessToken or token.",
+    path: ["accessToken"],
+  });
+
+function parseBody<T extends z.ZodTypeAny>(schema: T, body: unknown): z.infer<T> {
+  const result = schema.safeParse(body);
+  if (!result.success) {
+    const issue = result.error.issues[0];
+    throw new ApiError(
+      "INVALID_REQUEST",
+      issue ? `${issue.path.join(".") || "body"}: ${issue.message}` : "Invalid request body.",
+    );
+  }
+  return result.data;
+}
+
+/* ── Profile mapping ────────────────────────────────────────────── */
+
+interface ProfileRow {
+  id: string;
+  name: string | null;
+  phone: string | null;
+  city: string | null;
+  country: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+  role: string | null;
+  created_at: string | null;
+}
+
+function mapUser(row: ProfileRow, fallbackEmail: string) {
+  return {
+    id: row.id,
+    name: row.name ?? "",
+    email: fallbackEmail,
+    createdAt: row.created_at ?? new Date(0).toISOString(),
+    role: (row.role as "user" | "admin") ?? "user",
+    avatarUrl: row.avatar_url ?? undefined,
+    phone: row.phone ?? undefined,
+    city: row.city ?? undefined,
+    country: row.country ?? undefined,
+    bio: row.bio ?? undefined,
   };
 }
 
-authRouter.post("/login", placeholder("POST /api/auth/login"));
-authRouter.post("/register", placeholder("POST /api/auth/register"));
-authRouter.post("/logout", placeholder("POST /api/auth/logout"));
-authRouter.get("/me", placeholder("GET /api/auth/me"));
+async function loadProfile(userId: string, email: string, jwt?: string) {
+  const admin = getSupabaseAdmin();
+  const { data } = await admin
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .maybeSingle<ProfileRow>();
+
+  if (data) return mapUser(data, email);
+
+  // Self-heal: auth user exists but profile row missing.
+  const meta = (
+    await createEphemeralAdmin().auth.getUser(jwt)
+  ).data.user?.user_metadata as Record<string, unknown> | undefined;
+  const name =
+    (meta?.full_name as string | undefined) ??
+    (meta?.name as string | undefined) ??
+    "";
+  const inserted = await admin
+    .from("profiles")
+    .upsert({ id: userId, name }, { onConflict: "id" })
+    .select("*")
+    .single<ProfileRow>();
+  return mapUser(
+    inserted.data ?? { id: userId, name, created_at: null } as ProfileRow,
+    email,
+  );
+}
+
+function sessionResponse(user: ReturnType<typeof mapUser>, token: string) {
+  return { user, token };
+}
+
+/** Maps GoTrue errors onto the frontend's AuthErrorCode set. */
+function mapAuthError(message: string): never {
+  const m = message.toLowerCase();
+  if (m.includes("invalid login credentials")) {
+    throw new ApiError("INVALID_CREDENTIALS", "Incorrect email or password. Please try again.");
+  }
+  if (m.includes("already registered") || m.includes("already exists")) {
+    throw new ApiError("EMAIL_TAKEN", "An account with this email already exists. Try signing in instead.");
+  }
+  if (m.includes("not confirmed")) {
+    throw new ApiError(
+      "INVALID_CREDENTIALS",
+      "Please confirm your email first — check your inbox for the confirmation link.",
+      403,
+    );
+  }
+  if (m.includes("rate limit")) {
+    throw new ApiError("SERVER_ERROR", "Too many attempts. Please wait a minute and try again.", 429);
+  }
+  throw new ApiError("SERVER_ERROR", message);
+}
+
+/* ── Routes ─────────────────────────────────────────────────────── */
+
+authRouter.post(
+  "/login",
+  asyncHandler(async (req, res) => {
+    if (!assertSupabaseConfigured(res)) return;
+    const payload = parseBody(loginSchema, req.body);
+    const admin = getSupabaseAdmin();
+
+    let email = payload.identifier.toLowerCase();
+    if (!email.includes("@")) {
+      // Identifier is a name — resolve it to the account's email via profiles.
+      // Names are not unique; most recently created matching account wins
+      // (mirrors the frontend mock's find() semantics).
+      const { data, error } = await admin
+        .from("profiles")
+        .select("id")
+        .ilike("name", payload.identifier)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      if (error) mapAuthError(error.message);
+      if (!data || data.length !== 1) {
+        throw new ApiError("INVALID_CREDENTIALS", "Incorrect email or password. Please try again.");
+      }
+      const { data: userRow } = await admin.rpc("get_auth_email", {
+        profile_id: data[0].id,
+      });
+      const resolved = typeof userRow === "string" ? userRow : null;
+      if (!resolved) {
+        throw new ApiError("INVALID_CREDENTIALS", "Incorrect email or password. Please try again.");
+      }
+      email = resolved;
+    }
+
+    const { data, error } = await createEphemeralAdmin().auth.signInWithPassword({
+      email,
+      password: payload.password,
+    });
+    if (error) mapAuthError(error.message);
+    if (!data.session || !data.user) {
+      throw new ApiError("INVALID_CREDENTIALS", "Incorrect email or password. Please try again.");
+    }
+
+    const user = await loadProfile(data.user.id, data.user.email ?? email, data.session.access_token);
+    res.json(sessionResponse(user, data.session.access_token));
+  }),
+);
+
+authRouter.post(
+  "/register",
+  asyncHandler(async (req, res) => {
+    if (!assertSupabaseConfigured(res)) return;
+    const payload = parseBody(registerSchema, req.body);
+    const admin = getSupabaseAdmin();
+    const name =
+      `${payload.firstName} ${payload.lastName}`.trim() || payload.firstName;
+
+    const { data, error } = await createEphemeralAdmin().auth.signUp({
+      email: payload.email.toLowerCase(),
+      password: payload.password,
+      options: {
+        data: { full_name: name },
+      },
+    });
+    if (error) mapAuthError(error.message);
+
+    // Persist the extended profile regardless of confirmation state.
+    await admin.from("profiles").upsert(
+      {
+        id: data.user!.id,
+        name,
+        phone: payload.phone ?? null,
+        city: payload.city ?? null,
+        country: payload.country ?? null,
+        bio: payload.bio ?? null,
+        avatar_url: payload.avatarUrl ?? null,
+      },
+      { onConflict: "id" },
+    );
+
+    if (!data.session) {
+      // Email confirmation is enabled on the project.
+      res.status(403).json({
+        code: "EMAIL_CONFIRMATION_REQUIRED",
+        message:
+          "Account created! Check your inbox to confirm your email before signing in.",
+      });
+      return;
+    }
+
+    const user = await loadProfile(data.user!.id, data.user!.email ?? payload.email, data.session?.access_token);
+    res.status(201).json(sessionResponse(user, data.session.access_token));
+  }),
+);
+
+authRouter.post("/logout", requireAuth, (_req, res) => {
+  // JWTs are stateless; the client discards its token.
+  res.status(204).send();
+});
+
+authRouter.get(
+  "/me",
+  requireAuth,
+  asyncHandler(async (req: Request, res) => {
+    const user = await loadProfile(req.userId!, req.authEmail!);
+    const header = req.headers.authorization ?? "";
+    res.json(sessionResponse(user, header.replace(/^Bearer\s+/i, "")));
+  }),
+);
+
+authRouter.post(
+  "/forgot-password",
+  asyncHandler(async (req, res) => {
+    if (!assertSupabaseConfigured(res)) return;
+    const payload = parseBody(forgotSchema, req.body);
+
+    // Always resolves without revealing whether the email exists.
+    try {
+      await createEphemeralAdmin().auth.resetPasswordForEmail(payload.email, {
+        redirectTo: env.passwordResetRedirectUrl,
+      });
+    } catch {
+      // swallow — never leak account existence
+    }
+    res.status(200).json({ message: "If that email exists, a reset link has been sent." });
+  }),
+);
+
+authRouter.post(
+  "/reset-password",
+  asyncHandler(async (req, res) => {
+    if (!assertSupabaseConfigured(res)) return;
+    const payload = parseBody(resetSchema, req.body);
+
+    // Default-template flow: the emailed link redirects to the frontend with
+    // `#access_token=...`; verify it, then set the new password.
+    if (payload.accessToken) {
+      const admin = createEphemeralAdmin();
+      const { data, error } = await admin.auth.getUser(payload.accessToken);
+      if (error || !data.user) {
+        throw new ApiError(
+          "TOKEN_INVALID",
+          "This password reset link is invalid or has expired. Request a new one.",
+        );
+      }
+      const { error: updateError } = await admin.auth.admin.updateUserById(
+        data.user.id,
+        { password: payload.password },
+      );
+      if (updateError) throw new ApiError("SERVER_ERROR", updateError.message);
+      // Invalidate all sessions for this user (recovery tokens included).
+      await admin.auth.admin.signOut(payload.accessToken!, "global");
+      res.status(200).json({ message: "Password updated. You can sign in now." });
+      return;
+    }
+
+    const anon = getSupabaseAnon();
+    // Custom-template flow: recovery links carry a `token_hash` OTP.
+    let verified = await anon.auth.verifyOtp({
+      type: "recovery",
+      token_hash: payload.token!,
+    });
+    if ((verified.error || !verified.data.session) && payload.email) {
+      verified = await anon.auth.verifyOtp({
+        type: "recovery",
+        email: payload.email,
+        token: payload.token!,
+      });
+    }
+    if (verified.error || !verified.data.session || !verified.data.user) {
+      throw new ApiError(
+        "TOKEN_INVALID",
+        "This password reset link is invalid or has expired. Request a new one.",
+      );
+    }
+
+    const { error: updateError } = await anon.auth.updateUser({
+      password: payload.password,
+    });
+    await anon.auth.signOut();
+    if (updateError) {
+      throw new ApiError("SERVER_ERROR", updateError.message);
+    }
+    res.status(200).json({ message: "Password updated. You can sign in now." });
+  }),
+);
