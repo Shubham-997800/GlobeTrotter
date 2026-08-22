@@ -71,7 +71,7 @@ export function MyTripsPage() {
   const [pendingDelete, setPendingDelete] = useState<PendingDeleteTrips | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  const now = useMemo(() => new Date(), [list.data]);
+  const now = useMemo(() => new Date(), []);
 
   const records = list.data ?? [];
   const counts = computeTripCounts(records, now);
@@ -79,10 +79,10 @@ export function MyTripsPage() {
     applyMyTripsFilters(records, filters, now),
     filters.sort,
   );
-  const models = filteredSorted.map((record) => createTripCardModel(record, now));
+  const models = filteredSorted.map((record) => createTripCardModel(record));
   const mainModels = models.filter((model) => model.status !== "draft");
   const draftModels = models.filter((model) => model.status === "draft");
-  const destinationOptions = deriveDestinationOptions(records, now);
+  const destinationOptions = deriveDestinationOptions(records);
   const nextUpcoming = findNextUpcoming(records, now);
   const nextHighlight = filters.status === "all" ? nextUpcoming : null;
 
@@ -185,17 +185,17 @@ export function MyTripsPage() {
     onDuplicate: handleDuplicate,
     onShare: handleShare,
     onDeleteRequest: openDeleteOne,
-    onArchiveToggle: handleArchiveToggle,
-    onToggleSelect: (trip: TripCardModel, next: boolean) =>
-      toggleSelect(trip.record.id, next),
+    onArchiveToggle: (trip: TripCardModel) =>
+      handleArchiveToggle(trip, !trip.record.archivedAt),
+    onToggleSelect: toggleSelect,
   };
   const rowActions = {
     onDuplicate: handleDuplicate,
     onShare: handleShare,
     onDeleteRequest: openDeleteOne,
-    onArchiveToggle: handleArchiveToggle,
-    onToggleSelect: (trip: TripCardModel, next: boolean) =>
-      toggleSelect(trip.record.id, next),
+    onArchiveToggle: (trip: TripCardModel) =>
+      handleArchiveToggle(trip, !trip.record.archivedAt),
+    onToggleSelect: toggleSelect,
   };
 
   if (list.isLoading) {
@@ -279,7 +279,7 @@ export function MyTripsPage() {
         ) : null}
 
         {nextHighlight ? (
-          <UpcomingTripHighlight trip={createTripCardModel(nextHighlight, now)} />
+          <UpcomingTripHighlight trip={createTripCardModel(nextHighlight)} />
         ) : null}
 
         <div className="flex flex-col gap-4">
@@ -294,7 +294,7 @@ export function MyTripsPage() {
                 searchInput={filters.search}
                 onSearchInputChange={(value) => setFilters((prev) => ({ ...prev, search: value }))}
                 filters={filters}
-                onFiltersChange={setFilters}
+                onFiltersChange={(patch) => setFilters((prev) => ({ ...prev, ...patch }))}
                 onClearAll={clearFilters}
                 destinationOptions={destinationOptions}
                 hasActiveFilters={hasActiveFilters}

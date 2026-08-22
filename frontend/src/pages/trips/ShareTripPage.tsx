@@ -186,7 +186,11 @@ export function ShareTripPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => removeMember(m.email)}
+                            onClick={() =>
+                              setMembers((prev) =>
+                                prev.filter((x) => x.email !== m.email),
+                              )
+                            }
                             aria-label={`Remove ${m.name}`}
                           >
                             <Trash2 className="h-4 w-4" />

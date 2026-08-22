@@ -37,19 +37,6 @@ const ShareTripPage = lazy(() =>
     default: m.ShareTripPage,
   })),
 );
-const NotificationsPage = lazy(() =>
-  import("@/pages/NotificationsPage").then((m) => ({
-    default: m.NotificationsPage,
-  })),
-);
-const SavedPage = lazy(() =>
-  import("@/pages/SavedPage").then((m) => ({ default: m.SavedPage })),
-);
-const HelpSupportPage = lazy(() =>
-  import("@/pages/HelpSupportPage").then((m) => ({
-    default: m.HelpSupportPage,
-  })),
-);
 const ItineraryBuilderPage = lazy(
   () => import("@/pages/trips/ItineraryBuilderPage"),
 );
@@ -70,7 +57,26 @@ const CommunityPage = lazy(() =>
 const CalendarPage = lazy(() =>
   import("@/pages/calendar/CalendarPage").then((m) => ({
     default: m.CalendarPage,
-})),
+  })),
+);
+const ProfilePage = lazy(() =>
+  import("@/pages/ProfilePage").then((m) => ({ default: m.ProfilePage })),
+);
+const SettingsPage = lazy(() =>
+  import("@/pages/SettingsPage").then((m) => ({ default: m.SettingsPage })),
+);
+const NotificationsPage = lazy(() =>
+  import("@/pages/NotificationsPage").then((m) => ({
+    default: m.NotificationsPage,
+  })),
+);
+const SavedPage = lazy(() =>
+  import("@/pages/SavedPage").then((m) => ({ default: m.SavedPage })),
+);
+const HelpSupportPage = lazy(() =>
+  import("@/pages/HelpSupportPage").then((m) => ({
+    default: m.HelpSupportPage,
+  })),
 );
 const ForgotPasswordPage = lazy(() =>
   import("@/pages/auth/ForgotPasswordPage").then((m) => ({
@@ -102,13 +108,6 @@ const MaintenancePage = lazy(() =>
 );
 const NetworkErrorPage = lazy(() =>
   import("@/pages/SystemErrorPage").then((m) => ({ default: m.NetworkErrorPage })),
-);
-
-const ProfilePage = lazy(() =>
-  import("@/pages/ProfilePage").then((m) => ({ default: m.ProfilePage })),
-);
-const SettingsPage = lazy(() =>
-  import("@/pages/SettingsPage").then((m) => ({ default: m.SettingsPage })),
 );
 
 function RouteFallback() {
@@ -200,7 +199,8 @@ export default function App() {
               }
             />
             <Route path="/app" element={<Navigate to="/dashboard" replace />} />
-{/* Community module */}
+
+            {/* Community module */}
             <Route
               path="/community"
               element={
@@ -281,7 +281,11 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Trip detail / overview */}
+            {/* Alias matching the sidebar CTA slug */}
+            <Route
+              path="/app/create-trip"
+              element={<Navigate to="/trips/create" replace />}
+            />
             <Route
               path="/trips/:tripId"
               element={
@@ -305,11 +309,6 @@ export default function App() {
                   <ShareTripPage />
                 </ProtectedRoute>
               }
-            />
-            {/* Alias matching the sidebar CTA slug */}
-            <Route
-              path="/app/create-trip"
-              element={<Navigate to="/trips/create" replace />}
             />
             <Route
               path="/trips/:tripId/itinerary"

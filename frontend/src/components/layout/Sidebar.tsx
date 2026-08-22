@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import {
   Bell,
   Bookmark,
@@ -60,31 +60,32 @@ interface SidebarChromeProps {
 
 function NavLinkRow({
   item,
-  active,
   collapsed,
   onNavigate,
-}: SidebarChromeProps & {
+}: {
   item: NavItemDef;
-  active: boolean;
+  collapsed: boolean;
+  onNavigate?: () => void;
 }) {
   const link = (
-    <Link
+    <NavLink
       to={item.to}
       onClick={onNavigate}
-      aria-current={active ? "page" : undefined}
       aria-label={collapsed ? item.label : undefined}
-      className={cn(
-        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        collapsed && "justify-center px-0",
-        active
-          ? "bg-primary/10 text-primary"
-          : "text-muted-foreground hover:bg-hover hover:text-foreground",
-      )}
+      className={({ isActive }) =>
+        cn(
+          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          collapsed && "justify-center px-0",
+          isActive
+            ? "bg-primary/10 text-primary"
+            : "text-muted-foreground hover:bg-hover hover:text-foreground",
+        )
+      }
     >
       <item.icon className="h-[18px] w-[18px] shrink-0" />
       {!collapsed ? <span className="truncate">{item.label}</span> : null}
-    </Link>
+    </NavLink>
   );
 
   if (!collapsed) return link;
@@ -102,7 +103,6 @@ export function SidebarNav({
   collapsed = false,
   onNavigate,
 }: SidebarChromeProps) {
-  const location = useLocation();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
@@ -114,7 +114,6 @@ export function SidebarNav({
           item={item}
           collapsed={collapsed}
           onNavigate={onNavigate}
-          active={location.pathname.startsWith(item.to)}
         />
       ))}
 
@@ -141,7 +140,6 @@ export function SidebarNav({
           item={item}
           collapsed={collapsed}
           onNavigate={onNavigate}
-          active={location.pathname.startsWith(item.to)}
         />
       ))}
 
@@ -150,7 +148,6 @@ export function SidebarNav({
           item={{ to: "/admin", label: "Admin Console", icon: Shield }}
           collapsed={collapsed}
           onNavigate={onNavigate}
-          active={location.pathname.startsWith("/admin")}
         />
       ) : null}
     </nav>
