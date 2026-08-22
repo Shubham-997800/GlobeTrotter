@@ -1,13 +1,24 @@
+export type UserRole = "user" | "admin";
+
 export interface User {
   id: string;
   name: string;
   email: string;
   createdAt: string;
+  role?: UserRole;
+  avatarUrl?: string;
+  phone?: string;
+  city?: string;
+  country?: string;
+  bio?: string;
 }
 
 export type AuthErrorCode =
   | "INVALID_CREDENTIALS"
+  | "ACCOUNT_NOT_FOUND"
   | "EMAIL_TAKEN"
+  | "INVALID_REQUEST"
+  | "TOKEN_INVALID"
   | "NETWORK_ERROR"
   | "SERVER_ERROR"
   | "UNKNOWN";
@@ -28,9 +39,24 @@ export interface LoginPayload {
   remember: boolean;
 }
 
-export interface SignupPayload {
-  name: string;
+export interface RegisterPayload {
+  firstName: string;
+  lastName: string;
   email: string;
+  phone?: string;
+  city?: string;
+  country?: string;
+  bio?: string;
+  avatarUrl?: string;
+  password: string;
+}
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
   password: string;
 }
 

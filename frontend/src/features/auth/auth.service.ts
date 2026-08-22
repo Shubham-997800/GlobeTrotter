@@ -1,8 +1,10 @@
 import {
   ApiError,
   type AuthSession,
+  type ForgotPasswordPayload,
   type LoginPayload,
-  type SignupPayload,
+  type RegisterPayload,
+  type ResetPasswordPayload,
   type User,
 } from "./auth.types";
 
@@ -10,19 +12,32 @@ import {
  * Mock auth service — the ONLY place with fake auth logic.
  *
  * Swapping to a real backend (Express + PostgreSQL + Prisma):
- *   login()    → apiClient.post<AuthSession>("/auth/login", payload)
- *   signup()   → apiClient.post<AuthSession>("/auth/register", payload)
- *   logout()   → apiClient.post("/auth/logout")
- *   getSession() → GET /auth/me using the stored bearer token
+ *   login()            → apiClient.post<AuthSession>("/auth/login", payload)
+ *   register()         → apiClient.post<AuthSession>("/auth/register", payload)
+ *   logout()           → apiClient.post("/auth/logout")
+ *   getSession()       → GET /auth/me using the stored bearer token
+ *   forgotPassword()   → POST /auth/forgot-password { email } (token is emailed)
+ *   resetPassword()    → POST /auth/reset-password { token, password }
+ *
+ * The mock returns the reset token directly so the flow stays testable
+ * without an email provider; the real backend must never do that.
  * Delete everything below the marker and keep the exported shape.
  */
 
 const SESSION_KEY = "globetrotter.auth.session";
 const MOCK_USERS_KEY = "globetrotter.mock.users";
+const MOCK_RESETS_KEY = "globetrotter.mock.password-resets";
 const MOCK_LATENCY_MS = 700;
+const RESET_TOKEN_TTL_MS = 15 * 60 * 1000;
 
 interface StoredUser extends User {
   password: string;
+}
+
+interface StoredReset {
+  email: string;
+  token: string;
+  expiresAt: number;
 }
 
 const DEMO_USER: StoredUser = {
@@ -30,6 +45,7 @@ const DEMO_USER: StoredUser = {
   name: "Demo User",
   email: "demo@globetrotter.app",
   password: "Demo@1234",
+  role: "admin",
   createdAt: new Date("2026-01-01").toISOString(),
 };
 
@@ -98,6 +114,32 @@ function clearSession(): void {
   sessionStorage.removeItem("globetrotter.auth.token");
 }
 
+function createResetToken(): string {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
+}
+
+function readResets(): StoredReset[] {
+  try {
+    const raw = localStorage.getItem(MOCK_RESETS_KEY);
+    const parsed = raw ? (JSON.parse(raw) as StoredReset[]) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeResets(resets: StoredReset[]): void {
+  try {
+    localStorage.setItem(MOCK_RESETS_KEY, JSON.stringify(resets));
+  } catch {
+    // storage unavailable — mock only
+  }
+}
+
 export const authService = {
   async login(payload: LoginPayload): Promise<AuthSession> {
     await delay();
@@ -118,7 +160,10 @@ export const authService = {
     return session;
   },
 
-  async signup(payload: SignupPayload, remember = true): Promise<AuthSession> {
+  async register(
+    payload: RegisterPayload,
+    remember = true,
+  ): Promise<AuthSession> {
     await delay();
     const email = payload.email.trim().toLowerCase();
     const users = readStoredUsers();
@@ -130,8 +175,15 @@ export const authService = {
     }
     const user: StoredUser = {
       id: `usr_${Date.now().toString(36)}`,
-      name: payload.name.trim(),
+      name:
+        `${payload.firstName.trim()} ${payload.lastName.trim()}`.trim() ||
+        payload.firstName.trim(),
       email,
+      phone: payload.phone?.trim() || undefined,
+      city: payload.city?.trim() || undefined,
+      country: payload.country?.trim() || undefined,
+      bio: payload.bio?.trim() || undefined,
+      avatarUrl: payload.avatarUrl || undefined,
       password: payload.password,
       createdAt: new Date().toISOString(),
     };
@@ -139,6 +191,48 @@ export const authService = {
     const session = createSession(user);
     writeSession(session, remember);
     return session;
+  },
+
+  /** Always resolves — never reveals whether the email is registered. */
+  async forgotPassword(payload: ForgotPasswordPayload): Promise<{ token: string }> {
+    await delay();
+    const email = payload.email.trim().toLowerCase();
+    const token = createResetToken();
+    const resets = readResets().filter(
+      (reset) =>
+        reset.email !== email && reset.expiresAt > Date.now(),
+    );
+    writeResets([
+      ...resets,
+      { email, token, expiresAt: Date.now() + RESET_TOKEN_TTL_MS },
+    ]);
+    // Real backend: email `{ token }` to the user instead of returning it.
+    return { token };
+  },
+
+  async resetPassword(payload: ResetPasswordPayload): Promise<void> {
+    await delay();
+    const resets = readResets();
+    const reset = resets.find((candidate) => candidate.token === payload.token);
+    if (!reset || reset.expiresAt < Date.now()) {
+      throw new ApiError(
+        "TOKEN_INVALID",
+        "This password reset link is invalid or has expired. Request a new one.",
+      );
+    }
+    const users = readStoredUsers();
+    const userIndex = users.findIndex(
+      (candidate) => candidate.email.toLowerCase() === reset.email,
+    );
+    if (userIndex === -1) {
+      throw new ApiError(
+        "ACCOUNT_NOT_FOUND",
+        "This password reset link is invalid or has expired. Request a new one.",
+      );
+    }
+    users[userIndex] = { ...users[userIndex], password: payload.password };
+    writeStoredUsers(users);
+    writeResets(resets.filter((candidate) => candidate.token !== reset.token));
   },
 
   logout(): void {

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/landing/Container";
@@ -16,15 +16,42 @@ export function CTASection({ cta }: CTASectionProps) {
       <Container>
         <Reveal>
           <div className="relative overflow-hidden rounded-3xl border border-border bg-card px-6 py-16 text-center shadow-sm sm:px-16 sm:py-20">
-            {/* Subtle top green accent line */}
+            {/* Decorative background: subtle map grid + travel route */}
             <div
               aria-hidden="true"
-              className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent"
+              className="pointer-events-none absolute inset-0"
+              style={{
+                backgroundImage:
+                  "radial-gradient(1px 1px at 20px 30px, var(--color-border) 50%, transparent 0)",
+                backgroundSize: "36px 36px",
+                opacity: 0.4,
+                maskImage:
+                  "radial-gradient(ellipse 60% 55% at 50% 40%, black 30%, transparent 75%)",
+                WebkitMaskImage:
+                  "radial-gradient(ellipse 60% 55% at 50% 40%, black 30%, transparent 75%)",
+              }}
             />
             <div
               aria-hidden="true"
-              className="absolute left-1/2 top-0 -z-0 h-64 w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.10] blur-3xl"
+              className="pointer-events-none absolute left-1/2 top-0 -z-0 h-64 w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.10] blur-3xl"
             />
+            {/* Dashed route line with pins */}
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 200 60"
+              className="pointer-events-none absolute inset-x-0 top-8 mx-auto h-16 w-64 text-primary/20 sm:w-80"
+              fill="none"
+            >
+              <path
+                d="M10 46 C 60 10, 130 55, 190 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeDasharray="5 6"
+                strokeLinecap="round"
+              />
+              <circle cx="10" cy="46" r="4" fill="currentColor" />
+              <circle cx="190" cy="18" r="4" fill="currentColor" />
+            </svg>
 
             <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center">
               <span className="inline-flex items-center rounded-full bg-primary-light px-3.5 py-1.5 text-sm font-medium text-primary dark:bg-primary/15">
@@ -39,24 +66,18 @@ export function CTASection({ cta }: CTASectionProps) {
                 {cta.description}
               </p>
 
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <p className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <Button size="lg" asChild>
                   <Link to={cta.primaryCTA.href}>
                     {cta.primaryCTA.label}
                     <ArrowRight className="ml-1 h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
-                {cta.secondaryCTA ? (
-                  <Button size="lg" variant="secondary" asChild>
-                    <Link to={cta.secondaryCTA.href}>
-                      {cta.secondaryCTA.label}
-                    </Link>
-                  </Button>
-                ) : null}
-              </div>
+              </p>
 
-              <p className="mt-6 text-sm text-muted-foreground">
-                Free 14-day trial · No credit card required · Cancel anytime
+              <p className="mt-5 flex items-center gap-1.5 text-sm text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 text-travel-blue" aria-hidden="true" />
+                {cta.footnote ?? "Free to get started"}
               </p>
             </div>
           </div>

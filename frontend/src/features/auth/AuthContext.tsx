@@ -9,14 +9,22 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { authService } from "./auth.service";
-import type { AuthSession, LoginPayload, SignupPayload, User } from "./auth.types";
+import {
+  type AuthSession,
+  type ForgotPasswordPayload,
+  type LoginPayload,
+  type RegisterPayload,
+  type User,
+} from "./auth.types";
 
 interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (payload: LoginPayload) => Promise<User>;
-  signup: (payload: SignupPayload) => Promise<User>;
+  register: (payload: RegisterPayload) => Promise<User>;
+  requestPasswordReset: (payload: ForgotPasswordPayload) => Promise<{ token: string }>;
+  resetPassword: (payload: { token: string; password: string }) => Promise<void>;
   logout: () => void;
 }
 
@@ -36,8 +44,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutationFn: (payload: LoginPayload) => authService.login(payload),
   });
 
-  const signupMutation = useMutation({
-    mutationFn: (payload: SignupPayload) => authService.signup(payload),
+  const registerMutation = useMutation({
+    mutationFn: (payload: RegisterPayload) => authService.register(payload),
+  });
+
+  const forgotPasswordMutation = useMutation({
+    mutationFn: (payload: ForgotPasswordPayload) =>
+      authService.forgotPassword(payload),
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: (payload: { token: string; password: string }) =>
+      authService.resetPassword(payload),
   });
 
   const login = useCallback(
@@ -49,13 +67,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [loginMutation],
   );
 
-  const signup = useCallback(
-    async (payload: SignupPayload) => {
-      const next = await signupMutation.mutateAsync(payload);
+  const register = useCallback(
+    async (payload: RegisterPayload) => {
+      const next = await registerMutation.mutateAsync(payload);
       setSession(next);
       return next.user;
     },
-    [signupMutation],
+    [registerMutation],
+  );
+
+  const requestPasswordReset = useCallback(
+    async (payload: ForgotPasswordPayload) =>
+      forgotPasswordMutation.mutateAsync(payload),
+    [forgotPasswordMutation],
+  );
+
+  const resetPassword = useCallback(
+    async (payload: { token: string; password: string }) =>
+      resetPasswordMutation.mutateAsync(payload),
+    [resetPasswordMutation],
   );
 
   const logout = useCallback(() => {
@@ -70,10 +100,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: session !== null,
       isLoading,
       login,
-      signup,
+      register,
+      requestPasswordReset,
+      resetPassword,
       logout,
     }),
-    [session, isLoading, login, signup, logout],
+    [
+      session,
+      isLoading,
+      login,
+      register,
+      requestPasswordReset,
+      resetPassword,
+      logout,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

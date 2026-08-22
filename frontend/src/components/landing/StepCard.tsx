@@ -31,6 +31,22 @@ export function StepCard({ step, className }: StepCardProps) {
       <p className="text-pretty mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
         {step.description}
       </p>
+      {step.points ? (
+        <ul className="mt-3 flex flex-wrap justify-center gap-1.5">
+          {step.points.map((point) => (
+            <li
+              key={point}
+              className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-medium text-primary"
+            >
+              <span
+                aria-hidden="true"
+                className="h-1 w-1.5 rounded-full bg-current"
+              />
+              {point}
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </li>
   );
 }

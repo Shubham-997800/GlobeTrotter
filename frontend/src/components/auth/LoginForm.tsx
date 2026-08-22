@@ -1,38 +1,43 @@
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+import { AuthError } from "@/components/auth/AuthError";
 import { FieldError } from "@/components/auth/FormField";
 import { PasswordInput } from "@/components/auth/PasswordInput";
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/auth/SubmitButton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/features/auth/auth.types";
+import { readIntendedPath } from "@/features/auth/GuestRoute";
 import {
   loginSchema,
   type LoginValues,
 } from "@/features/auth/schemas/login.schema";
 import { useAuth } from "@/features/auth/useAuth";
 
+const REDIRECT_DELAY_MS = 700;
+
 export function LoginForm() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const intendedPath =
-    (location.state as { from?: string } | null)?.from ?? "/app";
+  const intendedPath = readIntendedPath(location.state);
 
   const [submitError, setSubmitError] = React.useState<string | null>(null);
+  const [status, setStatus] =
+    React.useState<"idle" | "submitting" | "success">("idle");
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     mode: "onTouched",
@@ -43,21 +48,26 @@ export function LoginForm() {
 
   const onSubmit = async (values: LoginValues) => {
     setSubmitError(null);
+    setStatus("submitting");
     try {
       const user = await login({
         identifier: values.identifier,
         password: values.password,
         remember: values.remember,
       });
+      setStatus("success");
       toast.success(`Welcome back, ${user.name.split(" ")[0]}!`);
-      navigate(intendedPath, { replace: true });
+      window.setTimeout(
+        () => navigate(intendedPath, { replace: true }),
+        REDIRECT_DELAY_MS,
+      );
     } catch (error) {
-      const message =
+      setStatus("idle");
+      setSubmitError(
         error instanceof ApiError
           ? error.message
-          : "Something went wrong. Please try again.";
-      setSubmitError(message);
-      toast.error(message);
+          : "Something went wrong. Please check your connection and try again.",
+      );
     }
   };
 
@@ -76,6 +86,7 @@ export function LoginForm() {
             autoComplete="username"
             placeholder="you@company.com"
             className="pl-9"
+            disabled={status !== "idle"}
             aria-invalid={errors.identifier ? true : undefined}
             aria-describedby={
               errors.identifier ? "identifier-error" : undefined
@@ -93,10 +104,7 @@ export function LoginForm() {
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Password</Label>
           <Link
-            to="/login"
-            onClick={(event) => event.preventDefault()}
-            aria-disabled="true"
-            title="Password reset coming soon"
+            to="/forgot-password"
             className="rounded-sm text-xs font-medium text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
           >
             Forgot password?
@@ -106,6 +114,7 @@ export function LoginForm() {
           id="password"
           autoComplete="current-password"
           placeholder="Enter your password"
+          disabled={status !== "idle"}
           aria-invalid={errors.password ? true : undefined}
           aria-describedby={errors.password ? "password-error" : undefined}
           {...register("password")}
@@ -117,6 +126,7 @@ export function LoginForm() {
         <Checkbox
           id="remember"
           checked={remember}
+          disabled={status !== "idle"}
           onCheckedChange={(checked) => setValue("remember", checked === true)}
         />
         <Label
@@ -127,25 +137,13 @@ export function LoginForm() {
         </Label>
       </div>
 
-      {submitError ? (
-        <p
-          role="alert"
-          className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive"
-        >
-          {submitError}
-        </p>
-      ) : null}
+      <AuthError message={submitError} />
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? (
-          <>
-            <Loader2 className="animate-spin" aria-hidden="true" />
-            Signing in…
-          </>
-        ) : (
-          "Sign In"
-        )}
-      </Button>
+      <SubmitButton
+        status={status}
+        label="Sign In"
+        labels={{ submitting: "Signing in…", success: "Signed in!" }}
+      />
 
       <p className="rounded-lg border border-dashed border-border bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
         Demo account —{" "}

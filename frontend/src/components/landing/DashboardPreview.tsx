@@ -1,15 +1,16 @@
 import {
   LayoutDashboard,
-  FolderKanban,
-  ClipboardList,
-  BarChart3,
+  Luggage,
+  Route,
+  CalendarDays,
+  Wallet,
+  Users,
   Settings,
   Search,
   Plus,
-  CalendarDays,
-  ArrowUpRight,
-  ArrowDownRight,
-  Circle,
+  Plane,
+  Utensils,
+  Ticket,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -19,57 +20,47 @@ const sidebarItems: {
   label: string;
   active?: boolean;
 }[] = [
-  { icon: LayoutDashboard, label: "Overview", active: true },
-  { icon: FolderKanban, label: "Projects" },
-  { icon: ClipboardList, label: "Tasks" },
-  { icon: BarChart3, label: "Analytics" },
+  { icon: LayoutDashboard, label: "Overview" },
+  { icon: Luggage, label: "My Trips", active: true },
+  { icon: Route, label: "Itinerary" },
+  { icon: CalendarDays, label: "Calendar" },
+  { icon: Wallet, label: "Budget" },
+  { icon: Users, label: "Community" },
   { icon: Settings, label: "Settings" },
 ];
 
-const kpis = [
-  { label: "Active projects", value: "24", change: "+12%", up: true },
-  { label: "Tasks completed", value: "1,284", change: "+8%", up: true },
-  { label: "Team utilization", value: "86%", change: "-2%", up: false },
-  { label: "On-time rate", value: "94%", change: "+5%", up: true },
-] as const;
-
-const bars = [42, 58, 50, 72, 64, 84, 76, 92, 70, 88];
-const avg = 58;
-
-const activityRows = [
+const activities = [
   {
-    team: "Product",
-    initials: "MC",
-    name: "Maya Chen",
-    status: "In review",
-    time: "2h ago",
-    tone: "info",
+    day: "Day 1",
+    time: "09:00",
+    label: "Fushimi Inari Shrine",
+    type: "activity",
+    tone: "bg-activity text-white",
+    dot: "bg-activity",
   },
   {
-    team: "Design",
-    initials: "LO",
-    name: "Liam Ortiz",
-    status: "Done",
-    time: "4h ago",
-    tone: "success",
+    day: "Day 1",
+    time: "12:30",
+    label: "Ramen at Ichiran",
+    type: "food",
+    tone: "bg-food text-white",
+    dot: "bg-food",
   },
   {
-    team: "Engineering",
-    initials: "SK",
-    name: "Sana Kapoor",
-    status: "On track",
-    time: "Today",
-    tone: "warning",
+    day: "Day 2",
+    time: "08:00",
+    label: "Shinkansen → Osaka",
+    type: "transport",
+    tone: "bg-transport text-white",
+    dot: "bg-transport",
   },
 ] as const;
 
-type Tone = "info" | "success" | "warning";
-
-const toneStyles: Record<Tone, string> = {
-  info: "bg-info/15 text-info",
-  success: "bg-primary/15 text-primary",
-  warning: "bg-warning/15 text-warning",
-};
+const TYPE_ICONS = {
+  activity: Ticket,
+  food: Utensils,
+  transport: Plane,
+} as const;
 
 export function DashboardPreview({ className }: { className?: string }) {
   return (
@@ -87,8 +78,8 @@ export function DashboardPreview({ className }: { className?: string }) {
           <span className="h-2.5 w-2.5 rounded-full bg-success/80" />
         </div>
         <div className="ml-2 hidden flex-1 items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-xs text-muted-foreground sm:flex">
-          <Search className="h-3.5 w-3.5" />
-          app.globetrotter.io/dashboard
+          <Search className="h-3.5 w-3.5" aria-hidden="true" />
+          app.globetrotter.io/trips/japan-spring
         </div>
       </div>
 
@@ -96,26 +87,25 @@ export function DashboardPreview({ className }: { className?: string }) {
         {/* Sidebar */}
         <aside className="hidden w-44 shrink-0 flex-col gap-1 border-r border-border bg-muted/20 p-3 sm:flex">
           {sidebarItems.map((item) => (
-            <button
+            <div
               key={item.label}
-              type="button"
               className={cn(
-                "flex items-center gap-2 rounded-md px-2.5 py-2 text-left text-xs font-medium transition-colors",
+                "flex items-center gap-2 rounded-md px-2.5 py-2 text-xs font-medium",
                 item.active
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-hover hover:text-foreground",
+                  ? "bg-active-nav text-primary"
+                  : "text-muted-foreground",
               )}
             >
-              <item.icon className="h-3.5 w-3.5" />
+              <item.icon className="h-3.5 w-3.5" aria-hidden="true" />
               {item.label}
-            </button>
+            </div>
           ))}
           <div className="mt-auto rounded-lg border border-dashed border-border p-2.5 text-[11px] text-muted-foreground">
             <div className="mb-1 flex items-center gap-1.5 font-medium text-foreground">
-              <Plus className="h-3 w-3 text-primary" />
-              New
+              <Plus className="h-3 w-3 text-primary" aria-hidden="true" />
+              New Trip
             </div>
-            <p>Create a project to get started</p>
+            <p>Plan your next adventure</p>
           </div>
         </aside>
 
@@ -124,32 +114,33 @@ export function DashboardPreview({ className }: { className?: string }) {
           {/* Header */}
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold">Good morning, Alex</p>
+              <p className="text-sm font-semibold">Japan Spring Trip</p>
               <p className="text-xs text-muted-foreground">
-                Here's what's happening today.
+                Kyoto · Osaka · Tokyo — Apr 12 to Apr 20
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <span className="rounded-full bg-primary/15 px-2.5 py-1 text-[11px] font-medium text-primary">
+                Planning
+              </span>
               <button
                 type="button"
-                className="flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-hover"
+                className="flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1.5 text-xs font-medium text-primary-foreground shadow-sm"
               >
-                <CalendarDays className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">This week</span>
-              </button>
-              <button
-                type="button"
-                className="flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1.5 text-xs font-medium text-primary-foreground shadow-sm hover:bg-primary-hover"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                New task
+                <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                Add activity
               </button>
             </div>
           </div>
 
           {/* KPI cards */}
           <div className="mb-4 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-            {kpis.map((kpi) => (
+            {[
+              { label: "Budget", value: "₹45,000" },
+              { label: "Days", value: "9" },
+              { label: "Cities", value: "3" },
+              { label: "Activities", value: "12" },
+            ].map((kpi) => (
               <div
                 key={kpi.label}
                 className="rounded-xl border border-border bg-background p-3"
@@ -157,92 +148,82 @@ export function DashboardPreview({ className }: { className?: string }) {
                 <p className="truncate text-[11px] text-muted-foreground">
                   {kpi.label}
                 </p>
-                <div className="mt-1 flex items-center justify-between">
-                  <p className="text-lg font-semibold tracking-tight">
-                    {kpi.value}
-                  </p>
-                  <span
-                    className={cn(
-                      "flex items-center gap-0.5 text-[11px] font-medium",
-                      kpi.up ? "text-primary" : "text-warning",
-                    )}
-                  >
-                    {kpi.up ? (
-                      <ArrowUpRight className="h-3 w-3" />
-                    ) : (
-                      <ArrowDownRight className="h-3 w-3" />
-                    )}
-                    {kpi.change}
-                  </span>
-                </div>
+                <p className="mt-1 text-lg font-semibold tracking-tight">
+                  {kpi.value}
+                </p>
               </div>
             ))}
           </div>
 
-          {/* Chart + Activity */}
-          <div className="grid gap-4 lg:grid-cols-5">
+          {/* Activities + budget summary */}
+          <div className="grid gap-3 lg:grid-cols-5">
             <div className="rounded-xl border border-border bg-background p-3 lg:col-span-3">
-              <div className="mb-3 flex items-center justify-between">
-                <p className="text-xs font-semibold">Delivery velocity</p>
-                <span className="text-[11px] text-muted-foreground">
-                  Last 8 weeks
-                </span>
+              <p className="mb-3 text-xs font-semibold">Upcoming activities</p>
+              <ul className="space-y-2.5">
+                {activities.map((row) => {
+                  const RowIcon = TYPE_ICONS[row.type];
+                  return (
+                    <li key={row.label} className="flex items-center gap-2.5">
+                      <span
+                        className={cn(
+                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+                          row.tone,
+                        )}
+                      >
+                        <RowIcon className="h-4 w-4" aria-hidden="true" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-medium">
+                          {row.label}
+                        </p>
+                        <p className="truncate text-[11px] text-muted-foreground">
+                          {row.day} · {row.time}
+                        </p>
+                      </div>
+                      <span
+                        className={cn(
+                          "h-1.5 w-1.5 shrink-0 rounded-full",
+                          row.dot,
+                        )}
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            <div className="rounded-xl border border-border bg-background p-3 lg:col-span-2">
+              <p className="mb-3 text-xs font-semibold">Budget summary</p>
+              <div className="flex items-end justify-between">
+                <p className="text-lg font-bold">₹28,500</p>
+                <p className="text-[11px] text-muted-foreground">of ₹45,000</p>
               </div>
-              <div className="flex h-28 items-end gap-2">
-                {bars.map((value, i) => (
+              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-warning to-primary"
+                  style={{ width: "63%" }}
+                />
+              </div>
+              <div className="mt-2 flex justify-between text-[11px]">
+                <span className="text-success">Spent</span>
+                <span className="text-muted-foreground">₹16,500 remaining</span>
+              </div>
+              <div className="mt-3 space-y-1.5 border-t border-border pt-3">
+                {[
+                  { label: "Flights", value: "₹9,200" },
+                  { label: "Stays", value: "₹11,400" },
+                  { label: "Food", value: "₹3,900" },
+                ].map((c) => (
                   <div
-                    key={i}
-                    className="group relative flex-1 rounded-sm bg-muted"
+                    key={c.label}
+                    className="flex items-center justify-between text-[11px]"
                   >
-                    <div
-                      className={cn(
-                        "absolute inset-x-0 bottom-0 rounded-sm transition-colors group-hover:bg-primary/70",
-                        value >= avg ? "bg-primary/80" : "bg-primary/25",
-                      )}
-                      style={{ height: `${Math.max(value, 12)}%` }}
-                    />
+                    <span className="text-muted-foreground">{c.label}</span>
+                    <span className="font-medium">{c.value}</span>
                   </div>
                 ))}
               </div>
             </div>
-
-            <div className="rounded-xl border border-border bg-background p-3 lg:col-span-2">
-              <p className="mb-3 text-xs font-semibold">Recent activity</p>
-              <ul className="space-y-2.5">
-                {activityRows.map((row) => (
-                  <li key={row.name} className="flex items-center gap-2.5">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-secondary-text">
-                      {row.initials}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-medium">{row.name}</p>
-                      <p className="truncate text-[11px] text-muted-foreground">
-                        {row.team}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={cn(
-                          "rounded-full px-2 py-0.5 text-[10px] font-medium",
-                          toneStyles[row.tone as Tone],
-                        )}
-                      >
-                        {row.status}
-                      </span>
-                      <span className="hidden text-[11px] text-muted-foreground sm:inline">
-                        {row.time}
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Inline divider accent */}
-          <div className="mt-4 flex items-center gap-2 text-[11px] text-muted-foreground">
-            <Circle className="h-2 w-2 fill-primary text-primary" />
-            <span>All systems operational · 3 active autopilot flows</span>
           </div>
         </div>
       </div>

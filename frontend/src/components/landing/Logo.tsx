@@ -1,4 +1,4 @@
-import { Boxes } from "lucide-react";
+import { Globe } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -21,11 +21,11 @@ export function Logo({
     <span className={cn("inline-flex items-center gap-2", className)}>
       <span
         className={cn(
-          "flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm",
+          "flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-travel-blue text-primary-foreground shadow-sm",
           iconClassName,
         )}
       >
-        <Boxes className="h-4.5 w-4.5" aria-hidden="true" />
+        <Globe className="h-4.5 w-4.5" aria-hidden="true" />
       </span>
       <span className="flex flex-col items-start leading-tight">
         <span

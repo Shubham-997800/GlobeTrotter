@@ -30,6 +30,7 @@ export function LandingNavbar({
   className,
 }: LandingNavbarProps) {
   const [scrolled, setScrolled] = React.useState(false);
+  const [active, setActive] = React.useState<string>(navLinks[0]?.id ?? "");
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -37,6 +38,27 @@ export function LandingNavbar({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  React.useEffect(() => {
+    const ids = navLinks.map((l) => l.id);
+    const sections = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => Boolean(el));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActive(entry.target.id);
+          }
+        }
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, [navLinks]);
 
   return (
     <header
@@ -64,15 +86,24 @@ export function LandingNavbar({
             aria-label="Primary"
             className="hidden items-center gap-1 md:flex"
           >
-            {navLinks.map((link) => (
-              <a
-                key={link.id}
-                href={link.href}
-                className="rounded-md px-3 py-2 text-sm font-medium text-secondary-text transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = active === link.id;
+              return (
+                <a
+                  key={link.id}
+                  href={link.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    isActive
+                      ? "bg-active-nav text-primary"
+                      : "text-secondary-text hover:bg-hover hover:text-foreground",
+                  )}
+                >
+                  {link.label}
+                </a>
+              );
+            })}
           </nav>
 
           {/* Right actions */}

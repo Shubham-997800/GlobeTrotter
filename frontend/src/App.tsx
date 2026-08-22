@@ -8,7 +8,6 @@ import { ProtectedRoute } from "@/features/auth/ProtectedRoute";
 import { AppDashboardPage } from "@/pages/AppDashboardPage";
 import { LandingPage } from "@/pages/LandingPage";
 import { LoginPage } from "@/pages/auth/LoginPage";
-import { SignupPage } from "@/pages/auth/SignupPage";
 
 const queryClient = new QueryClient();
 
@@ -32,8 +31,8 @@ export default function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/get-started" element={<Navigate to="/signup" replace />} />
+            <Route path="/signup" element={<Navigate to="/login" replace />} />
+            <Route path="/get-started" element={<Navigate to="/login" replace />} />
             <Route
               path="/app"
               element={

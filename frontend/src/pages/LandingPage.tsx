@@ -8,7 +8,8 @@ import { CTASection } from "@/components/landing/CTASection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 
 export function LandingPage() {
-  const { appName, navLinks, hero, featuresHeading, features } = landingConfig;
+  const { appName, navLinks, hero, trustStats, featuresHeading, features } =
+    landingConfig;
   const { howItWorksHeading, steps, benefits, finalCTA, footer } =
     landingConfig;
 
@@ -16,7 +17,7 @@ export function LandingPage() {
     <div className="flex min-h-screen flex-col">
       <LandingNavbar appName={appName} navLinks={navLinks} />
       <main className="flex-1">
-        <HeroSection hero={hero} />
+        <HeroSection hero={hero} trustStats={trustStats} />
         <FeaturesSection heading={featuresHeading} features={features} />
         <HowItWorksSection heading={howItWorksHeading} steps={steps} />
         <BenefitsSection benefits={benefits} />
