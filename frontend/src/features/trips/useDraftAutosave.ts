@@ -39,6 +39,12 @@ export function useDraftAutosave({
   const [state, setState] = useState<DraftState>("idle");
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const skipFirstRun = useRef(true);
+  // Latest form snapshot for the debounced write — keeps the effect
+  // depending only on `dirtyToken` (one save tick per edit batch).
+  const valuesRef = useRef(values);
+  useEffect(() => {
+    valuesRef.current = values;
+  }, [values]);
 
   useEffect(() => {
     if (skipFirstRun.current) {
@@ -51,7 +57,7 @@ export function useDraftAutosave({
     const timer = setTimeout(() => {
       setState("saving");
       try {
-        tripsService.writeActiveDraft(values);
+        tripsService.writeActiveDraft(valuesRef.current);
         setSavedAt(new Date());
         setState("saved");
       } catch {
@@ -60,8 +66,6 @@ export function useDraftAutosave({
     }, AUTOSAVE_DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
-    // `values` is captured per edit; dirtyToken marks each edit batch.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dirtyToken]);
 
   return {
