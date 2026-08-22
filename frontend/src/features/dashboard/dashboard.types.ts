@@ -108,3 +108,11 @@ export interface QuickActionDef {
   href: string;
   emphasized?: boolean;
 }
+
+export interface SearchItem {
+  id: string;
+  group: "Destinations" | "Trips" | "Activities";
+  label: string;
+  sublabel?: string;
+  href: string;
+}

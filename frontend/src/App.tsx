@@ -111,6 +111,12 @@ const APP_SECTIONS = [
     description:
       "Manage your account details, avatar and travel preferences.",
   },
+  {
+    path: "/settings",
+    title: "Settings",
+    description:
+      "Tune notifications, currency, privacy and other app preferences.",
+  },
 ] as const;
 
 export default function App() {

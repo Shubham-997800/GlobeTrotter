@@ -4,15 +4,26 @@ import {
   Compass,
   Globe,
   LayoutDashboard,
+  Map,
+  PanelLeftClose,
+  PanelLeftOpen,
   PlusCircle,
+  Settings,
   Shield,
   UserRound,
   UsersRound,
-  Map,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useAuth } from "@/features/auth/useAuth";
+import { landingConfig } from "@/config/landing.config";
 import { cn } from "@/lib/utils";
 
 export interface NavItemDef {
@@ -21,100 +32,229 @@ export interface NavItemDef {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-const NAV_ITEMS: NavItemDef[] = [
+const MAIN_NAV: NavItemDef[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/trips", label: "My Trips", icon: Map },
   { to: "/explore", label: "Explore", icon: Compass },
   { to: "/community", label: "Community", icon: UsersRound },
   { to: "/calendar", label: "Travel Calendar", icon: CalendarDays },
-  { to: "/profile", label: "Profile", icon: UserRound },
 ];
 
-interface SidebarNavProps {
+const ACCOUNT_NAV: NavItemDef[] = [
+  { to: "/profile", label: "Profile", icon: UserRound },
+  { to: "/settings", label: "Settings", icon: Settings },
+];
+
+interface SidebarChromeProps {
+  /** Collapsed rail shows icons with tooltips instead of labels. */
+  collapsed?: boolean;
   /** Closes the mobile drawer after a navigation click. */
   onNavigate?: () => void;
-  className?: string;
 }
 
-/** Shared nav list used by both the desktop rail and the drawer. */
-export function SidebarNav({ onNavigate, className }: SidebarNavProps) {
+function NavLinkRow({
+  item,
+  active,
+  collapsed,
+  onNavigate,
+}: SidebarChromeProps & {
+  item: NavItemDef;
+  active: boolean;
+}) {
+  const link = (
+    <Link
+      to={item.to}
+      onClick={onNavigate}
+      aria-current={active ? "page" : undefined}
+      aria-label={collapsed ? item.label : undefined}
+      className={cn(
+        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        collapsed && "justify-center px-0",
+        active
+          ? "bg-primary/10 text-primary"
+          : "text-muted-foreground hover:bg-hover hover:text-foreground",
+      )}
+    >
+      <item.icon className="h-[18px] w-[18px] shrink-0" />
+      {!collapsed ? <span className="truncate">{item.label}</span> : null}
+    </Link>
+  );
+
+  if (!collapsed) return link;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{link}</TooltipTrigger>
+      <TooltipContent side="right">{item.label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+/** Full nav list (primary + account + admin) shared by rail and drawer. */
+export function SidebarNav({
+  collapsed = false,
+  onNavigate,
+}: SidebarChromeProps) {
   const location = useLocation();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
   return (
-    <nav
-      aria-label="Primary"
-      className={cn("flex flex-1 flex-col gap-1", className)}
-    >
-      {NAV_ITEMS.map((item) => {
-        const Icon = item.icon;
-        const active = location.pathname.startsWith(item.to);
-        return (
-          <Link
-            key={item.to}
-            to={item.to}
-            onClick={onNavigate}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              active
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground hover:bg-hover hover:text-foreground",
-            )}
-          >
-            <Icon className="h-[18px] w-[18px]" />
-            {item.label}
-          </Link>
-        );
-      })}
+    <nav aria-label="Primary" className="flex min-h-0 flex-1 flex-col gap-1">
+      {MAIN_NAV.map((item) => (
+        <NavLinkRow
+          key={item.to}
+          item={item}
+          collapsed={collapsed}
+          onNavigate={onNavigate}
+          active={location.pathname.startsWith(item.to)}
+        />
+      ))}
+
+      {!collapsed ? (
+        <>
+          <div
+            aria-hidden="true"
+            className="mx-1 my-2 border-t border-subtle-border"
+          />
+          <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-secondary-text">
+            Account
+          </p>
+        </>
+      ) : (
+        <div
+          aria-hidden="true"
+          className="mx-2 my-2 border-t border-subtle-border"
+        />
+      )}
+
+      {ACCOUNT_NAV.map((item) => (
+        <NavLinkRow
+          key={item.to}
+          item={item}
+          collapsed={collapsed}
+          onNavigate={onNavigate}
+          active={location.pathname.startsWith(item.to)}
+        />
+      ))}
+
       {isAdmin ? (
-        <Link
-          to="/admin"
-          onClick={onNavigate}
-          className={cn(
-            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            location.pathname.startsWith("/admin")
-              ? "bg-primary/10 text-primary"
-              : "text-muted-foreground hover:bg-hover hover:text-foreground",
-          )}
-        >
-          <Shield className="h-[18px] w-[18px]" />
-          Admin Console
-        </Link>
+        <NavLinkRow
+          item={{ to: "/admin", label: "Admin Console", icon: Shield }}
+          collapsed={collapsed}
+          onNavigate={onNavigate}
+          active={location.pathname.startsWith("/admin")}
+        />
       ) : null}
     </nav>
   );
 }
 
-export function SidebarCreateTripButton({
-  onNavigate,
-  className,
-}: SidebarNavProps) {
-  return (
-    <Button asChild className={cn("w-full", className)}>
-      <Link to="/trips/create" onClick={onNavigate}>
-        <PlusCircle />
-        Create New Trip
-      </Link>
-    </Button>
-  );
-}
-
-export function SidebarBrand() {
+export function SidebarBrand({ collapsed = false }: { collapsed?: boolean }) {
   return (
     <Link
       to="/dashboard"
-      className="flex items-center gap-2 rounded-md px-1 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      aria-label={`${landingConfig.appName} dashboard`}
+      className={cn(
+        "flex h-9 items-center gap-2 rounded-md px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        collapsed && "justify-center",
+      )}
     >
-      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
         <Globe className="h-5 w-5" aria-hidden="true" />
       </span>
-      <span className="text-base font-semibold tracking-tight">
-        GlobeTrotter
-      </span>
+      {!collapsed ? (
+        <span className="truncate text-base font-semibold tracking-tight">
+          {landingConfig.appName}
+        </span>
+      ) : null}
     </Link>
+  );
+}
+
+/**
+ * Desktop rail. Handles its own expand/collapse affordance; the collapsed
+ * state lives in AppShell so it survives navigation.
+ */
+export function DesktopSidebar({
+  collapsed,
+  onToggleCollapsed,
+}: {
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
+}) {
+  return (
+    <TooltipProvider delayDuration={150}>
+      <aside
+        data-collapsed={collapsed}
+        className={cn(
+          "sticky top-14 hidden h-[calc(100dvh-3.5rem)] shrink-0 flex-col border-r border-subtle-border bg-card p-3 transition-[width] duration-200 ease-in-out lg:flex",
+          collapsed ? "w-[68px]" : "w-64",
+        )}
+      >
+        <div
+          className={cn(
+            "mb-2 flex items-center",
+            collapsed ? "justify-center" : "justify-between px-1",
+          )}
+        >
+          <SidebarBrand collapsed={collapsed} />
+          {!collapsed ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggleCollapsed}
+              aria-label="Collapse sidebar"
+              aria-expanded={!collapsed}
+              className="size-8 text-muted-foreground hover:text-foreground"
+            >
+              <PanelLeftClose className="size-4" aria-hidden="true" />
+            </Button>
+          ) : null}
+        </div>
+
+        <Separator />
+
+        {collapsed ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleCollapsed}
+            aria-label="Expand sidebar"
+            aria-expanded={!collapsed}
+            className="mt-2 self-center text-muted-foreground hover:text-foreground"
+          >
+            <PanelLeftOpen className="size-4" aria-hidden="true" />
+          </Button>
+        ) : null}
+
+        <div className="mt-2 flex min-h-0 flex-1 flex-col">
+          <SidebarNav collapsed={collapsed} />
+        </div>
+
+        <div className={cn("pt-3", collapsed && "self-center")}>
+          {collapsed ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon" aria-label="Create new trip" asChild>
+                  <Link to="/trips/create">
+                    <PlusCircle className="size-5" aria-hidden="true" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">Create New Trip</TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button asChild className="w-full">
+              <Link to="/trips/create">
+                <PlusCircle />
+                Create New Trip
+              </Link>
+            </Button>
+          )}
+        </div>
+      </aside>
+    </TooltipProvider>
   );
 }

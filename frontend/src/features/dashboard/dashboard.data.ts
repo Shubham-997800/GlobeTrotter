@@ -6,6 +6,7 @@ import type {
   Insight,
   QuickActionDef,
   Region,
+  SearchItem,
   Trip,
 } from "./dashboard.types";
 
@@ -161,10 +162,10 @@ export const insights: Insight[] = [
 /* ── Quick actions ────────────────────────────────────────────── */
 
 export const quickActions: QuickActionDef[] = [
-  { id: "qa-create", title: "Create New Trip", description: "Start from a destination or a blank canvas", href: "/app/create-trip", emphasized: true },
-  { id: "qa-explore", title: "Explore Cities", description: "Browse 120+ curated destinations", href: "/app/explore" },
-  { id: "qa-activities", title: "Find Activities", description: "Tours, food & experiences nearby", href: "/app/activities" },
-  { id: "qa-calendar", title: "View Calendar", description: "See every trip on one timeline", href: "/app/calendar" },
+  { id: "qa-create", title: "Create New Trip", description: "Start from a destination or a blank canvas", href: "/trips/create", emphasized: true },
+  { id: "qa-explore", title: "Explore Cities", description: "Browse 120+ curated destinations", href: "/explore" },
+  { id: "qa-activities", title: "Find Activities", description: "Tours, food & experiences nearby", href: "/explore" },
+  { id: "qa-calendar", title: "View Calendar", description: "See every trip on one timeline", href: "/calendar" },
 ];
 
 export const formatInr = (value: number): string =>
@@ -185,3 +186,42 @@ export const regions: Region[] = [
   { id: "africa", label: "Africa", blurb: "Safari plains, deserts & coastline" },
   { id: "oceania", label: "Oceania", blurb: "Reefs, surf coast & island time" },
 ];
+
+/* ── Global search index ─────────────────────────────────────── */
+
+const activitySuggestions = [
+  { label: "Mountain Hiking", sublabel: "Trails, treks & summit views" },
+  { label: "Street Food Tour", sublabel: "Local eats & night markets" },
+  { label: "Temple & Heritage Walk", sublabel: "Culture, history & architecture" },
+  { label: "Scuba Diving", sublabel: "Reefs & marine life" },
+  { label: "Desert Safari", sublabel: "Dunes at golden hour" },
+  { label: "Wine Tasting", sublabel: "Vineyards & cellar doors" },
+  { label: "Hot Air Balloon Ride", sublabel: "Sunrise from above" },
+  { label: "Local Cooking Class", sublabel: "Learn the regional cuisine" },
+] as const;
+
+export function getSearchItems(): SearchItem[] {
+  return [
+    ...destinations.map<SearchItem>((d) => ({
+      id: `dest-${d.id}`,
+      group: "Destinations",
+      label: `${d.city}, ${d.country}`,
+      sublabel: d.description,
+      href: "/explore",
+    })),
+    ...trips.map<SearchItem>((t) => ({
+      id: `trip-${t.id}`,
+      group: "Trips",
+      label: t.name,
+      sublabel: t.destinations.join(" · "),
+      href: `/trips/${t.id}/itinerary`,
+    })),
+    ...activitySuggestions.map<SearchItem>((a) => ({
+      id: `act-${a.label.toLowerCase().replace(/\s+/g, "-")}`,
+      group: "Activities",
+      label: a.label,
+      sublabel: a.sublabel,
+      href: "/explore",
+    })),
+  ];
+}

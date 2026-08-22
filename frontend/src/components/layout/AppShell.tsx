@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronRight, LogOut, Menu, UserRound } from "lucide-react";
+import { ChevronRight, LogOut, Menu, Settings, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
@@ -21,11 +20,13 @@ import {
 } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/landing/ThemeToggle";
 import {
+  DesktopSidebar,
   SidebarBrand,
-  SidebarCreateTripButton,
   SidebarNav,
 } from "@/components/layout/Sidebar";
 import { NotificationMenu } from "@/features/dashboard/components/NotificationMenu";
+import { GlobalSearch } from "@/features/dashboard/components/GlobalSearch";
+import type { AppNotification } from "@/features/dashboard/dashboard.types";
 import { useAuth } from "@/features/auth/useAuth";
 import { cn } from "@/lib/utils";
 
@@ -37,27 +38,54 @@ export interface Crumb {
 
 interface AppShellProps {
   crumbs: Crumb[];
-  title: string;
+  /** Omit when the page renders its own heading (e.g. dashboard welcome). */
+  title?: string;
   description?: string;
   actions?: React.ReactNode;
+  notifications?: AppNotification[];
   children: React.ReactNode;
 }
 
+const SIDEBAR_COLLAPSED_KEY = "globetrotter.ui.sidebar-collapsed";
+
+function readCollapsedPreference(): boolean {
+  try {
+    return window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 /**
- * Shared signed-in layout: sticky top bar (menu, breadcrumbs, actions),
- * desktop sidebar rail, mobile drawer and the user menu. Feature pages
- * only pass content — they never rebuild chrome.
+ * Shared signed-in layout: sticky top bar (menu, breadcrumbs, global search,
+ * actions), collapsible desktop sidebar rail, mobile drawer and the user
+ * menu. Feature pages only pass content — they never rebuild chrome.
  */
 export function AppShell({
   crumbs,
   title,
   description,
   actions,
+  notifications = [],
   children,
 }: AppShellProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    readCollapsedPreference,
+  );
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        SIDEBAR_COLLAPSED_KEY,
+        sidebarCollapsed ? "1" : "0",
+      );
+    } catch {
+      // Preference is best-effort; the shell still works without storage.
+    }
+  }, [sidebarCollapsed]);
 
   const closeDrawer = () => setDrawerOpen(false);
   const initials = (user?.name ?? user?.email ?? "U")
@@ -92,15 +120,22 @@ export function AppShell({
                   </div>
                 </SheetTitle>
               </SheetHeader>
-              <div className="flex h-[calc(100%-4rem)] flex-col gap-3 p-3">
+              <nav
+                aria-label="Primary"
+                className="flex h-[calc(100%-4rem)] flex-col p-3"
+              >
                 <SidebarNav onNavigate={closeDrawer} />
-                <SidebarCreateTripButton onNavigate={closeDrawer} />
-              </div>
+                <Button asChild className="mt-3 w-full">
+                  <Link to="/trips/create" onClick={closeDrawer}>
+                    Create New Trip
+                  </Link>
+                </Button>
+              </nav>
             </SheetContent>
           </Sheet>
 
           {/* Breadcrumbs */}
-          <nav aria-label="Breadcrumb" className="min-w-0">
+          <nav aria-label="Breadcrumb" className="min-w-0 shrink-0">
             <ol className="flex items-center gap-1 text-sm">
               {crumbs.map((crumb, index) => (
                 <li key={`${crumb.label}-${index}`} className="flex min-w-0 items-center gap-1">
@@ -127,8 +162,13 @@ export function AppShell({
             </ol>
           </nav>
 
-          <div className="ml-auto flex items-center gap-1">
-            <NotificationMenu items={[]} />
+          {/* Global search — center of the app header on md+ screens. */}
+          <div className="hidden min-w-0 flex-1 justify-center px-4 md:flex">
+            <GlobalSearch />
+          </div>
+
+          <div className={cn("ml-auto flex items-center gap-1", "md:ml-0")}>
+            <NotificationMenu items={notifications} />
             <ThemeToggle />
 
             {/* User menu */}
@@ -161,6 +201,11 @@ export function AppShell({
                   <UserRound className="mr-2 h-4 w-4" />
                   Profile settings
                 </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => navigate("/settings")}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Preferences
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                   onSelect={() => {
@@ -179,31 +224,31 @@ export function AppShell({
 
       <div className="flex">
         {/* ── Desktop sidebar ───────────────────────────────────── */}
-        <aside className="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-64 shrink-0 flex-col gap-4 border-r border-subtle-border bg-card p-4 lg:flex">
-          <SidebarBrand />
-          <Separator />
-          <SidebarNav />
-          <div className="mt-auto">
-            <SidebarCreateTripButton />
-          </div>
-        </aside>
+        <DesktopSidebar
+          collapsed={sidebarCollapsed}
+          onToggleCollapsed={() => setSidebarCollapsed((prev) => !prev)}
+        />
 
         {/* ── Page content ──────────────────────────────────────── */}
         <main className="min-w-0 flex-1">
           <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
-            <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-              <div className="min-w-0">
-                <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                  {title}
-                </h1>
-                {description ? (
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {description}
-                  </p>
-                ) : null}
+            {title || actions ? (
+              <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+                <div className="min-w-0">
+                  {title ? (
+                    <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                      {title}
+                    </h1>
+                  ) : null}
+                  {description ? (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {description}
+                    </p>
+                  ) : null}
+                </div>
+                {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
               </div>
-              {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
-            </div>
+            ) : null}
             {children}
           </div>
         </main>
