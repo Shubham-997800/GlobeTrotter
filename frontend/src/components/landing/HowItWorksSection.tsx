@@ -42,12 +42,12 @@ export function HowItWorksSection({
           </ol>
         </div>
 
-        <Reveal className="mt-14 flex justify-center" delay={0.2}>
-          <p className="text-pretty max-w-xl text-center text-sm leading-relaxed text-muted-foreground">
-            Every step works out of the box. Adjust it to match exactly how
-            your team already operates.
-          </p>
-        </Reveal>
+                          <Reveal className="mt-14 flex justify-center" delay={0.2}>
+            <p className="text-pretty max-w-xl text-center text-sm leading-relaxed text-muted-foreground">
+              Every trip you start here builds on the last — your routes,
+              budgets and favorites follow you from plan to passport stamp.
+            </p>
+          </Reveal>
       </Container>
     </section>
   );

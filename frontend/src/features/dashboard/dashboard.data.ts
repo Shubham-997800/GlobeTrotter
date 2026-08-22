@@ -1,13 +1,4 @@
-import type {
-  ActivityEvent,
-  AppNotification,
-  Destination,
-  FeaturedSlide,
-  Insight,
-  QuickActionDef,
-  Region,
-  Trip,
-} from "./dashboard.types";
+import type { FeaturedSlide, Region } from "./dashboard.types";
 
 const img = (id: string, w = 1200) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&q=80&w=${w}`;

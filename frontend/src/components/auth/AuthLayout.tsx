@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Logo } from "@/components/landing/Logo";
@@ -25,9 +25,11 @@ const HIGHLIGHTS = [
 
 interface AuthLayoutProps {
   children: React.ReactNode;
+  /** Widen the form column for content-heavy pages like registration. */
+  wide?: boolean;
 }
 
-export function AuthLayout({ children }: AuthLayoutProps) {
+export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
   const appName = landingConfig.appName;
   const reduceMotion = useReducedMotion();
 
@@ -35,9 +37,14 @@ export function AuthLayout({ children }: AuthLayoutProps) {
     <div className="grid min-h-dvh bg-background lg:grid-cols-2">
       {/* Brand panel — desktop only */}
       <aside className="relative hidden overflow-hidden border-r border-border bg-main lg:flex lg:flex-col lg:justify-between lg:p-10 xl:p-14">
+        {/* Subtle brand gradients — theme tokens only */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -top-24 -left-24 h-96 w-96 rounded-full bg-primary/5 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-32 -bottom-32 h-80 w-80 rounded-full bg-travel-blue/5 blur-3xl"
         />
         <Logo name={appName} />
 
@@ -72,12 +79,31 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
       {/* Form panel */}
       <main className="relative flex flex-col items-center justify-center px-5 py-10 sm:px-10">
-        <div className="absolute top-5 right-5">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-20 right-0 h-64 w-64 rounded-full bg-primary/5 blur-3xl lg:hidden"
+        />
+
+        <div className="absolute inset-x-5 top-5 flex items-center justify-between sm:inset-x-8">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Back to home
+          </Link>
           <ThemeToggle />
         </div>
 
-        <div className={cn("w-full max-w-[26rem]", "lg:max-w-[26.5rem]")}>
-          <div className="mb-8 flex justify-center lg:hidden">
+        <div
+          className={cn(
+            "w-full max-w-[26rem]",
+            wide && "max-w-[30rem]",
+            "lg:max-w-[26.5rem]",
+            wide && "lg:max-w-[31rem]",
+          )}
+        >
+          <div className="mt-10 mb-8 flex justify-center lg:mt-0">
             <Link to="/" aria-label={`${appName} home`}>
               <Logo name={appName} />
             </Link>

@@ -10,9 +10,9 @@ const SWITCH_COPY: Record<
   { text: string; cta: string; to: string }
 > = {
   login: {
-    text: "New here?",
+    text: "Don't have an account?",
     cta: "Create Account",
-    to: "/signup",
+    to: "/register",
   },
   signup: {
     text: "Already have an account?",

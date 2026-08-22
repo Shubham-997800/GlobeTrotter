@@ -81,7 +81,7 @@ export interface FooterContent {
   socials: {
     name: string;
     href: string;
-    icon: LucideIcon;
+    icon: BrandIcon;
   }[];
   madeWithTagline?: string;
 }
