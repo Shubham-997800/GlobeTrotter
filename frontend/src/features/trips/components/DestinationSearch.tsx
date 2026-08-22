@@ -15,6 +15,12 @@ interface DestinationSearchProps {
   onClear: () => void;
   error?: string;
   disabled?: boolean;
+  /** Overrides so other features (e.g. day editor) can reuse the field. */
+  fieldId?: string;
+  label?: string;
+  placeholder?: string;
+  /** Renders visually hidden label text (for tight layouts). */
+  hideLabel?: boolean;
 }
 
 const DEBOUNCE_MS = 300;
@@ -31,8 +37,13 @@ export function DestinationSearch({
   onClear,
   error,
   disabled,
+  fieldId = "trip-destination",
+  label = "Where to?",
+  placeholder,
+  hideLabel = false,
 }: DestinationSearchProps) {
   const listboxId = useId();
+  const errorId = `${fieldId}-error`;
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [query, setQuery] = useState("");
@@ -87,7 +98,9 @@ export function DestinationSearch({
 
   return (
     <div className="space-y-1.5">
-      <Label htmlFor="trip-destination">Where to?</Label>
+      <Label htmlFor={fieldId} className={hideLabel ? "sr-only" : undefined}>
+        {label}
+      </Label>
 
       <div className="relative">
         <Search
@@ -95,17 +108,15 @@ export function DestinationSearch({
           className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
         />
         <Input
-          id="trip-destination"
+          id={fieldId}
           role="combobox"
           aria-expanded={open}
           aria-controls={listboxId}
           aria-autocomplete="list"
           aria-invalid={Boolean(error)}
-          aria-describedby={error ? "trip-destination-error" : undefined}
+          aria-describedby={error ? errorId : undefined}
           autoComplete="off"
-          placeholder={
-            selected ? selected.city : "Search cities or countries…"
-          }
+          placeholder={placeholder ?? (selected ? selected.city : "Search cities or countries…")}
           className="pl-9 pr-16"
           value={query}
           disabled={disabled}
@@ -234,7 +245,7 @@ export function DestinationSearch({
 
       {error ? (
         <p
-          id="trip-destination-error"
+          id={errorId}
           role="alert"
           className="text-sm text-destructive"
         >

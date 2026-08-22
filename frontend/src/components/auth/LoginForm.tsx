@@ -1,3 +1,4 @@
+/* oxlint-disable react(incompatible-library) -- react-hook-form's API intentionally returns fresh function identities per render. */
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, Sparkles } from "lucide-react";
@@ -15,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ApiError } from "@/features/auth/auth.types";
-import { readIntendedPath } from "@/features/auth/GuestRoute";
+import { readIntendedPath } from "@/features/auth/intended-path";
 import {
   loginSchema,
   type LoginValues,

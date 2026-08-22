@@ -1,7 +1,6 @@
 import {
   createContext,
   useCallback,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -32,13 +31,12 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
-  const [session, setSession] = useState<AuthSession | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    setSession(authService.getSession());
-    setIsLoading(false);
-  }, []);
+  // Session restore is a synchronous localStorage read, so it happens in
+  // the lazy initializer — no bootstrap effect or loading flash needed.
+  const [session, setSession] = useState<AuthSession | null>(() =>
+    authService.getSession(),
+  );
+  const isLoading = false;
 
   const loginMutation = useMutation({
     mutationFn: (payload: LoginPayload) => authService.login(payload),

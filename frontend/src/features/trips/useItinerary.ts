@@ -10,6 +10,7 @@ import type { ActivityCategoryId } from "./trips.types";
 import { tripsKeys } from "./useTrips";
 import type {
   ActivityInput,
+  ItineraryDay,
   ItineraryRecord,
   StopInput,
 } from "./itinerary.types";
@@ -241,7 +242,7 @@ export function useUpdateDay(tripId: string) {
       patch,
     }: {
       dayId: string;
-      patch: Partial<Pick<ItineraryDay2, "notes" | "destinationId">>;
+      patch: Partial<Pick<ItineraryDay, "notes" | "destinationId">>;
     }) => itineraryService.updateDay(tripId, dayId, patch),
     (record, { dayId, patch }) => ({
       ...record,
@@ -372,7 +373,7 @@ export function useEditTrip(tripId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (patch: EditableTripPatch) =>
-      tripsService.updateTrip(tripId, {
+      tripsService.patchTrip(tripId, {
         name: patch.name.trim(),
         description: patch.description.trim() || undefined,
         coverImage: patch.coverImage || undefined,

@@ -1,3 +1,4 @@
+/* oxlint-disable react(incompatible-library) -- react-hook-form's API intentionally returns fresh function identities per render. */
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleCheck, KeyRound } from "lucide-react";
