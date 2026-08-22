@@ -77,6 +77,9 @@ const MaintenancePage = lazy(() =>
 const NetworkErrorPage = lazy(() =>
   import("@/pages/SystemErrorPage").then((m) => ({ default: m.NetworkErrorPage })),
 );
+const CommunityPage = lazy(() =>
+  import("@/pages/CommunityPage").then((m) => ({ default: m.CommunityPage })),
+);
 
 function RouteFallback() {
   return (
@@ -183,7 +186,7 @@ export default function App() {
               }
             />
             <Route path="/app" element={<Navigate to="/dashboard" replace />} />
-            {/* Community module */}
+{/* Community module */}
             <Route
               path="/community"
               element={
