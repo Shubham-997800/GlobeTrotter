@@ -52,6 +52,21 @@ const ResetPasswordPage = lazy(() =>
     default: m.ResetPasswordPage,
   })),
 );
+const NotFoundPage = lazy(() =>
+  import("@/pages/SystemErrorPage").then((m) => ({ default: m.NotFoundPage })),
+);
+const ForbiddenPage = lazy(() =>
+  import("@/pages/SystemErrorPage").then((m) => ({ default: m.ForbiddenPage })),
+);
+const ServerErrorPage = lazy(() =>
+  import("@/pages/SystemErrorPage").then((m) => ({ default: m.ServerErrorPage })),
+);
+const MaintenancePage = lazy(() =>
+  import("@/pages/SystemErrorPage").then((m) => ({ default: m.MaintenancePage })),
+);
+const NetworkErrorPage = lazy(() =>
+  import("@/pages/SystemErrorPage").then((m) => ({ default: m.NetworkErrorPage })),
+);
 
 function RouteFallback() {
   return (
@@ -264,7 +279,14 @@ export default function App() {
               }
             />
 
-            <Route path="*" element={<Navigate to="/" replace />} />
+            {/* System error pages (public) */}
+            <Route path="/404" element={<NotFoundPage />} />
+            <Route path="/403" element={<ForbiddenPage />} />
+            <Route path="/500" element={<ServerErrorPage />} />
+            <Route path="/maintenance" element={<MaintenancePage />} />
+            <Route path="/offline" element={<NetworkErrorPage />} />
+
+            <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
           </Suspense>
           <AppToaster />

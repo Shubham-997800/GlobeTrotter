@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useCallback, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import {
   ArrowRight,
   CalendarDays,
-  Loader2,
   MapPin,
   Plus,
   Star,
@@ -25,32 +24,13 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { DestinationCard } from "@/features/explore/components/DestinationCard";
 import { AddToTripDialog } from "@/features/explore/components/AddToTripDialog";
-import { DestinationDetailSkeleton } from "@/components/explore/DestinationDetailSkeleton";
-import { useDestinationDetail, useTripsForSelector } from "@/features/explore/useExplore";
-import { getDestinationDetail } from "@/features/explore/explore.data";
-import type { ExploreDestination, PlaceCard, ExploreActivity, TripSelectorOption } from "@/features/explore/explore.types";
-import { budgetTier } from "@/features/trips/trips.data";
+import { DestinationDetailSkeleton } from "@/features/explore/components/ExploreSkeletons";
+import { useDestinationDetail, useToggleSavedDestination } from "@/features/explore/useExplore";
+import type { PlaceCard, ExploreActivity } from "@/features/explore/explore.types";
 import { formatMoneyRaw } from "@/features/trips/trips.utils";
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -66,7 +46,7 @@ const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>
   relaxation: Coffee,
 };
 
-const MONTH_ICONS = {
+const MONTH_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   spring: Sun,
   summer: Sun,
   autumn: Loader,
@@ -81,21 +61,18 @@ interface BestTimeData {
 
 export function DestinationDetailsPage() {
   const { destinationId } = useParams<{ destinationId: string }>();
-  const navigate = useNavigate();
 
-  const { data: detail, isLoading, isError, refetch } = useDestinationDetail(destinationId ?? "");
-  const { data: tripsForSelector = [] } = useTripsForSelector();
+  const { data: detail, isLoading, isError } = useDestinationDetail(destinationId ?? "");
 
   const [activeTab, setActiveTab] = useState("overview");
   const [addToTripOpen, setAddToTripOpen] = useState(false);
 
-  // Handle save toggle
-  const { mutate: toggleSaved } = useToggleSavedDestination();
+  const toggleSaved = useToggleSavedDestination();
   const saved = detail?.saved ?? false;
 
   const handleSaveToggle = useCallback(() => {
     if (!detail) return;
-    toggleSaved(detail.destination.id);
+    toggleSaved.mutate(detail.destination.id);
   }, [detail, toggleSaved]);
 
   const handleAddToTrip = useCallback(() => {
@@ -145,8 +122,6 @@ export function DestinationDetailsPage() {
   }
 
   const { destination, topPlaces, popularActivities } = detail;
-
-  // Budget estimate
   const estimatedBudget = formatMoneyRaw(
     destination.estimatedDailyCostInr *
       (destination.recommendedDuration.includes("–")
@@ -156,326 +131,295 @@ export function DestinationDetailsPage() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 px-4 py-6">
-      {/* ── Hero ── */}
-      <section aria-labelledby="destination-title" className="relative rounded-3xl overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img
-            src={destination.image}
-            alt={destination.imageAlt}
-            className="h-[500px] w-full object-cover"
-            loading="eager"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/10" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-        </div>
+    <TooltipProvider>
+      <div className="max-w-6xl mx-auto space-y-8 px-4 py-6">
+        {/* Hero */}
+        <section aria-labelledby="destination-title" className="relative rounded-3xl overflow-hidden">
+          <div className="absolute inset-0 z-0">
+            <img
+              src={destination.image}
+              alt={destination.imageAlt}
+              className="h-[500px] w-full object-cover"
+              loading="eager"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+          </div>
 
-        <div className="relative z-10 p-6 md:p-10 lg:p-14">
-          <div className="mx-auto max-w-3xl">
-            {/* Country + category tags */}
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-sm font-medium text-white backdrop-blur-sm">
-                <MapPin className="size-3.5" aria-hidden="true" />
-                {destination.country}
-              </span>
-              {destination.tags.slice(0, 3).map((tag) => {
-                const Icon = CATEGORY_ICONS[tag] || Sparkles;
-                return (
-                  <span key={tag} className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                    <Icon className="size-3" aria-hidden="true" />
-                    {tag.charAt(0).toUpperCase() + tag.slice(1)}
-                  </span>
-                );
-              })}
-            </div>
+          <div className="relative z-10 p-6 md:p-10 lg:p-14">
+            <div className="mx-auto max-w-3xl">
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-sm font-medium text-white backdrop-blur-sm">
+                  <MapPin className="size-3.5" aria-hidden="true" />
+                  {destination.country}
+                </span>
+                {destination.tags.slice(0, 3).map((tag) => {
+                  const Icon = CATEGORY_ICONS[tag] || Loader;
+                  return (
+                    <span key={tag} className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                      <Icon className="size-3" aria-hidden="true" />
+                      {tag.charAt(0).toUpperCase() + tag.slice(1)}
+                    </span>
+                  );
+                })}
+              </div>
 
-            {/* Name */}
-            <h1 id="destination-title" className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl text-balance">
-              {destination.city}
-            </h1>
+              <h1 id="destination-title" className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl text-balance">
+                {destination.city}
+              </h1>
 
-            {/* Rating */}
-            <div className="mt-3 flex items-center gap-3">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-white backdrop-blur-sm">
-                <Star className="size-5 fill-warning text-warning" aria-hidden="true" />
-                <span className="font-semibold">{destination.rating.toFixed(1)}</span>
-                <span className="text-sm text-white/70">({destination.reviews.toLocaleString()} reviews)</span>
-              </span>
-            </div>
+              <div className="mt-3 flex items-center gap-3">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-white backdrop-blur-sm">
+                  <Star className="size-5 fill-warning text-warning" aria-hidden="true" />
+                  <span className="font-semibold">{destination.rating.toFixed(1)}</span>
+                  <span className="text-sm text-white/70">({destination.reviews.toLocaleString()} reviews)</span>
+                </span>
+              </div>
 
-            {/* Quick stats */}
-            <div className="mt-6 flex flex-wrap items-center gap-6 text-white/80">
-              <div className="flex items-center gap-2">
-                <CalendarDays className="size-5" aria-hidden="true" />
-                <div>
-                  <p className="text-sm font-medium">Best Time</p>
-                  <p className="text-sm">{destination.bestTimeToVisit}</p>
+              <div className="mt-6 flex flex-wrap items-center gap-6 text-white/80">
+                <div className="flex items-center gap-2">
+                  <CalendarDays className="size-5" aria-hidden="true" />
+                  <div>
+                    <p className="text-sm font-medium">Best Time</p>
+                    <p className="text-sm">{destination.bestTimeToVisit}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="size-5" aria-hidden="true" />
+                  <div>
+                    <p className="text-sm font-medium">Duration</p>
+                    <p className="text-sm">{destination.recommendedDuration}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="size-5" aria-hidden="true" />
+                  <div>
+                    <p className="text-sm font-medium">Budget</p>
+                    <p className="text-sm">from {estimatedBudget}</p>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Clock className="size-5" aria-hidden="true" />
-                <div>
-                  <p className="text-sm font-medium">Duration</p>
-                  <p className="text-sm">{destination.recommendedDuration}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="size-5" aria-hidden="true" />
-                <div>
-                  <p className="text-sm font-medium">Budget</p>
-                  <p className="text-sm">from {estimatedBudget}</p>
-                </div>
-              </div>
-            </div>
 
-            {/* Action bar */}
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Button asChild size="lg" className="w-full sm:w-auto">
-                <Link to={`/trips/create?destination=${destination.id}`}>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Button asChild size="lg" className="w-full sm:w-auto">
+                  <Link to={`/trips/create?destination=${destination.id}`}>
+                    <Plus className="size-4 mr-2" aria-hidden="true" />
+                    Plan a Trip Here
+                  </Link>
+                </Button>
+                <Button variant="outline" size="lg" onClick={handleAddToTrip} className="w-full sm:w-auto">
                   <Plus className="size-4 mr-2" aria-hidden="true" />
-                  Plan a Trip Here
-                </Link>
-              </Button>
-              <Button variant="outline" size="lg" onClick={handleAddToTrip} className="w-full sm:w-auto">
-                <Plus className="size-4 mr-2" aria-hidden="true" />
-                Add to Existing Trip
-              </Button>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="lg" className="w-full sm:w-auto" onClick={handleSaveToggle}>
-                    <Bookmark className={cn("size-4 mr-2", saved && "fill-current")} aria-hidden="true" />
-                    {saved ? "Saved" : "Save"}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top" align="center">
-                  {saved ? "Remove from saved" : "Save for later"}
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="lg" className="w-full sm:w-auto" onClick={handleShare}>
-                    <Share2 className="size-4 mr-2" aria-hidden="true" />
-                    Share
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top" align="center">
-                  Share destination
-                </TooltipContent>
-              </Tooltip>
+                  Add to Existing Trip
+                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="lg" className="w-full sm:w-auto" onClick={handleSaveToggle}>
+                      <Bookmark className={cn("size-4 mr-2", saved && "fill-current")} aria-hidden="true" />
+                      {saved ? "Saved" : "Save"}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" align="center">
+                    {saved ? "Remove from saved" : "Save for later"}
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="lg" className="w-full sm:w-auto" onClick={handleShare}>
+                      <Share2 className="size-4 mr-2" aria-hidden="true" />
+                      Share
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" align="center">
+                    Share destination
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── Tab Navigation ── */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="places">Top Places</TabsTrigger>
-          <TabsTrigger value="activities">Activities</TabsTrigger>
-          <TabsTrigger value="practical">Practical Info</TabsTrigger>
-        </TabsList>
+        {/* Tab Navigation */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="w-full">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="places">Top Places</TabsTrigger>
+            <TabsTrigger value="activities">Activities</TabsTrigger>
+            <TabsTrigger value="practical">Practical Info</TabsTrigger>
+          </TabsList>
 
-        {/* ── Overview Tab ── */}
-        <TabsContent value="overview" className="space-y-8">
-          {/* About */}
-          <section aria-labelledby="about-heading">
-            <h2 id="about-heading" className="text-xl font-bold text-foreground">About {destination.city}</h2>
-            <p className="mt-3 text-base leading-relaxed text-muted-foreground text-pretty">
-              {destination.description}
-            </p>
-          </section>
-
-          {/* Quick Info Cards */}
-          <section aria-labelledby="quick-info-heading">
-            <h2 id="quick-info-heading" className="text-xl font-bold text-foreground">Quick Information</h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <InfoCard
-                icon={<CalendarDays className="size-5" />}
-                label="Best Time to Visit"
-                value={destination.bestTimeToVisit}
-              />
-              <InfoCard
-                icon={<Clock className="size-5" />}
-                label="Recommended Duration"
-                value={destination.recommendedDuration}
-              />
-              <InfoCard
-                icon={<MapPin className="size-5" />}
-                label="Estimated Budget"
-                value={estimatedBudget}
-                description="for recommended duration"
-              />
-              <InfoCard
-                icon={<Star className="size-5" />}
-                label="Average Rating"
-                value={`${destination.rating.toFixed(1)} / 5.0`}
-                description={`${destination.reviews.toLocaleString()} reviews`}
-              />
-            </div>
-          </section>
-
-          {/* Categories */}
-          <section aria-labelledby="categories-heading">
-            <h2 id="categories-heading" className="text-xl font-bold text-foreground">Travel Categories</h2>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {destination.tags.map((tag) => {
-                const Icon = CATEGORY_ICONS[tag] || Sparkles;
-                return (
-                  <span key={tag} className="inline-flex items-center gap-1.5 rounded-full border border-subtle-border bg-card px-3 py-1 text-sm font-medium text-foreground">
-                    <Icon className="size-4 text-primary" aria-hidden="true" />
-                    {tag.charAt(0).toUpperCase() + tag.slice(1)}
-                  </span>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Nearby Destinations */}
-          <section aria-labelledby="nearby-heading">
-            <h2 id="nearby-heading" className="text-xl font-bold text-foreground">
-              Nearby Destinations
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Other popular spots in {destination.country}
-            </p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {getNearbyDestinations(destination).map((dest) => (
-                <DestinationCardCompact key={dest.id} destination={dest} />
-              ))}
-            </div>
-          </section>
-        </TabsContent>
-
-        {/* ── Top Places Tab ── */}
-        <TabsContent value="places" className="space-y-6">
-          {topPlaces.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {topPlaces.map((place) => (
-                <PlaceCard key={place.id} place={place} />
-              ))}
-            </div>
-          ) : (
-            <div className="py-12 text-center text-muted-foreground">
-              No top places data available for this destination.
-            </div>
-          )}
-        </TabsContent>
-
-        {/* ── Activities Tab ── */}
-        <TabsContent value="activities" className="space-y-6">
-          {popularActivities.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {popularActivities.map((activity) => (
-                <ActivityCard key={activity.id} activity={activity} destinationId={destination.id} />
-              ))}
-            </div>
-          ) : (
-            <div className="py-12 text-center text-muted-foreground">
-              No activities data available for this destination.
-            </div>
-          )}
-        </TabsContent>
-
-        {/* ── Practical Info Tab ── */}
-        <TabsContent value="practical" className="space-y-8">
-          <section aria-labelledby="best-time-heading">
-            <h2 id="best-time-heading" className="text-xl font-bold text-foreground">Best Time to Visit</h2>
-            <p className="mt-2 text-base text-muted-foreground">{destination.bestTimeToVisit}</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-              {getSeasonalInfo(destination).map((season) => (
-                <SeasonCard key={season.months} {...season} />
-              ))}
-            </div>
-          </section>
-
-          <section aria-labelledby="budget-heading">
-            <h2 id="budget-heading" className="text-xl font-bold text-foreground">Budget Guide</h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {budgetTiers.map((tier) => (
-                <BudgetTierCard key={tier.id} tier={tier} destination={destination} />
-              ))}
-            </div>
-          </section>
-
-          <section aria-labelledby="getting-there-heading">
-            <h2 id="getting-there-heading" className="text-xl font-bold text-foreground">Getting There</h2>
-            <div className="mt-4 space-y-3">
-              <p className="text-muted-foreground">
-                Major international airports serve {destination.city}. Check flight aggregators for the best routes from your location.
+          <TabsContent value="overview" className="space-y-8">
+            <section aria-labelledby="about-heading">
+              <h2 id="about-heading" className="text-xl font-bold text-foreground">About {destination.city}</h2>
+              <p className="mt-3 text-base leading-relaxed text-muted-foreground text-pretty">
+                {destination.description}
               </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-lg border border-subtle-border bg-card p-4">
-                  <h3 className="font-medium text-foreground">By Air</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Fly into the main international airport. Local transfers available via taxi, rideshare, or public transport.
-                  </p>
-                </div>
-                <div className="rounded-lg border border-subtle-border bg-card p-4">
-                  <h3 className="font-medium text-foreground">Local Transport</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Public transit, taxis, and rideshares are widely available. Consider renting a vehicle for exploring beyond the city.
-                  </p>
+            </section>
+
+            <section aria-labelledby="quick-info-heading">
+              <h2 id="quick-info-heading" className="text-xl font-bold text-foreground">Quick Information</h2>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <InfoCard icon={<CalendarDays className="size-5" />} label="Best Time to Visit" value={destination.bestTimeToVisit} />
+                <InfoCard icon={<Clock className="size-5" />} label="Recommended Duration" value={destination.recommendedDuration} />
+                <InfoCard icon={<MapPin className="size-5" />} label="Estimated Budget" value={estimatedBudget} description="for recommended duration" />
+                <InfoCard icon={<Star className="size-5" />} label="Average Rating" value={`${destination.rating.toFixed(1)} / 5.0`} description={`${destination.reviews.toLocaleString()} reviews`} />
+              </div>
+            </section>
+
+            <section aria-labelledby="categories-heading">
+              <h2 id="categories-heading" className="text-xl font-bold text-foreground">Travel Categories</h2>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {destination.tags.map((tag) => {
+                  const Icon = CATEGORY_ICONS[tag] || Loader;
+                  return (
+                    <span key={tag} className="inline-flex items-center gap-1.5 rounded-full border border-subtle-border bg-card px-3 py-1 text-sm font-medium text-foreground">
+                      <Icon className="size-4 text-primary" aria-hidden="true" />
+                      {tag.charAt(0).toUpperCase() + tag.slice(1)}
+                    </span>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section aria-labelledby="nearby-heading">
+              <h2 id="nearby-heading" className="text-xl font-bold text-foreground">
+                Nearby Destinations
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Other popular spots in {destination.country}
+              </p>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {getNearbyDestinations(destination).map((dest) => (
+                  <DestinationCardCompact key={dest.id} destination={dest} />
+                ))}
+              </div>
+            </section>
+          </TabsContent>
+
+          <TabsContent value="places" className="space-y-6">
+            {topPlaces.length > 0 ? (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {topPlaces.map((place) => (
+                  <PlaceCard key={place.id} place={place} />
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center text-muted-foreground">
+                No top places data available for this destination.
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="activities" className="space-y-6">
+            {popularActivities.length > 0 ? (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {popularActivities.map((activity) => (
+                  <ActivityCard key={activity.id} activity={activity} destinationId={destination.id} />
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center text-muted-foreground">
+                No activities data available for this destination.
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="practical" className="space-y-8">
+            <section aria-labelledby="best-time-heading">
+              <h2 id="best-time-heading" className="text-xl font-bold text-foreground">Best Time to Visit</h2>
+              <p className="mt-2 text-base text-muted-foreground">{destination.bestTimeToVisit}</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+                {getSeasonalInfo().map((season) => (
+                  <SeasonCard key={season.months} {...season} />
+                ))}
+              </div>
+            </section>
+
+            <section aria-labelledby="budget-heading">
+              <h2 id="budget-heading" className="text-xl font-bold text-foreground">Budget Guide</h2>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {budgetTiers.map((tier) => (
+                  <BudgetTierCard key={tier.id} tier={tier} destination={destination} />
+                ))}
+              </div>
+            </section>
+
+            <section aria-labelledby="getting-there-heading">
+              <h2 id="getting-there-heading" className="text-xl font-bold text-foreground">Getting There</h2>
+              <div className="mt-4 space-y-3">
+                <p className="text-muted-foreground">
+                  Major international airports serve {destination.city}. Check flight aggregators for the best routes from your location.
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-lg border border-subtle-border bg-card p-4">
+                    <h3 className="font-medium text-foreground">By Air</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Fly into the main international airport. Local transfers available via taxi, rideshare, or public transport.
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-subtle-border bg-card p-4">
+                    <h3 className="font-medium text-foreground">Local Transport</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Public transit, taxis, and rideshares are widely available. Consider renting a vehicle for exploring beyond the city.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section aria-labelledby="tips-heading">
-            <h2 id="tips-heading" className="text-xl font-bold text-foreground">Travel Tips</h2>
-            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-start gap-2">• Learn a few basic phrases in the local language</li>
-              <li className="flex items-start gap-2">• Check visa requirements for your nationality</li>
-              <li className="flex items-start gap-2">• Carry both cash and cards; smaller establishments may prefer cash</li>
-              <li className="flex items-start gap-2">• Respect local customs and dress codes, especially at religious sites</li>
-              <li className="flex items-start gap-2">• Stay hydrated and use sunscreen in tropical climates</li>
-              <li className="flex items-start gap-2">• Purchase travel insurance before departure</li>
-            </ul>
-          </section>
-        </TabsContent>
-      </Tabs>
+            <section aria-labelledby="tips-heading">
+              <h2 id="tips-heading" className="text-xl font-bold text-foreground">Travel Tips</h2>
+              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">• Learn a few basic phrases in the local language</li>
+                <li className="flex items-start gap-2">• Check visa requirements for your nationality</li>
+                <li className="flex items-start gap-2">• Carry both cash and cards; smaller establishments may prefer cash</li>
+                <li className="flex items-start gap-2">• Respect local customs and dress codes, especially at religious sites</li>
+                <li className="flex items-start gap-2">• Stay hydrated and use sunscreen in tropical climates</li>
+                <li className="flex items-start gap-2">• Purchase travel insurance before departure</li>
+              </ul>
+            </section>
+          </TabsContent>
+        </Tabs>
 
-      {/* ── Sticky Mobile Action Bar ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden animate-slide-up">
-        <div className="mx-auto max-w-4xl px-4 pb-safe">
-          <div className="rounded-t-2xl border border-subtle-border bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-xl shadow-black/10">
-            <div className="flex items-center gap-3">
-              <Button asChild variant="secondary" className="flex-1">
-                <Link to={`/trips/create?destination=${destination.id}`}>
+        {/* Mobile Action Bar */}
+        <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden animate-slide-up">
+          <div className="mx-auto max-w-4xl px-4 pb-safe">
+            <div className="rounded-t-2xl border border-subtle-border bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-xl shadow-black/10">
+              <div className="flex items-center gap-3">
+                <Button asChild variant="secondary" className="flex-1">
+                  <Link to={`/trips/create?destination=${destination.id}`}>
+                    <Plus className="size-4 mr-2" aria-hidden="true" />
+                    Plan Trip
+                  </Link>
+                </Button>
+                <Button variant="outline" onClick={handleAddToTrip} className="flex-1">
                   <Plus className="size-4 mr-2" aria-hidden="true" />
-                  Plan Trip
-                </Link>
-              </Button>
-              <Button variant="outline" onClick={handleAddToTrip} className="flex-1">
-                <Plus className="size-4 mr-2" aria-hidden="true" />
-                Add to Trip
-              </Button>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" onClick={handleSaveToggle} className="size-10">
-                    <Bookmark className={cn("size-5", saved && "fill-current")} aria-hidden="true" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">{saved ? "Saved" : "Save"}</TooltipContent>
-              </Tooltip>
+                  Add to Trip
+                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" onClick={handleSaveToggle} className="size-10">
+                      <Bookmark className="size-5" aria-hidden="true" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">{saved ? "Saved" : "Save"}</TooltipContent>
+                </Tooltip>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* ── Add to Trip Dialog ── */}
-      <AddToTripDialog
-        open={addToTripOpen}
-        onOpenChange={setAddToTripOpen}
-        destinationId={destination.id}
-        destinationName={destination.city}
-      />
-    </div>
+        <AddToTripDialog
+          open={addToTripOpen}
+          onOpenChange={setAddToTripOpen}
+          destinationId={destination.id}
+          destinationName={destination.city}
+        />
+      </div>
+    </TooltipProvider>
   );
 }
 
-/* ── Helper Components ── */
-
+/* Helper Components */
 function InfoCard({ icon, label, value, description }: { icon: React.ReactNode; label: string; value: string; description?: string }) {
   return (
     <div className="rounded-xl border border-subtle-border bg-card p-4">
@@ -503,7 +447,7 @@ function SeasonCard({ season, months, description }: BestTimeData) {
   );
 }
 
-function BudgetTierCard({ tier, destination }: { tier: any; destination: ExploreDestination }) {
+function BudgetTierCard({ tier, destination }: { tier: any; destination: any }) {
   const dailyCost = destination.estimatedDailyCostInr * tier.costMultiplier!;
   const duration = parseInt(destination.recommendedDuration.split("–")[1] || destination.recommendedDuration);
   const total = dailyCost * duration;
@@ -605,7 +549,7 @@ function ActivityCard({ activity, destinationId }: { activity: ExploreActivity; 
   );
 }
 
-function DestinationCardCompact({ destination }: { destination: ExploreDestination }) {
+function DestinationCardCompact({ destination }: { destination: any }) {
   return (
     <Link
       to={`/explore/destinations/${destination.id}`}
@@ -631,38 +575,18 @@ function DestinationCardCompact({ destination }: { destination: ExploreDestinati
   );
 }
 
-function getNearbyDestinations(destination: ExploreDestination): ExploreDestination[] {
-  // In real implementation, this would use geographic proximity
-  // For now, return other destinations in the same country
+function getNearbyDestinations(_destination: any): any[] {
   return exploreDestinations
-    .filter((d) => d.country === destination.country && d.id !== destination.id)
+    .filter((d) => d.country === _destination.country && d.id !== _destination.id)
     .slice(0, 3);
 }
 
-function getSeasonalInfo(destination: ExploreDestination): BestTimeData[] {
-  // Parse best time to visit and return seasonal info
-  // This is a simplified version
+function getSeasonalInfo(): BestTimeData[] {
   return [
-    {
-      season: "Spring",
-      months: "Mar – May",
-      description: "Mild weather, blooming landscapes, fewer crowds",
-    },
-    {
-      season: "Summer",
-      months: "Jun – Aug",
-      description: "Peak season, warm weather, vibrant atmosphere",
-    },
-    {
-      season: "Autumn",
-      months: "Sep – Nov",
-      description: "Comfortable temperatures, beautiful foliage",
-    },
-    {
-      season: "Winter",
-      months: "Dec – Feb",
-      description: "Cooler weather, potential for winter activities",
-    },
+    { season: "Spring", months: "Mar – May", description: "Mild weather, blooming landscapes, fewer crowds" },
+    { season: "Summer", months: "Jun – Aug", description: "Peak season, warm weather, vibrant atmosphere" },
+    { season: "Autumn", months: "Sep – Nov", description: "Comfortable temperatures, beautiful foliage" },
+    { season: "Winter", months: "Dec – Feb", description: "Cooler weather, potential for winter activities" },
   ];
 }
 
@@ -672,7 +596,6 @@ const budgetTiers = [
   { id: "premium", label: "Premium", description: "Boutique hotels, fine dining, private tours", costMultiplier: 1.8 },
 ];
 
-import { budgetTier } from "@/features/trips/trips.data";
-import { useToggleSavedDestination } from "@/features/explore/useExplore";
+import { exploreDestinations } from "@/features/explore/explore.data";
 
 export default DestinationDetailsPage;

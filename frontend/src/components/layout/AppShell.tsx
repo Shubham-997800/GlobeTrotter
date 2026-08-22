@@ -26,6 +26,7 @@ import {
 } from "@/components/layout/Sidebar";
 import { NotificationMenu } from "@/features/dashboard/components/NotificationMenu";
 import { GlobalSearch } from "@/features/dashboard/components/GlobalSearch";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import type { AppNotification } from "@/features/dashboard/dashboard.types";
 import { useAuth } from "@/features/auth/useAuth";
 import { cn } from "@/lib/utils";
@@ -221,6 +222,8 @@ export function AppShell({
           </div>
         </div>
       </header>
+
+      <OfflineBanner />
 
       <div className="flex">
         {/* ── Desktop sidebar ───────────────────────────────────── */}

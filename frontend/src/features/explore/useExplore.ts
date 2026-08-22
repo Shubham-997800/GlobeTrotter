@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { exploreService } from "./explore.service";
-import type { ExploreFilters, RecentSearch, TripSelectorOption } from "./explore.types";
 
 /** Central cache keys for explore module */
 export const exploreKeys = {
@@ -15,14 +14,14 @@ export const exploreKeys = {
   search: (query: string) => ["explore", "search", query] as const,
   suggestions: (query: string) => ["explore", "suggestions", query] as const,
   destinationDetail: (destinationId: string) => ["explore", "destination", destinationId] as const,
-  savedDestinations: ["explore", "saved-destinations"] as const,
-  recentSearches: ["explore", "recent-searches"] as const,
-  regions: ["explore", "regions"] as const,
-  budgetFilters: ["explore", "budget-filters"] as const,
-  durationFilters: ["explore", "duration-filters"] as const,
-  sortOptions: ["explore", "sort-options"] as const,
-  categoryFilters: ["explore", "category-filters"] as const,
-  tripsForSelector: ["explore", "trips-selector"] as const,
+  savedDestinations: () => ["explore", "saved-destinations"] as const,
+  recentSearches: () => ["explore", "recent-searches"] as const,
+  regions: () => ["explore", "regions"] as const,
+  budgetFilters: () => ["explore", "budget-filters"] as const,
+  durationFilters: () => ["explore", "duration-filters"] as const,
+  sortOptions: () => ["explore", "sort-options"] as const,
+  categoryFilters: () => ["explore", "category-filters"] as const,
+  tripsForSelector: () => ["explore", "trips-selector"] as const,
 };
 
 /* ── Catalog queries ─────────────────────────────────────────── */
@@ -102,7 +101,7 @@ export function useDestinationDetail(destinationId: string) {
 
 export function useSavedDestinationIds() {
   return useQuery({
-    queryKey: exploreKeys.savedDestinations,
+    queryKey: exploreKeys.savedDestinations(),
     queryFn: () => exploreService.readSavedDestinations(),
     staleTime: Infinity,
   });
@@ -110,7 +109,7 @@ export function useSavedDestinationIds() {
 
 export function useRecentSearches() {
   return useQuery({
-    queryKey: exploreKeys.recentSearches,
+    queryKey: exploreKeys.recentSearches(),
     queryFn: () => exploreService.readRecentSearches(),
     staleTime: Infinity,
   });
@@ -118,7 +117,7 @@ export function useRecentSearches() {
 
 export function useRegions() {
   return useQuery({
-    queryKey: exploreKeys.regions,
+    queryKey: exploreKeys.regions(),
     queryFn: () => exploreService.getRegions(),
     staleTime: Infinity,
   });
@@ -126,7 +125,7 @@ export function useRegions() {
 
 export function useBudgetFilters() {
   return useQuery({
-    queryKey: exploreKeys.budgetFilters,
+    queryKey: exploreKeys.budgetFilters(),
     queryFn: () => exploreService.getBudgetFilters(),
     staleTime: Infinity,
   });
@@ -134,7 +133,7 @@ export function useBudgetFilters() {
 
 export function useDurationFilters() {
   return useQuery({
-    queryKey: exploreKeys.durationFilters,
+    queryKey: exploreKeys.durationFilters(),
     queryFn: () => exploreService.getDurationFilters(),
     staleTime: Infinity,
   });
@@ -142,7 +141,7 @@ export function useDurationFilters() {
 
 export function useSortOptions() {
   return useQuery({
-    queryKey: exploreKeys.sortOptions,
+    queryKey: exploreKeys.sortOptions(),
     queryFn: () => exploreService.getSortOptions(),
     staleTime: Infinity,
   });
@@ -150,7 +149,7 @@ export function useSortOptions() {
 
 export function useCategoryFilters() {
   return useQuery({
-    queryKey: exploreKeys.categoryFilters,
+    queryKey: exploreKeys.categoryFilters(),
     queryFn: () => exploreService.getCategoryFilters(),
     staleTime: Infinity,
   });
@@ -158,7 +157,7 @@ export function useCategoryFilters() {
 
 export function useTripsForSelector() {
   return useQuery({
-    queryKey: exploreKeys.tripsForSelector,
+    queryKey: exploreKeys.tripsForSelector(),
     queryFn: () => exploreService.getTripsForSelector(),
     staleTime: 30_000,
   });
@@ -183,7 +182,7 @@ export function useAddRecentSearch() {
   return useMutation({
     mutationFn: (query: string) => exploreService.addRecentSearch(query),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: exploreKeys.recentSearches });
+      queryClient.invalidateQueries({ queryKey: exploreKeys.recentSearches() });
     },
   });
 }
@@ -193,7 +192,7 @@ export function useRemoveRecentSearch() {
   return useMutation({
     mutationFn: (query: string) => exploreService.removeRecentSearch(query),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: exploreKeys.recentSearches });
+      queryClient.invalidateQueries({ queryKey: exploreKeys.recentSearches() });
     },
   });
 }
@@ -203,7 +202,7 @@ export function useClearRecentSearches() {
   return useMutation({
     mutationFn: () => exploreService.clearRecentSearches(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: exploreKeys.recentSearches });
+      queryClient.invalidateQueries({ queryKey: exploreKeys.recentSearches() });
     },
   });
 }

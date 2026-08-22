@@ -1,32 +1,26 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import {
-  Loader2,
   MapPin,
   Search,
   X,
   Ticket,
   Globe,
   ArrowRight,
-  Filter,
   Star,
+  Clock,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 import { DestinationCard } from "@/features/explore/components/DestinationCard";
 import { SearchResultsSkeleton } from "@/features/explore/components/ExploreSkeletons";
 import { NoResultsState, ErrorState } from "@/features/explore/components/ExploreEmptyStates";
-import { useSearchResults, useSavedDestinationIds, useToggleSavedDestination } from "@/features/explore/useExplore";
-import type { ExploreDestination, ExploreActivity, PlaceCard } from "@/features/explore/explore.types";
-
-const GROUP_ORDER = ["Destinations", "Activities", "Places"] as const;
+import { useSearchResults, useSavedDestinationIds } from "@/features/explore/useExplore";
+import type { ExploreActivity, PlaceCard } from "@/features/explore/explore.types";
 
 export function SearchResultsPage() {
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const query = searchParams.get("q") ?? "";
@@ -51,9 +45,6 @@ export function SearchResultsPage() {
 
   const { data: results, isLoading, isError, refetch } = useSearchResults(debouncedQuery, debouncedQuery.trim().length > 0);
   const { data: savedIds = [] } = useSavedDestinationIds();
-  const toggleSaved = useToggleSavedDestination();
-
-  const handleToggleSaved = useCallback((id: string) => toggleSaved.mutate(id), [toggleSaved]);
 
   const handleAddToTrip = useCallback((id: string) => {
     const dest = results?.destinations.find((d) => d.id === id);
@@ -280,8 +271,5 @@ function PlaceCardResult({ place }: { place: PlaceCard }) {
     </article>
   );
 }
-
-import { SearchResultsSkeleton } from "@/features/explore/components/ExploreSkeletons";
-import { useSearchResults } from "@/features/explore/useExplore";
 
 export default SearchResultsPage;
