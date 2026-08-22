@@ -108,4 +108,47 @@ export interface TripRecord {
   budgetAmount: number;
   status: "draft" | "planned";
   createdAt: string;
+  /** ISO timestamp of the last mutation — drives "Last Updated" labels. */
+  updatedAt?: string;
+  /** Set when the trip is archived; archived trips leave default views. */
+  archivedAt?: string | null;
+  /** Catalog activity ids attached during planning (real stored data). */
+  activityIds?: string[];
 }
+
+/* ── My Trips module contracts ────────────────────────────────── */
+
+/**
+ * Lifecycle status. `draft` comes from the backend record; the rest are
+ * derived centrally from travel dates (see `my-trips.logic.ts`).
+ */
+export type MyTripStatus = "draft" | "upcoming" | "ongoing" | "completed";
+
+/** Tab / filter values for My Trips, including backend-owned states. */
+export type MyTripsStatusFilter =
+  | "all"
+  | "upcoming"
+  | "ongoing"
+  | "completed"
+  | "draft"
+  | "archived";
+
+export type MyTripsSortId = "recent" | "upcoming" | "updated" | "alpha";
+
+export type MyTripsDateFilterId = "all" | "upcoming" | "month" | "year" | "custom";
+
+export interface MyTripsDateRange {
+  from: string;
+  to: string;
+}
+
+export interface MyTripsFilters {
+  search: string;
+  status: MyTripsStatusFilter;
+  country: string;
+  dateFilter: MyTripsDateFilterId;
+  customRange?: MyTripsDateRange | undefined;
+  sort: MyTripsSortId;
+}
+
+export type MyTripsViewMode = "grid" | "list";

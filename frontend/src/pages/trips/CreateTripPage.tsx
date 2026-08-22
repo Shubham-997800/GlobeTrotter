@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
+  ArrowLeft,
   CalendarDays,
   Loader2,
   MapPin,
@@ -162,7 +163,10 @@ export function CreateTripPage() {
       return;
     }
     try {
-      await saveDraft.mutateAsync(parsed.data as TripFormValues);
+      await saveDraft.mutateAsync({
+        values: parsed.data as TripFormValues,
+        activityIds: addedActivities.map((activity) => activity.id),
+      });
       clearLocalDraft();
       markSavedNow();
       toast.success("Trip saved as draft", {
@@ -176,7 +180,10 @@ export function CreateTripPage() {
   /* ── Create (full validation via resolver) ────────────────── */
   const onValid = async (data: TripFormValues) => {
     try {
-      const trip = await createTrip.mutateAsync(data);
+      const trip = await createTrip.mutateAsync({
+        values: data,
+        activityIds: addedActivities.map((activity) => activity.id),
+      });
       clearLocalDraft();
       toast.success("Trip created!", {
         description: `${trip.name} is ready — let's build the itinerary.`,
@@ -222,11 +229,19 @@ export function CreateTripPage() {
       title="Create a New Trip"
       description="Plan smarter — pick a destination, dates and budget, then let GlobeTrotter scaffold your itinerary."
       actions={
-        <DraftStatus
-          state={draftState}
-          savedAt={savedAt}
-          className="hidden sm:inline-flex"
-        />
+        <>
+          <Button variant="ghost" asChild className="hidden md:inline-flex">
+            <Link to="/trips">
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              Back to My Trips
+            </Link>
+          </Button>
+          <DraftStatus
+            state={draftState}
+            savedAt={savedAt}
+            className="hidden sm:inline-flex"
+          />
+        </>
       }
     >
       <form onSubmit={handleSubmit(onValid, onInvalid)} noValidate>

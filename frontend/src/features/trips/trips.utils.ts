@@ -16,7 +16,16 @@ export function parseDateOnly(value: string): Date | null {
   if (!match) return null;
   const [, year, month, day] = match.map(Number);
   const date = new Date(Date.UTC(year, month - 1, day));
-  return Number.isNaN(date.getTime()) ? null : date;
+  // Reject Date rollover (e.g. "2026-13-01" → Jan 2027, "2026-02-30" → Mar 2)
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+  return date;
 }
 
 export interface TripDuration {

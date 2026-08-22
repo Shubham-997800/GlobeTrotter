@@ -18,8 +18,12 @@ import { emptyTripDraft } from "./schemas/create-trip.schema";
  *   searchDestinations()      → GET /api/destinations?q=
  *   getSuggestedDestinations()→ GET /api/destinations/recommended
  *   getActivities()           → GET /api/activities?category=
+ *   searchActivities()        → GET /api/activities/search?q=&category=
  *   createTrip(draft)         → POST /api/trips          → TripRecord
  *   saveTripDraft(draft)      → PUT  /api/trips/:id/draft → TripRecord
+ *   getTrip(id)               → GET  /api/trips/:id       → TripRecord
+ *   updateTrip(id, patch)     → PATCH /api/trips/:id      → TripRecord
+ *   deleteTrip(id)            → DELETE /api/trips/:id
  *   saved activity ids        → GET/PUT /api/users/me/saved-activities
  *   draft restore             → stored server-side per user
  *
@@ -111,17 +115,53 @@ export const tripsService = {
     return matching.length > 0 ? matching : activities.slice(0, 4);
   },
 
+  /**
+   * Query-based catalog search used by the itinerary builder's
+   * "Search Activities" tab. Client-side filter over the catalog,
+   * standing in for a `?q=&category=` endpoint.
+   */
+  async searchActivities(
+    query: string,
+    category?: ActivityCategoryId | "all",
+  ): Promise<ActivitySuggestion[]> {
+    await delay(SEARCH_LATENCY_MS);
+    const q = query.trim().toLowerCase();
+    return activities.filter((activity) => {
+      if (category && category !== "all" && activity.category !== category) {
+        return false;
+      }
+      if (!q) return true;
+      return (
+        activity.name.toLowerCase().includes(q) ||
+        activity.city.toLowerCase().includes(q) ||
+        activity.country.toLowerCase().includes(q) ||
+        activity.description.toLowerCase().includes(q)
+      );
+    });
+  },
+
   async listTrips(): Promise<TripRecord[]> {
     return readJson<TripRecord[]>(TRIPS_KEY, []);
   },
 
   /**
-   * Creates a planned trip and returns its record — callers redirect to
-   * `/app/trips/:id/itinerary` using this ID.
+   * Synchronous single-trip reader (localStorage is sync). Powers the
+   * edit flow's first paint without an extra async hop.
    */
-  async createTrip(draft: TripDraftValues): Promise<TripRecord> {
-    await delay(MUTATION_LATENCY_MS);
-    const record: TripRecord = {
+  readTripById(id: string): TripRecord | null {
+    return (
+      readJson<TripRecord[]>(TRIPS_KEY, []).find((trip) => trip.id === id) ??
+      null
+    );
+  },
+
+  /** Shared record-shaping logic so create/update/duplicate stay aligned. */
+  buildRecord(
+    draft: TripDraftValues,
+    overrides: Partial<TripRecord> = {},
+  ): TripRecord {
+    const now = new Date().toISOString();
+    return {
       id: `trip_${Date.now().toString(36)}`,
       name: draft.name.trim(),
       description: draft.description.trim() || undefined,
@@ -132,22 +172,136 @@ export const tripsService = {
       interests: draft.interests,
       budgetTier: draft.budgetTier,
       currency: draft.currency,
-      budgetAmount: Number(draft.budgetAmount),
+      budgetAmount: Number(draft.budgetAmount || 0),
       status: "planned",
-      createdAt: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
+      ...overrides,
     };
+  },
+
+  /**
+   * Creates a planned trip and returns its record — callers redirect to
+   * `/trips/:id/itinerary` using this ID.
+   */
+  async createTrip(
+    draft: TripDraftValues,
+    activityIds: string[] = [],
+  ): Promise<TripRecord> {
+    await delay(MUTATION_LATENCY_MS);
+    const record = this.buildRecord(draft, {
+      status: "planned",
+      activityIds,
+      budgetAmount: Number(draft.budgetAmount),
+    });
     writeJson(TRIPS_KEY, [record, ...readJson<TripRecord[]>(TRIPS_KEY, [])]);
     localStorage.removeItem(DRAFT_KEY);
     return record;
   },
 
-  async saveTripDraft(draft: TripDraftValues): Promise<TripRecord> {
+  async saveTripDraft(
+    draft: TripDraftValues,
+    activityIds: string[] = [],
+  ): Promise<TripRecord> {
     await delay(MUTATION_LATENCY_MS);
     const records = readJson<TripRecord[]>(TRIPS_KEY, []);
-    const record: TripRecord = {
+    const record = this.buildRecord(draft, {
+      status: "draft",
       id: `trip_draft_${Date.now().toString(36)}`,
+      activityIds,
+    });
+    writeJson(TRIPS_KEY, [record, ...records]);
+    return record;
+  },
+
+  /**
+   * Bulk delete that reports partial failures instead of pretending
+   * everything succeeded.
+   */
+  async deleteTrips(ids: string[]): Promise<{
+    deletedIds: string[];
+    failedIds: string[];
+  }> {
+    await delay(MUTATION_LATENCY_MS);
+    const remaining = readJson<TripRecord[]>(TRIPS_KEY, []);
+    const deletedIds: string[] = [];
+    const failedIds: string[] = [];
+    for (const id of ids) {
+      if (remaining.some((trip) => trip.id === id)) deletedIds.push(id);
+      else failedIds.push(id);
+    }
+    writeJson(
+      TRIPS_KEY,
+      remaining.filter((trip) => !deletedIds.includes(trip.id)),
+    );
+    return { deletedIds, failedIds };
+  },
+
+  /** Duplicates a trip into a fresh editable copy with a real new ID. */
+  async duplicateTrip(id: string): Promise<TripRecord | null> {
+    await delay(MUTATION_LATENCY_MS);
+    const records = readJson<TripRecord[]>(TRIPS_KEY, []);
+    const source = records.find((trip) => trip.id === id);
+    if (!source) return null;
+    const now = new Date().toISOString();
+    const copy: TripRecord = {
+      ...source,
+      id: `trip_${Date.now().toString(36)}_copy`,
+      name: `${source.name} (Copy)`,
+      status: source.status === "draft" ? "draft" : "planned",
+      createdAt: now,
+      updatedAt: now,
+      archivedAt: null,
+    };
+    writeJson(TRIPS_KEY, [copy, ...records]);
+    return copy;
+  },
+
+  /** Persists archive state; archived trips leave the default views. */
+  async setTripsArchived(ids: string[], archived: boolean): Promise<string[]> {
+    await delay(MUTATION_LATENCY_MS);
+    const records = readJson<TripRecord[]>(TRIPS_KEY, []);
+    const stamp = archived ? new Date().toISOString() : null;
+    const affected = new Set(ids);
+    writeJson(
+      TRIPS_KEY,
+      records.map((trip) =>
+        affected.has(trip.id)
+          ? { ...trip, archivedAt: stamp, updatedAt: new Date().toISOString() }
+          : trip,
+      ),
+    );
+    return ids.filter((id) =>
+      records.some((trip) => trip.id === id),
+    );
+  },
+
+  /* ── Single-trip operations (used by the itinerary builder) ─── */
+
+  async getTrip(tripId: string): Promise<TripRecord | null> {
+    await delay(SEARCH_LATENCY_MS);
+    return (
+      readJson<TripRecord[]>(TRIPS_KEY, []).find(
+        (trip) => trip.id === tripId,
+      ) ?? null
+    );
+  },
+
+  /** Full update from the edit flow — reuses the create validation schema. */
+  async updateTrip(
+    tripId: string,
+    draft: TripDraftValues,
+    activityIds?: string[],
+  ): Promise<TripRecord> {
+    await delay(MUTATION_LATENCY_MS);
+    const records = readJson<TripRecord[]>(TRIPS_KEY, []);
+    const index = records.findIndex((trip) => trip.id === tripId);
+    if (index === -1) throw new Error("Trip not found.");
+    const updated: TripRecord = {
+      ...records[index],
       name: draft.name.trim(),
       description: draft.description.trim() || undefined,
+      coverImage: draft.coverImage || undefined,
       startDate: draft.startDate,
       endDate: draft.endDate,
       destinationId: draft.destinationId,
@@ -155,11 +309,41 @@ export const tripsService = {
       budgetTier: draft.budgetTier,
       currency: draft.currency,
       budgetAmount: Number(draft.budgetAmount || 0),
-      status: "draft",
-      createdAt: new Date().toISOString(),
+      ...(activityIds ? { activityIds } : {}),
+      updatedAt: new Date().toISOString(),
     };
-    writeJson(TRIPS_KEY, [record, ...records]);
-    return record;
+    records[index] = updated;
+    writeJson(TRIPS_KEY, records);
+    return updated;
+  },
+
+  /** Narrow field patch (status flips from the itinerary builder, …). */
+  async patchTrip(
+    tripId: string,
+    patch: Partial<Pick<TripRecord, "name" | "description" | "coverImage" | "status">>,
+  ): Promise<TripRecord> {
+    await delay(MUTATION_LATENCY_MS);
+    const records = readJson<TripRecord[]>(TRIPS_KEY, []);
+    const index = records.findIndex((trip) => trip.id === tripId);
+    if (index === -1) throw new Error("Trip not found.");
+    const updated: TripRecord = {
+      ...records[index],
+      ...patch,
+      updatedAt: new Date().toISOString(),
+    };
+    records[index] = updated;
+    writeJson(TRIPS_KEY, records);
+    return updated;
+  },
+
+  async deleteTrip(tripId: string): Promise<void> {
+    await delay(MUTATION_LATENCY_MS);
+    writeJson(
+      TRIPS_KEY,
+      readJson<TripRecord[]>(TRIPS_KEY, []).filter((trip) => trip.id !== tripId),
+    );
+    // The itinerary document is owned by the trip — cascade the delete.
+    localStorage.removeItem(`globetrotter.trips.itinerary.${tripId}`);
   },
 
   /* ── Local autosave draft (per browser, no network) ─────────── */
