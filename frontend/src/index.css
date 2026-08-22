@@ -1,0 +1,324 @@
+@import url("@fontsource-variable/inter");
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.625rem;
+
+  /* ── LIGHT MODE — App backgrounds ─────────────────────────── */
+  --background: #f8faf9; /* App background */
+  --main: #ffffff; /* Main background */
+  --foreground: #111827; /* Text primary */
+  --inverse-text: #ffffff;
+  --disabled-text: #9ca3af;
+
+  /* ── LIGHT MODE — Surfaces ────────────────────────────────── */
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --elevated: #ffffff;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --muted: #f4f7f5; /* Surface secondary */
+  --muted-foreground: #6b7280; /* Text muted */
+  --secondary: #f4f7f5; /* Secondary button */
+  --secondary-foreground: #374151;
+  --secondary-text: #4b5563;
+  --accent: #ecfdf3; /* Primary subtle */
+  --accent-foreground: #047857;
+  --hover: #eef7f1; /* Surface hover */
+
+  /* ── LIGHT MODE — Brand (Emerald) ─────────────────────────── */
+  --primary: #059669;
+  --primary-hover: #047857;
+  --primary-active: #065f46;
+  --primary-light: #d1fae5;
+  --primary-subtle: #ecfdf3;
+  --primary-foreground: #ffffff;
+
+  /* ── LIGHT MODE — Travel Blue ─────────────────────────────── */
+  --travel-blue: #0284c7;
+  --travel-blue-hover: #0369a1;
+  --travel-blue-light: #e0f2fe;
+  --travel-blue-subtle: #f0f9ff;
+  --travel-blue-foreground: #ffffff;
+
+  /* ── LIGHT MODE — Lines & feedback ────────────────────────── */
+  --border: #e5e7eb; /* Border default */
+  --subtle-border: #edf0ee; /* Border subtle */
+  --strong-border: #d1d5db; /* Border strong */
+  --input: #d1d5db;
+  --ring: #10b981; /* Border focus */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  /* ── LIGHT MODE — Semantic status ─────────────────────────── */
+  --status-success: #16a34a;
+  --status-success-bg: #dcfce7;
+  --status-success-border: #86efac;
+  --status-success-text: #166534;
+  --status-warning: #d97706;
+  --status-warning-bg: #fef3c7;
+  --status-warning-border: #fcd34d;
+  --status-warning-text: #92400e;
+  --status-error: #dc2626;
+  --status-error-bg: #fee2e2;
+  --status-error-border: #fca5a5;
+  --status-error-text: #991b1b;
+  --status-info: #0284c7;
+  --status-info-bg: #e0f2fe;
+  --status-info-border: #7dd3fc;
+  --status-info-text: #075985;
+  --status-neutral: #64748b;
+
+  /* ── LIGHT MODE — Component states ────────────────────────── */
+  --input-focus-bg: #ecfdf3;
+  --selected: #dcfce7;
+  --active-nav: #dcfce7;
+  --row-hover: #eef7f1; /* Surface hover */
+
+  /* ── LIGHT MODE — Navigation / Sidebar ────────────────────── */
+  --sidebar: #ffffff;
+  --sidebar-border: #e5e7eb;
+  --sidebar-text: #4b5563;
+  --sidebar-hover: #f0fdf4;
+  --sidebar-active: #dcfce7;
+  --sidebar-active-text: #047857;
+  --sidebar-active-icon: #059669;
+
+  /* ── LIGHT MODE — Travel entity accents ───────────────────── */
+  --city: #0284c7; /* City → Travel Blue 📍 */
+  --activity: #7c3aed; /* Activity → Violet 🎯 */
+  --transport: #0891b2; /* Transport → Cyan ✈️ */
+  --stay: #4f46e5; /* Hotel / Stay → Indigo 🏨 */
+  --food: #ea580c; /* Food → Orange 🍽️ */
+  --budget: #d97706; /* Budget → Amber 💰 */
+}
+
+.dark {
+  /* ── DARK MODE — App backgrounds ──────────────────────────── */
+  --background: #09100c; /* Level 0 — app background */
+  --main: #101914; /* Level 1 — main surface */
+  --foreground: #f4f7f5; /* Text primary */
+  --inverse-text: #09100c;
+  --disabled-text: #657067;
+
+  /* ── DARK MODE — Surfaces ─────────────────────────────────── */
+  --card: #101914; /* Level 1 */
+  --card-foreground: #f4f7f5;
+  --elevated: #1b261f; /* Surface elevated */
+  --popover: #1b261f;
+  --popover-foreground: #f4f7f5;
+  --muted: #162019; /* Level 2 — surface secondary */
+  --muted-foreground: #8c9990; /* Text muted */
+  --secondary: #162019; /* Secondary button */
+  --secondary-foreground: #c4cec7;
+  --secondary-text: #c4cec7;
+  --accent: #1d2a22; /* Level 3 — hover surface */
+  --accent-foreground: #34d399;
+  --hover: #1d2a22;
+
+  /* ── DARK MODE — Brand (Emerald) ──────────────────────────── */
+  --primary: #34d399;
+  --primary-hover: #6ee7b7;
+  --primary-active: #10b981;
+  --primary-light: #064e3b;
+  --primary-subtle: #052e16;
+  --primary-foreground: #052e16;
+
+  /* ── DARK MODE — Travel Blue ──────────────────────────────── */
+  --travel-blue: #38bdf8;
+  --travel-blue-hover: #7dd3fc;
+  --travel-blue-light: #0c4a6e;
+  --travel-blue-subtle: #082f49;
+  --travel-blue-foreground: #082f49;
+
+  /* ── DARK MODE — Lines & feedback ─────────────────────────── */
+  --border: #2a382f; /* Border default */
+  --subtle-border: #1e2a23; /* Border subtle */
+  --strong-border: #3a4a40; /* Border strong */
+  --input: #2a382f;
+  --ring: #34d399; /* Border focus */
+  --destructive: #f87171;
+  --destructive-foreground: #450a0a;
+
+  /* ── DARK MODE — Semantic status ──────────────────────────── */
+  --status-success: #4ade80;
+  --status-success-bg: #052e16;
+  --status-success-border: #166534;
+  --status-success-text: #86efac;
+  --status-warning: #fbbf24;
+  --status-warning-bg: #451a03;
+  --status-warning-border: #92400e;
+  --status-warning-text: #fde68a;
+  --status-error: #f87171;
+  --status-error-bg: #450a0a;
+  --status-error-border: #7f1d1d;
+  --status-error-text: #fca5a5;
+  --status-info: #38bdf8;
+  --status-info-bg: #082f49;
+  --status-info-border: #075985;
+  --status-info-text: #bae6fd;
+  --status-neutral: #94a3b8;
+
+  /* ── DARK MODE — Component states ─────────────────────────── */
+  --input-focus-bg: #052e16;
+  --selected: #064e3b;
+  --active-nav: #064e3b;
+  --row-hover: #1d2a22; /* Level 3 */
+
+  /* ── DARK MODE — Navigation / Sidebar ─────────────────────── */
+  --sidebar: #0c130f;
+  --sidebar-border: #1e2a23;
+  --sidebar-text: #aab5ae;
+  --sidebar-hover: #162019;
+  --sidebar-active: #064e3b;
+  --sidebar-active-text: #6ee7b7;
+  --sidebar-active-icon: #34d399;
+
+  /* ── DARK MODE — Travel entity accents ────────────────────── */
+  --city: #38bdf8;
+  --activity: #a78bfa;
+  --transport: #22d3ee;
+  --stay: #818cf8;
+  --food: #fb923c;
+  --budget: #fbbf24;
+}
+
+@theme inline {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --color-background: var(--background);
+  --color-main: var(--main);
+  --color-foreground: var(--foreground);
+  --color-inverse-text: var(--inverse-text);
+  --color-disabled-text: var(--disabled-text);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-elevated: var(--elevated);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-text: var(--secondary-text);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-hover: var(--hover);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-light: var(--primary-light);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-primary-foreground: var(--primary-foreground);
+
+  /* Travel Blue */
+  --color-travel-blue: var(--travel-blue);
+  --color-travel-blue-hover: var(--travel-blue-hover);
+  --color-travel-blue-light: var(--travel-blue-light);
+  --color-travel-blue-subtle: var(--travel-blue-subtle);
+  --color-travel-blue-foreground: var(--travel-blue-foreground);
+
+  --color-border: var(--border);
+  --color-subtle-border: var(--subtle-border);
+  --color-strong-border: var(--strong-border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  /* Semantic status */
+  --color-success: var(--status-success);
+  --color-warning: var(--status-warning);
+  --color-error: var(--status-error);
+  --color-info: var(--status-info);
+  --color-neutral: var(--status-neutral);
+  --color-success-bg: var(--status-success-bg);
+  --color-success-border: var(--status-success-border);
+  --color-success-text: var(--status-success-text);
+  --color-warning-bg: var(--status-warning-bg);
+  --color-warning-border: var(--status-warning-border);
+  --color-warning-text: var(--status-warning-text);
+  --color-error-bg: var(--status-error-bg);
+  --color-error-border: var(--status-error-border);
+  --color-error-text: var(--status-error-text);
+  --color-info-bg: var(--status-info-bg);
+  --color-info-border: var(--status-info-border);
+  --color-info-text: var(--status-info-text);
+
+  /* Component states */
+  --color-input-focus: var(--input-focus-bg);
+  --color-selected: var(--selected);
+  --color-active-nav: var(--active-nav);
+  --color-row-hover: var(--row-hover);
+
+  /* Sidebar / navigation */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-text: var(--sidebar-text);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-active-text: var(--sidebar-active-text);
+  --color-sidebar-active-icon: var(--sidebar-active-icon);
+
+  /* Travel entity accents */
+  --color-city: var(--city);
+  --color-activity: var(--activity);
+  --color-transport: var(--transport);
+  --color-stay: var(--stay);
+  --color-food: var(--food);
+  --color-budget: var(--budget);
+
+  /* Radius scale — controls 6 · inputs/buttons 10 · cards 14 ·
+     large/modal 18 · hero 24 · pills full */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 14px);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+    outline-color: var(--color-ring);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer utilities {
+  .container-mx {
+    margin-inline: auto;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
+
+/* Respect reduced motion preferences for all animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

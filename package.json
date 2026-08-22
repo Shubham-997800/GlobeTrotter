@@ -1,0 +1,15 @@
+{
+  "name": "globetrotter",
+  "version": "0.0.0",
+  "private": true,
+  "description": "GlobeTrotter — travel-themed Work OS starter (frontend + backend monorepo)",
+  "scripts": {
+    "install:all": "npm install --prefix frontend && npm install --prefix backend",
+    "dev": "npm run dev --prefix frontend",
+    "dev:api": "npm run dev --prefix backend",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend",
+    "build:web": "npm run build --prefix frontend",
+    "build:api": "npm run build --prefix backend",
+    "start:api": "npm start --prefix backend"
+  }
+}
