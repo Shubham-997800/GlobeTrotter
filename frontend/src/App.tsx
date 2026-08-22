@@ -24,8 +24,8 @@ const CreateTripPage = lazy(() =>
 const MyTripsPage = lazy(() =>
   import("@/pages/trips/MyTripsPage").then((m) => ({ default: m.MyTripsPage })),
 );
-const ItineraryBuilderPage = lazy(() =>
-  import("@/pages/trips/ItineraryBuilderPage").then((m) => ({ default: m.default })),
+const ItineraryBuilderPage = lazy(
+  () => import("@/pages/trips/ItineraryBuilderPage"),
 );
 const ExplorePage = lazy(() =>
   import("@/pages/explore/ExplorePage").then((m) => ({ default: m.ExplorePage })),
@@ -35,6 +35,16 @@ const DestinationDetailsPage = lazy(() =>
 );
 const SearchResultsPage = lazy(() =>
   import("@/pages/explore/SearchResultsPage").then((m) => ({ default: m.SearchResultsPage })),
+);
+const CommunityPage = lazy(() =>
+  import("@/pages/community/CommunityPage").then((m) => ({
+    default: m.CommunityPage,
+  })),
+);
+const CalendarPage = lazy(() =>
+  import("@/pages/calendar/CalendarPage").then((m) => ({
+    default: m.CalendarPage,
+})),
 );
 const ForgotPasswordPage = lazy(() =>
   import("@/pages/auth/ForgotPasswordPage").then((m) => ({
@@ -100,18 +110,6 @@ function AppToaster() {
 
 /** Signed-in-only modules awaiting their dedicated screens. */
 const APP_SECTIONS = [
-  {
-    path: "/community",
-    title: "Community",
-    description:
-      "See journeys shared by travelers like you and get inspired for your next trip.",
-  },
-  {
-    path: "/calendar",
-    title: "Travel Calendar",
-    description:
-      "Visualize every day of every trip on one timeline so nothing is double-booked.",
-  },
   {
     path: "/profile",
     title: "Profile",
@@ -185,6 +183,24 @@ export default function App() {
               }
             />
             <Route path="/app" element={<Navigate to="/dashboard" replace />} />
+            {/* Community module */}
+            <Route
+              path="/community"
+              element={
+                <ProtectedRoute>
+                  <CommunityPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Calendar module */}
+            <Route
+              path="/calendar"
+              element={
+                <ProtectedRoute>
+                  <CalendarPage />
+                </ProtectedRoute>
+              }
+            />
             {APP_SECTIONS.map((section) => (
               <Route
                 key={section.path}

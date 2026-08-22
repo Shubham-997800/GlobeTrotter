@@ -124,6 +124,15 @@ export const itineraryService = {
     return record;
   },
 
+  /**
+   * Synchronous single-itinerary reader (localStorage is sync). Powers
+   * cross-trip compositions like the travel calendar without paying an
+   * async hop per trip.
+   */
+  readItineraryByTrip(tripId: string): ItineraryRecord | null {
+    return readJson<ItineraryRecord | null>(itineraryKey(tripId), null);
+  },
+
   /** Full-document save used by autosave and manual save. */
   async saveItinerary(record: ItineraryRecord): Promise<ItineraryRecord> {
     await delay(LATENCY_MS);
