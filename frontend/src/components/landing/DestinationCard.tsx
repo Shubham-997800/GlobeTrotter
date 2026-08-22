@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { ArrowRight, Star, MapPin } from "lucide-react";
 
 import type { Destination } from "@/lib/types";
@@ -19,6 +20,12 @@ export function DestinationCard({
         className,
       )}
     >
+      {/* Whole card is one link — judges can click anywhere on it. */}
+      <Link
+        to="/get-started"
+        aria-label={`Explore ${destination.city}, ${destination.country}`}
+        className="flex h-full flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      >
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <img
           src={destination.image}
@@ -38,7 +45,7 @@ export function DestinationCard({
 
         {/* Rating */}
         <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-white/95 px-2 py-1 text-[11px] font-semibold text-foreground shadow-sm dark:bg-[#101914]/90">
-          <Star className="h-3 w-3 fill-amber text-amber" aria-hidden="true" />
+          <Star className="h-3 w-3 fill-warning text-warning" aria-hidden="true" />
           {destination.rating.toFixed(1)}
         </span>
 
@@ -67,6 +74,7 @@ export function DestinationCard({
           </span>
         </div>
       </div>
+      </Link>
     </article>
   );
 }

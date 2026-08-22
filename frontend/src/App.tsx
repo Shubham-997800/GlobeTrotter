@@ -1,4 +1,6 @@
+import { Suspense, lazy } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
@@ -7,12 +9,55 @@ import { AuthProvider } from "@/features/auth/AuthContext";
 import { GuestRoute } from "@/features/auth/GuestRoute";
 import { ProtectedRoute } from "@/features/auth/ProtectedRoute";
 import { AppSectionPlaceholder } from "@/pages/AppSectionPlaceholder";
-import { AppDashboardPage } from "@/pages/AppDashboardPage";
-import { LandingPage } from "@/pages/LandingPage";
-import { ForgotPasswordPage } from "@/pages/auth/ForgotPasswordPage";
-import { LoginPage } from "@/pages/auth/LoginPage";
-import { RegisterPage } from "@/pages/auth/RegisterPage";
-import { ResetPasswordPage } from "@/pages/auth/ResetPasswordPage";
+
+// Route-level code splitting — each screen ships in its own chunk so the
+// first paint (landing page) never pays for the whole app.
+const AppDashboardPage = lazy(() =>
+  import("@/pages/AppDashboardPage").then((m) => ({ default: m.AppDashboardPage })),
+);
+const LandingPage = lazy(() =>
+  import("@/pages/LandingPage").then((m) => ({ default: m.LandingPage })),
+);
+const CreateTripPage = lazy(() =>
+  import("@/pages/trips/CreateTripPage").then((m) => ({ default: m.CreateTripPage })),
+);
+const ItineraryBuilderPage = lazy(() =>
+  import("@/pages/trips/ItineraryBuilderPage").then((m) => ({
+    default: m.ItineraryBuilderPage,
+  })),
+);
+const ForgotPasswordPage = lazy(() =>
+  import("@/pages/auth/ForgotPasswordPage").then((m) => ({
+    default: m.ForgotPasswordPage,
+  })),
+);
+const LoginPage = lazy(() =>
+  import("@/pages/auth/LoginPage").then((m) => ({ default: m.LoginPage })),
+);
+const RegisterPage = lazy(() =>
+  import("@/pages/auth/RegisterPage").then((m) => ({ default: m.RegisterPage })),
+);
+const ResetPasswordPage = lazy(() =>
+  import("@/pages/auth/ResetPasswordPage").then((m) => ({
+    default: m.ResetPasswordPage,
+  })),
+);
+
+function RouteFallback() {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex min-h-dvh items-center justify-center bg-background"
+    >
+      <Loader2
+        className="h-7 w-7 animate-spin text-primary"
+        aria-hidden="true"
+      />
+      <span className="sr-only">Loading page…</span>
+    </div>
+  );
+}
 
 const queryClient = new QueryClient();
 
@@ -41,12 +86,6 @@ const APP_SECTIONS = [
     title: "My Trips",
     description:
       "Browse, organize and revisit every journey you have planned so far.",
-  },
-  {
-    path: "/trips/create",
-    title: "Create a Trip",
-    description:
-      "Pick a destination, set your dates and budget — your itinerary scaffolds itself.",
   },
   {
     path: "/explore",
@@ -79,7 +118,8 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
-          <Routes>
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
             {/* Public */}
             <Route path="/" element={<LandingPage />} />
             <Route
@@ -146,6 +186,29 @@ export default function App() {
               />
             ))}
 
+            {/* Trips module */}
+            <Route
+              path="/trips/create"
+              element={
+                <ProtectedRoute>
+                  <CreateTripPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Alias matching the sidebar CTA slug */}
+            <Route
+              path="/app/create-trip"
+              element={<Navigate to="/trips/create" replace />}
+            />
+            <Route
+              path="/trips/:tripId/itinerary"
+              element={
+                <ProtectedRoute>
+                  <ItineraryBuilderPage />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Role protected */}
             <Route
               path="/admin"
@@ -160,7 +223,8 @@ export default function App() {
             />
 
             <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+            </Routes>
+          </Suspense>
           <AppToaster />
         </BrowserRouter>
       </AuthProvider>

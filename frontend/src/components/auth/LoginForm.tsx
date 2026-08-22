@@ -1,6 +1,6 @@
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail } from "lucide-react";
+import { Mail, Sparkles } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -9,9 +9,11 @@ import { AuthError } from "@/components/auth/AuthError";
 import { FieldError } from "@/components/auth/FormField";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { SubmitButton } from "@/components/auth/SubmitButton";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { ApiError } from "@/features/auth/auth.types";
 import { readIntendedPath } from "@/features/auth/GuestRoute";
 import {
@@ -21,6 +23,11 @@ import {
 import { useAuth } from "@/features/auth/useAuth";
 
 const REDIRECT_DELAY_MS = 700;
+
+const DEMO_CREDENTIALS = {
+  identifier: "demo@globetrotter.app",
+  password: "Demo@1234",
+} as const;
 
 export function LoginForm() {
   const { login } = useAuth();
@@ -67,6 +74,30 @@ export function LoginForm() {
         error instanceof ApiError
           ? error.message
           : "Something went wrong. Please check your connection and try again.",
+      );
+    }
+  };
+
+  /** One-click entry for judges/demo reviewers — skips typing entirely. */
+  const onDemoLogin = async () => {
+    setSubmitError(null);
+    setStatus("submitting");
+    try {
+      const user = await login({ ...DEMO_CREDENTIALS, remember: true });
+      setStatus("success");
+      toast.success(`Signed in as ${user.name}`, {
+        description: "You're exploring the GlobeTrotter demo workspace.",
+      });
+      window.setTimeout(
+        () => navigate(intendedPath, { replace: true }),
+        REDIRECT_DELAY_MS,
+      );
+    } catch (error) {
+      setStatus("idle");
+      setSubmitError(
+        error instanceof ApiError
+          ? error.message
+          : "Demo sign-in failed. Please try again.",
       );
     }
   };
@@ -144,6 +175,26 @@ export function LoginForm() {
         label="Sign In"
         labels={{ submitting: "Signing in…", success: "Signed in!" }}
       />
+
+      {/* One-click demo access */}
+      <div className="flex items-center gap-3" aria-hidden="true">
+        <Separator className="flex-1" />
+        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          or
+        </span>
+        <Separator className="flex-1" />
+      </div>
+
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full border-primary/30 text-primary hover:bg-primary/5 hover:text-primary"
+        disabled={status !== "idle"}
+        onClick={() => void onDemoLogin()}
+      >
+        <Sparkles className="h-4 w-4" aria-hidden="true" />
+        Explore with Demo Account
+      </Button>
 
       <p className="rounded-lg border border-dashed border-border bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
         Demo account —{" "}

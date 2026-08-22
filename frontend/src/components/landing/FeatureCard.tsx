@@ -106,7 +106,7 @@ function DiscoverVisual() {
               {pin.label}
             </span>
             {i === 0 ? (
-              <span className="ml-auto flex items-center gap-1 rounded-full bg-amber/10 px-2 py-0.5 text-[9px] font-semibold text-amber">
+              <span className="ml-auto flex items-center gap-1 rounded-full bg-warning/10 px-2 py-0.5 text-[9px] font-semibold text-warning">
                 <Star className="h-3 w-3 fill-current" aria-hidden="true" />
                 4.9
               </span>
