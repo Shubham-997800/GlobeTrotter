@@ -14,7 +14,8 @@ export type InterestId =
   | "mountains"
   | "nightlife"
   | "shopping"
-  | "relaxation";
+  | "relaxation"
+  | "city-life";
 
 export interface InterestDef {
   id: InterestId;

@@ -1,4 +1,5 @@
 import {
+  Building2,
   Landmark,
   Leaf,
   Mountain,
@@ -28,6 +29,7 @@ const INTEREST_ICONS: Record<InterestId, React.ComponentType<{ className?: strin
   nightlife: Music,
   shopping: ShoppingBag,
   relaxation: Palmtree,
+  "city-life": Building2,
 };
 
 interface InterestSelectorProps {

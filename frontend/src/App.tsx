@@ -27,6 +27,15 @@ const MyTripsPage = lazy(() =>
 const ItineraryBuilderPage = lazy(() =>
   import("@/pages/trips/ItineraryBuilderPage").then((m) => ({ default: m.default })),
 );
+const ExplorePage = lazy(() =>
+  import("@/pages/explore/ExplorePage").then((m) => ({ default: m.ExplorePage })),
+);
+const DestinationDetailsPage = lazy(() =>
+  import("@/pages/explore/DestinationDetailsPage").then((m) => ({ default: m.DestinationDetailsPage })),
+);
+const SearchResultsPage = lazy(() =>
+  import("@/pages/explore/SearchResultsPage").then((m) => ({ default: m.SearchResultsPage })),
+);
 const ForgotPasswordPage = lazy(() =>
   import("@/pages/auth/ForgotPasswordPage").then((m) => ({
     default: m.ForgotPasswordPage,
@@ -76,12 +85,6 @@ function AppToaster() {
 
 /** Signed-in-only modules awaiting their dedicated screens. */
 const APP_SECTIONS = [
-  {
-    path: "/explore",
-    title: "Explore",
-    description:
-      "Discover cities, landmarks and experiences matched to your travel style.",
-  },
   {
     path: "/community",
     title: "Community",
@@ -221,6 +224,33 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* Explore module */}
+            <Route
+              path="/explore"
+              element={
+                <ProtectedRoute>
+                  <ExplorePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/explore/destinations/:destinationId"
+              element={
+                <ProtectedRoute>
+                  <DestinationDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/explore/search"
+              element={
+                <ProtectedRoute>
+                  <SearchResultsPage />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Role protected */}
             <Route
               path="/admin"
