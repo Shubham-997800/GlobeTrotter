@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, LogIn, ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,13 @@ interface LandingNavbarProps {
   className?: string;
 }
 
+function scrollToSection(sectionId: string) {
+  const element = document.getElementById(sectionId);
+  if (element) {
+    element.scrollIntoView({ behavior: "smooth" });
+  }
+}
+
 export function LandingNavbar({
   appName,
   navLinks,
@@ -31,6 +38,8 @@ export function LandingNavbar({
 }: LandingNavbarProps) {
   const [scrolled, setScrolled] = React.useState(false);
   const [active, setActive] = React.useState<string>(navLinks[0]?.id ?? "");
+  const location = useLocation();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -59,6 +68,17 @@ export function LandingNavbar({
     sections.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
   }, [navLinks]);
+
+  const handleNavClick = (href: string) => {
+    if (href.startsWith("#")) {
+      const sectionId = href.slice(1);
+      if (location.pathname === "/") {
+        scrollToSection(sectionId);
+      } else {
+        navigate(`/${href}`);
+      }
+    }
+  };
 
   return (
     <header
@@ -91,10 +111,13 @@ export function LandingNavbar({
               return (
                 <a
                   key={link.id}
-                  href={link.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavClick(link.href);
+                  }}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
                     isActive
                       ? "bg-active-nav text-primary"
                       : "text-secondary-text hover:bg-hover hover:text-foreground",
@@ -149,8 +172,11 @@ export function LandingNavbar({
                   {navLinks.map((link) => (
                     <a
                       key={link.id}
-                      href={link.href}
-                      className="rounded-lg px-3 py-3 text-base font-medium text-secondary-text transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleNavClick(link.href);
+                      }}
+                      className="rounded-lg px-3 py-3 text-base font-medium text-secondary-text transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
                     >
                       {link.label}
                     </a>

@@ -1,14 +1,22 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { Container } from "@/components/landing/Container";
 import { Logo } from "@/components/landing/Logo";
 import { Separator } from "@/components/ui/separator";
 import type { FooterContent } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 interface LandingFooterProps {
   appName: string;
   tagline?: string;
   footer: FooterContent;
+}
+
+function scrollToSection(sectionId: string) {
+  const element = document.getElementById(sectionId);
+  if (element) {
+    element.scrollIntoView({ behavior: "smooth" });
+  }
 }
 
 export function LandingFooter({
@@ -17,6 +25,21 @@ export function LandingFooter({
   footer,
 }: LandingFooterProps) {
   const year = new Date().getFullYear();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleFooterLinkClick = (href: string) => {
+    if (href.startsWith("#")) {
+      const sectionId = href.slice(1);
+      if (location.pathname === "/") {
+        scrollToSection(sectionId);
+      } else {
+        navigate(`/${href}`);
+      }
+    } else {
+      navigate(href);
+    }
+  };
 
   return (
     <footer className="border-t border-border bg-card">
@@ -61,12 +84,15 @@ export function LandingFooter({
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link.id}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary"
+                    <button
+                      onClick={() => handleFooterLinkClick(link.href)}
+                      className={cn(
+                        "text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary",
+                        "text-left w-full",
+                      )}
                     >
                       {link.label}
-                    </a>
+                    </button>
                   </li>
                 ))}
               </ul>

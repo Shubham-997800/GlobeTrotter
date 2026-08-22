@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Palette, Monitor, Globe, Bell, Trash2, Download, Shield, UserPlus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
@@ -270,9 +270,9 @@ export function SettingsPage() {
                 <p>GlobeTrotter v0.0.0</p>
                 <p>Personalized travel planning platform</p>
                 <p className="pt-2">
-                  <a href="#" className="underline hover:text-foreground">Terms of Service</a> ·
-                  <a href="#" className="underline hover:text-foreground ml-2">Privacy Policy</a> ·
-                  <a href="#" className="underline hover:text-foreground ml-2">Contact Support</a>
+                  <Link to="/#terms" className="underline hover:text-foreground">Terms of Service</Link> ·
+                  <Link to="/#privacy" className="underline hover:text-foreground ml-2">Privacy Policy</Link> ·
+                  <Link to="/#contact" className="underline hover:text-foreground ml-2">Contact Support</Link>
                 </p>
               </CardContent>
             </Card>
