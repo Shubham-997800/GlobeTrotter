@@ -25,9 +25,7 @@ const MyTripsPage = lazy(() =>
   import("@/pages/trips/MyTripsPage").then((m) => ({ default: m.MyTripsPage })),
 );
 const ItineraryBuilderPage = lazy(() =>
-  import("@/pages/trips/ItineraryBuilderPage").then((m) => ({
-    default: m.ItineraryBuilderPage,
-  })),
+  import("@/pages/trips/ItineraryBuilderPage").then((m) => ({ default: m.default })),
 );
 const ForgotPasswordPage = lazy(() =>
   import("@/pages/auth/ForgotPasswordPage").then((m) => ({

@@ -19,11 +19,9 @@ import {
   activityDurationLabel,
 } from "@/features/trips/itinerary.utils";
 import {
-  buildTripStats,
   findNextActivity,
   previewDays,
   type DayPreview,
-  type NextActivityResult,
 } from "@/features/trips/trip-details.logic";
 import type { ItineraryRecord } from "@/features/trips/itinerary.types";
 import type { TripRecord } from "@/features/trips/trips.types";
@@ -32,7 +30,6 @@ interface OverviewTabProps {
   trip: TripRecord;
   itinerary: ItineraryRecord | null | undefined;
   onOpenBuilder: () => void;
-  tabId?: "overview";
 }
 
 const CHECKLIST_LABELS: Record<ChecklistItem["field"], string> = {
@@ -53,8 +50,7 @@ const CHECKLIST_HINTS: Record<ChecklistItem["field"], string> = {
   activities: "Add at least one activity",
 };
 
-export function OverviewTab({ trip, itinerary, onOpenBuilder, tabId = "overview" }: OverviewTabProps) {
-  const stats = useMemo(() => buildTripStats(trip, itinerary), [trip, itinerary]);
+export function OverviewTab({ trip, itinerary, onOpenBuilder }: OverviewTabProps) {
   const next = useMemo(() => findNextActivity(itinerary ?? undefined), [itinerary]);
   const checklist = useMemo(() => tripChecklist(trip), [trip]);
   const preview = useMemo(() => previewDays(itinerary ?? undefined), [itinerary]);

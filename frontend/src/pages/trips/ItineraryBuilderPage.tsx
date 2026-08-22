@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout/AppShell";
-import { Button } from "@/components/ui/button";
 import {
   useAddActivity,
   useAddStop,
@@ -24,10 +23,9 @@ import type {
   ActivityInput,
   ItineraryActivity,
   SaveState,
-  StopInput,
   ViewMode,
 } from "@/features/trips/itinerary.types";
-import { validateItinerary } from "@/features/trips/itinerary.utils";
+import { validateItinerary, itineraryProgress } from "@/features/trips/itinerary.utils";
 import { AddActivityDialog } from "@/features/trips/components/itinerary/AddActivityDialog";
 import { ActionBar } from "@/features/trips/components/itinerary/ActionBar";
 import { ActivityEditorDialog } from "@/features/trips/components/itinerary/ActivityEditorDialog";
@@ -42,14 +40,12 @@ import { ItineraryPreviewDialog } from "@/features/trips/components/itinerary/It
 import { MoveActivityDialog } from "@/features/trips/components/itinerary/MoveActivityDialog";
 import { StopsSection } from "@/features/trips/components/itinerary/StopsSection";
 import { ViewSwitcher } from "@/features/trips/components/itinerary/ViewSwitcher";
-import { TripHeader } from "@/features/trips/components/TripHeader";
+import { TripHeader } from "@/features/trips/components/itinerary/TripHeader";
 import type { ActivityFormValues } from "@/features/trips/schemas/itinerary.schema";
+import type { EditableTripPatch } from "@/features/trips/useItinerary";
 
 /**
  * /trips/:tripId/itinerary — the day-by-day builder.
- *
- * Autosave: every mutation persists immediately (mock service), the
- * pill reflects query state, Ctrl+S forces a refetch-synced save.
  */
 export default function ItineraryBuilderPage() {
   const { tripId = "" } = useParams<{ tripId: string }>();
@@ -60,22 +56,22 @@ export default function ItineraryBuilderPage() {
   const trip = tripQuery.data ?? null;
   const itinerary = itineraryQuery.data ?? null;
   const days = itinerary?.days ?? [];
+  const activities = itinerary?.activities ?? [];
 
-  /* ---------------- local UI state ---------------- */
   const [selectedDayId, setSelectedDayId] = useState<string>("");
-  const [view, setView] = useState<ViewMode>("list");
+  const [view, setView] = useState<ViewMode>("timeline");
   const [addOpen, setAddOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState<ItineraryActivity | null>(null);
   const [movingActivity, setMovingActivity] = useState<ItineraryActivity | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [saveState, setSaveState] = useState<SaveState>("saved");
+  
+  const [deletingTrip, setDeletingTrip] = useState(false);
 
-  /* Default to the first day once data lands. */
   useEffect(() => {
     if (!selectedDayId && days.length > 0) setSelectedDayId(days[0].id);
   }, [days, selectedDayId]);
 
-  /* Keep selection valid if the trip shrinks. */
   useEffect(() => {
     if (selectedDayId && days.length > 0 && !days.some((day) => day.id === selectedDayId)) {
       setSelectedDayId(days[0].id);
@@ -84,27 +80,22 @@ export default function ItineraryBuilderPage() {
 
   const selectedDayIndex = Math.max(0, days.findIndex((day) => day.id === selectedDayId));
   const selectedDay = days[selectedDayIndex] ?? null;
+  const selectedDayActivities = activities.filter((a) => a.dayId === selectedDayId);
 
-  /* ---------------- mutations ---------------- */
-  const onSettled = useCallback(() => setSaveState("saved"), []);
-  const onError = useCallback(() => {
-    setSaveState("dirty");
-    toast.error("Couldn't save that change — retry or press Save now.");
-  }, []);
-
-  const addMutation = useAddActivity(tripId, onSettled, onError);
-  const updateMutation = useUpdateActivity(tripId, onSettled, onError);
-  const deleteMutation = useDeleteActivity(tripId, onSettled, onError);
-  const duplicateMutation = useDuplicateActivity(tripId, onSettled, onError);
-  const reorderMutation = useReorderActivities(tripId, onSettled, onError);
-  const moveMutation = useMoveActivityToDay(tripId, onSettled, onError);
-  const saveDayMutation = useUpdateDay(tripId, onSettled, onError);
+  /* mutations */
+  const addMutation = useAddActivity(tripId);
+  const updateMutation = useUpdateActivity(tripId);
+  const deleteMutation = useDeleteActivity(tripId);
+  const duplicateMutation = useDuplicateActivity(tripId);
+  const reorderMutation = useReorderActivities(tripId);
+  const moveMutation = useMoveActivityToDay(tripId);
+  const saveDayMutation = useUpdateDay(tripId);
   const completeMutation = useCompleteTrip(tripId);
 
-  const addStopMutation = useAddStop(tripId, onSettled, onError);
-  const updateStopMutation = useUpdateStop(tripId, onSettled, onError);
-  const deleteStopMutation = useDeleteStop(tripId, onSettled, onError);
-  const reorderStopsMutation = useReorderStops(tripId, onSettled, onError);
+  const addStopMutation = useAddStop(tripId);
+  const updateStopMutation = useUpdateStop(tripId);
+  const deleteStopMutation = useDeleteStop(tripId);
+  const reorderStopsMutation = useReorderStops(tripId);
 
   const isMutating =
     addMutation.isPending ||
@@ -120,12 +111,11 @@ export default function ItineraryBuilderPage() {
     reorderStopsMutation.isPending ||
     completeMutation.isPending;
 
-  /* Reflect any in-flight mutation in the pill. */
   useEffect(() => {
     if (isMutating) setSaveState("saving");
+    else setSaveState("saved");
   }, [isMutating]);
 
-  /* ---------------- derived ---------------- */
   const issues = useMemo(
     () => (trip && itinerary ? validateItinerary(itinerary, trip) : []),
     [itinerary, trip],
@@ -133,22 +123,22 @@ export default function ItineraryBuilderPage() {
 
   const addedCatalogIds = useMemo(() => {
     const ids = new Set<string>();
-    for (const day of days) {
-      for (const activity of day.activities) {
-        if (activity.catalogActivityId) ids.add(activity.catalogActivityId);
-      }
+    for (const act of activities) {
+      if (act.catalogActivityId) ids.add(act.catalogActivityId);
     }
     return ids;
-  }, [days]);
+  }, [activities]);
 
-  /* ---------------- handlers ---------------- */
+  const currency = trip?.currency ?? "USD";
+
   const handleAddFromCatalog = useCallback(
     (suggestion: import("@/features/trips/trips.types").ActivitySuggestion) => {
       if (!selectedDay) return;
       const input: ActivityInput = {
+        dayId: selectedDay.id,
         name: suggestion.name,
         description: suggestion.description,
-        category: suggestion.category,
+        category: suggestion.category as "adventure" | "custom" | "nature" | "food" | "culture",
         location: suggestion.city,
         startTime: "10:00",
         endTime: "11:30",
@@ -158,15 +148,12 @@ export default function ItineraryBuilderPage() {
         catalogActivityId: suggestion.id,
         source: "catalog",
       };
-      addMutation.mutate(
-        { dayId: selectedDay.id, input },
-        {
-          onSuccess: () => {
-            toast.success(`“${suggestion.name}” added at 10:00 — adjust times anytime.`);
-            setAddOpen(false);
-          },
+      addMutation.mutate(input, {
+        onSuccess: () => {
+          toast.success(`“${suggestion.name}” added at 10:00 — adjust times anytime.`);
+          setAddOpen(false);
         },
-      );
+      });
     },
     [selectedDay, addMutation],
   );
@@ -175,6 +162,7 @@ export default function ItineraryBuilderPage() {
     (values: ActivityFormValues & { estimatedCostInr: number }) => {
       if (!selectedDay) return;
       const input: ActivityInput = {
+        dayId: values.dayId || selectedDay.id,
         name: values.name,
         description: values.description,
         category: values.category,
@@ -184,15 +172,12 @@ export default function ItineraryBuilderPage() {
         estimatedCostInr: values.estimatedCostInr,
         source: "custom",
       };
-      addMutation.mutate(
-        { dayId: values.dayId || selectedDay.id, input },
-        {
-          onSuccess: () => {
-            toast.success(`“${values.name}” added.`);
-            setAddOpen(false);
-          },
+      addMutation.mutate(input, {
+        onSuccess: () => {
+          toast.success(`“${values.name}” added.`);
+          setAddOpen(false);
         },
-      );
+      });
     },
     [selectedDay, addMutation],
   );
@@ -212,15 +197,12 @@ export default function ItineraryBuilderPage() {
       if (values.dayId !== editingActivity.dayId) {
         patch.dayId = values.dayId;
       }
-      updateMutation.mutate(
-        { activityId: editingActivity.id, patch },
-        {
-          onSuccess: () => {
-            toast.success("Activity updated.");
-            setEditingActivity(null);
-          },
+      updateMutation.mutate({ activityId: editingActivity.id, patch }, {
+        onSuccess: () => {
+          toast.success("Activity updated.");
+          setEditingActivity(null);
         },
-      );
+      });
     },
     [editingActivity, updateMutation],
   );
@@ -232,7 +214,13 @@ export default function ItineraryBuilderPage() {
     });
   }, [completeMutation]);
 
-  /* Keyboard shortcuts: Ctrl+S save-sync, Ctrl+P preview. */
+  const handleTripEditSave = useCallback(
+    (_patch: EditableTripPatch) => {
+      // Trip edit handled by TripHeader internally
+    },
+    [],
+  );
+
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if (!(event.ctrlKey || event.metaKey)) return;
@@ -250,7 +238,6 @@ export default function ItineraryBuilderPage() {
     return () => window.removeEventListener("keydown", handler);
   }, [itineraryQuery]);
 
-  /* ---------------- render ---------------- */
   if (tripQuery.isLoading || itineraryQuery.isLoading) {
     return (
       <AppShell crumbs={[{ label: "Trips", to: "/trips" }, { label: "Itinerary" }]}>
@@ -272,84 +259,70 @@ export default function ItineraryBuilderPage() {
     );
   }
 
-  const currency = trip.currency ?? "USD";
-
   return (
     <AppShell
       crumbs={[
         { label: "Trips", to: "/trips" },
-        { label: trip.destinationName, to: `/trips/${trip.id}` },
+        { label: trip.destinationId, to: `/trips/${trip.id}` },
         { label: "Itinerary" },
       ]}
       title="Plan Your Journey"
       description="Craft each day with drag-and-drop ease."
       actions={
         <div className="flex items-center gap-2">
-          <ViewSwitcher view={view} onViewChange={setView} />
+          <ViewSwitcher value={view} onChange={setView} />
         </div>
       }
     >
       <div className="space-y-6">
-        <TripHeader trip={trip} />
-
-        <ItineraryOverview
-          days={days}
-          currency={currency}
-          progress={itineraryProgress(itinerary, trip)}
-          statusLabel={tripDisplayStatus(trip)}
-          stops={itinerary.stops}
+        <TripHeader
+          trip={trip}
+          isDeleting={deletingTrip}
+          isSavingEdit={false}
+          onDelete={() => setDeletingTrip(true)}
+          onEditSave={handleTripEditSave}
         />
 
-        {/* Map view */}
+        <ItineraryOverview progress={itineraryProgress(itinerary, trip)} />
+
         {view === "map" ? (
           <section aria-label="Route map">
-            <ItineraryMap
-              stops={itinerary.stops}
-              activities={days.flatMap((day) => day.activities)}
-            />
+            <ItineraryMap stops={itinerary.stops} activities={activities} />
             <div className="mt-4">
               <StopsSection
                 stops={itinerary.stops}
                 days={days}
                 isMutating={isMutating}
-                onReorder={(orderedIds) =>
-                  reorderStopsMutation.mutate(orderedIds)
-                }
-                onAdd={(stop) =>
-                  addStopMutation.mutate(stop)
-                }
-                onUpdate={(stopId, patch) =>
-                  updateStopMutation.mutate({ stopId, patch })
-                }
-                onDelete={(stopId) =>
-                  deleteStopMutation.mutate(stopId)
-                }
+                onReorder={(orderedIds) => reorderStopsMutation.mutate(orderedIds)}
+                onAdd={(stop) => addStopMutation.mutate(stop)}
+                onUpdate={(stopId, patch) => updateStopMutation.mutate({ stopId, patch })}
+                onDelete={(stopId) => deleteStopMutation.mutate(stopId)}
               />
             </div>
           </section>
         ) : null}
 
-        {/* Day navigation */}
         <DayNavigation
           days={days}
+          activities={activities}
           selectedDayId={selectedDayId}
           onSelect={setSelectedDayId}
-          issueDayIds={new Set(issues.map((issue) => issue.dayId).filter(Boolean))}
         />
 
-        {/* Day details + timeline */}
         {selectedDay ? (
           <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
             <div className="min-w-0 space-y-4">
               <DayDetails
                 key={selectedDay.id}
-                day={selectedDay}
                 dayIndex={selectedDayIndex}
+                day={selectedDay}
+                activities={selectedDayActivities}
                 currency={currency}
-                isMutating={isMutating}
-                onSaveNotes={(notes) =>
+                issues={issues.filter((i) => i.dayId === selectedDayId)}
+                isSavingDay={saveDayMutation.isPending}
+                onUpdateDay={(patch) =>
                   saveDayMutation.mutate(
-                    { dayId: selectedDay.id, patch: { notes } },
+                    { dayId: selectedDay.id, patch },
                     { onSuccess: () => toast.success("Day notes saved.") },
                   )
                 }
@@ -357,7 +330,7 @@ export default function ItineraryBuilderPage() {
 
               <ActivityTimeline
                 dayId={selectedDay.id}
-                activities={selectedDay.activities}
+                activities={selectedDayActivities}
                 currency={currency}
                 isMutating={isMutating}
                 onAddClick={() => setAddOpen(true)}
@@ -365,30 +338,21 @@ export default function ItineraryBuilderPage() {
                   reorderMutation.mutate({ dayId: selectedDay.id, orderedIds })
                 }
                 onEdit={(activity) => setEditingActivity(activity)}
-                onDuplicate={(activity) =>
-                  duplicateMutation.mutate(activity.id)
-                }
-                onDelete={(activityId) =>
-                  deleteMutation.mutate(activityId)
-                }
+                onDuplicate={(activity) => duplicateMutation.mutate(activity.id)}
+                onDelete={(activityId) => deleteMutation.mutate(activityId)}
                 onMoveToDay={(activity) => setMovingActivity(activity)}
               />
             </div>
 
-            {/* Sidebar: stops in list view */}
-            {view === "list" ? (
+            {view === "timeline" ? (
               <aside className="min-w-0 space-y-4 xl:sticky xl:top-24 xl:self-start">
                 <StopsSection
                   stops={itinerary.stops}
                   days={days}
                   isMutating={isMutating}
-                  onReorder={(orderedIds) =>
-                    reorderStopsMutation.mutate(orderedIds)
-                  }
+                  onReorder={(orderedIds) => reorderStopsMutation.mutate(orderedIds)}
                   onAdd={(stop) => addStopMutation.mutate(stop)}
-                  onUpdate={(stopId, patch) =>
-                    updateStopMutation.mutate({ stopId, patch })
-                  }
+                  onUpdate={(stopId, patch) => updateStopMutation.mutate({ stopId, patch })}
                   onDelete={(stopId) => deleteStopMutation.mutate(stopId)}
                 />
               </aside>
@@ -396,12 +360,11 @@ export default function ItineraryBuilderPage() {
           </div>
         ) : null}
 
-        {/* Sticky action bar */}
         <ActionBar
           saveState={saveState}
-          lastSavedAt={itinerary.lastSavedAt ?? null}
+          lastSavedAt={itinerary.updatedAt ? new Date(itinerary.updatedAt).getTime() : null}
           issues={issues}
-          canComplete={Boolean(itinerary.days.some((day) => day.activities.length > 0))}
+          canComplete={activities.some((a) => days.some((d) => d.id === a.dayId))}
           isCompleting={completeMutation.isPending}
           onSave={() => {
             itineraryQuery.refetch().then(() => setSaveState("saved"));
@@ -412,7 +375,6 @@ export default function ItineraryBuilderPage() {
         />
       </div>
 
-      {/* Dialogs */}
       <AddActivityDialog
         open={addOpen}
         onOpenChange={setAddOpen}
@@ -440,15 +402,12 @@ export default function ItineraryBuilderPage() {
         isMutating={moveMutation.isPending}
         onMove={(dayId) => {
           if (!movingActivity) return;
-          moveMutation.mutate(
-            { activityId: movingActivity.id, targetDayId: dayId },
-            {
-              onSuccess: () => {
-                toast.success("Activity moved.");
-                setMovingActivity(null);
-              },
+          moveMutation.mutate({ activityId: movingActivity.id, targetDayId: dayId }, {
+            onSuccess: () => {
+              toast.success("Activity moved.");
+              setMovingActivity(null);
             },
-          );
+          });
         }}
         onOpenChange={(open) => !open && setMovingActivity(null)}
       />
@@ -462,6 +421,3 @@ export default function ItineraryBuilderPage() {
     </AppShell>
   );
 }
-
-import { itineraryProgress, tripDisplayStatus } from "@/features/trips/itinerary.utils";
-import type { TripRecord } from "@/features/trips/trips.types";

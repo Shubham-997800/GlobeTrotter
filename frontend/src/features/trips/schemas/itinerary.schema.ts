@@ -78,7 +78,9 @@ export function activityFormSchema(tripDates: string[]) {
     });
 }
 
-export type ActivityFormValues = z.infer<ReturnType<typeof activityFormSchema>>;
+export type ActivityFormValues = z.infer<ReturnType<typeof activityFormSchema>> & {
+  category: string;
+};
 
 /** Day ids mirror their date (`day_YYYY-MM-DD`). */
 export function dateToDayId(date: string): string {
