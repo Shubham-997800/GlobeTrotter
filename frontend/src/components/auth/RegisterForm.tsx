@@ -79,7 +79,7 @@ export function RegisterForm() {
       setStatus("success");
       toast.success(`Account created. Welcome aboard, ${user.name.split(" ")[0]}!`);
       window.setTimeout(
-        () => navigate("/app", { replace: true }),
+        () => navigate("/dashboard", { replace: true }),
         REDIRECT_DELAY_MS,
       );
     } catch (error) {

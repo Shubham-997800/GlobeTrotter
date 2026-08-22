@@ -11,6 +11,8 @@ interface UseDraftAutosaveOptions {
   values: TripFormValues;
   /** Bumped whenever the user edits the form. */
   dirtyToken: number;
+  /** When false (edit mode) nothing is written to localStorage. */
+  enabled?: boolean;
 }
 
 interface DraftAutosaveResult {
@@ -30,11 +32,12 @@ interface DraftAutosaveResult {
 export function useDraftAutosave({
   values,
   dirtyToken,
+  enabled = true,
 }: UseDraftAutosaveOptions): DraftAutosaveResult {
   // Read once during initial render so the page can hydrate the form
   // before the first paint of controlled inputs.
   const [restored] = useState<TripFormValues | null>(() =>
-    tripsService.readActiveDraft(),
+    enabled ? tripsService.readActiveDraft() : null,
   );
   const [state, setState] = useState<DraftState>("idle");
   const [savedAt, setSavedAt] = useState<Date | null>(null);
@@ -51,6 +54,7 @@ export function useDraftAutosave({
       skipFirstRun.current = false;
       return;
     }
+    if (!enabled) return;
     if (dirtyToken === 0) return;
 
     // Immediate feedback before the debounce window elapses is intentional.
@@ -68,7 +72,7 @@ export function useDraftAutosave({
     }, AUTOSAVE_DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
-  }, [dirtyToken]);
+  }, [dirtyToken, enabled]);
 
   return {
     draftState: state,

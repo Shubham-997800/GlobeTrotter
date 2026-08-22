@@ -274,7 +274,6 @@ function TripEditDialog({
   // Reset local state each time the dialog opens so stale edits never leak.
   useEffect(() => {
     if (open) {
-      // oxlint-disable-next-line react/set-state-in-effect -- form drafts intentionally reset when the edit dialog mounts/opens.
       setName(trip.name);
       setDescription(trip.description ?? "");
       setCoverImage(trip.coverImage ?? "");

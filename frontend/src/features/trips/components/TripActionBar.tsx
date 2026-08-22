@@ -10,6 +10,8 @@ interface TripActionBarProps {
   savingDraft: boolean;
   creating: boolean;
   draftState: DraftState;
+  /** "edit" swaps the create-only actions for update semantics. */
+  mode?: "create" | "edit";
 }
 
 /**
@@ -23,8 +25,10 @@ export function TripActionBar({
   savingDraft,
   creating,
   draftState,
+  mode = "create",
 }: TripActionBarProps) {
   const busy = savingDraft || creating;
+  const isEdit = mode === "edit";
 
   return (
     <div
@@ -43,25 +47,29 @@ export function TripActionBar({
           Cancel
         </Button>
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onSaveDraft}
-            disabled={busy}
-          >
-            {savingDraft ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            ) : (
-              <Save className="h-4 w-4" aria-hidden="true" />
-            )}
-            Save as Draft
-          </Button>
+          {!isEdit ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onSaveDraft}
+              disabled={busy}
+            >
+              {savingDraft ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <Save className="h-4 w-4" aria-hidden="true" />
+              )}
+              Save as Draft
+            </Button>
+          ) : null}
           <Button type="submit" disabled={busy}>
             {creating ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                Creating…
+                {isEdit ? "Saving…" : "Creating…"}
               </>
+            ) : isEdit ? (
+              "Save Changes"
             ) : (
               "Create Trip"
             )}

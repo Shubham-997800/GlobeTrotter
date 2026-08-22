@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -45,12 +45,13 @@ import {
   emptyTripDraft,
   type TripFormValues,
 } from "@/features/trips/schemas/create-trip.schema";
-import { destinations } from "@/features/trips/trips.data";
+import { destinations, activities } from "@/features/trips/trips.data";
 import type {
   ActivitySuggestion,
   BudgetTierDef,
   Destination,
   InterestId,
+  TripRecord,
 } from "@/features/trips/trips.types";
 import {
   estimateSpendingInr,
@@ -58,7 +59,7 @@ import {
 } from "@/features/trips/trips.utils";
 import { budgetTier, interestLabel } from "@/features/trips/trips.data";
 import { tripsService } from "@/features/trips/trips.service";
-import { useCreateTrip, useSaveDraft } from "@/features/trips/useTrips";
+import { useCreateTrip, useSaveDraft, useUpdateTrip } from "@/features/trips/useTrips";
 import { useDraftAutosave } from "@/features/trips/useDraftAutosave";
 
 function readInitialValues(): TripFormValues {
@@ -67,15 +68,35 @@ function readInitialValues(): TripFormValues {
   return { ...emptyTripDraft(), ...restored };
 }
 
+/** Maps a persisted record back into the form shape (edit mode). */
+function recordToFormValues(record: TripRecord): TripFormValues {
+  return {
+    name: record.name,
+    description: record.description ?? "",
+    coverImage: record.coverImage ?? "",
+    startDate: record.startDate,
+    endDate: record.endDate,
+    destinationId: record.destinationId,
+    interests: record.interests,
+    budgetTier: record.budgetTier,
+    currency: record.currency,
+    budgetAmount: String(record.budgetAmount),
+  };
+}
+
 export function CreateTripPage() {
   const navigate = useNavigate();
+  const { tripId } = useParams<{ tripId: string }>();
+  const isEdit = Boolean(tripId);
+  const existingTrip = tripsService.readTripById(tripId ?? "");
   const createTrip = useCreateTrip();
   const saveDraft = useSaveDraft();
+  const updateTrip = useUpdateTrip();
 
   /* ── Form ─────────────────────────────────────────────────── */
   const form = useForm<TripFormValues>({
     resolver: zodResolver(createTripSchema("create")) as never,
-    defaultValues: readInitialValues(),
+    defaultValues: isEdit && existingTrip ? recordToFormValues(existingTrip) : readInitialValues(),
     mode: "onTouched",
   });
   const { register, handleSubmit, setValue, watch, formState } = form;
@@ -91,12 +112,18 @@ export function CreateTripPage() {
     return () => subscription.unsubscribe();
   }, [watch]);
 
-  const [addedActivities, setAddedActivities] = useState<ActivitySuggestion[]>([]);
+  const [addedActivities, setAddedActivities] = useState<ActivitySuggestion[]>(() =>
+    isEdit && existingTrip
+      ? (existingTrip.activityIds ?? [])
+          .map((id) => activities.find((activity) => activity.id === id))
+          .filter((activity): activity is ActivitySuggestion => Boolean(activity))
+      : [],
+  );
   const touchedBeyondForm = addedActivities.length > 0;
   const hasUnsavedWork = dirtyToken > 0 || touchedBeyondForm;
 
   const { draftState, savedAt, markSavedNow, clearLocalDraft } =
-    useDraftAutosave({ values, dirtyToken });
+    useDraftAutosave({ values, dirtyToken, enabled: !isEdit });
 
   /* Warn before leaving with unsaved work (refresh / close). */
   useEffect(() => {
@@ -107,6 +134,14 @@ export function CreateTripPage() {
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [hasUnsavedWork]);
+
+  /* Unknown trip id → back to My Trips instead of a dead form. */
+  useEffect(() => {
+    if (isEdit && !existingTrip) {
+      toast.error("That trip doesn't exist anymore.");
+      navigate("/trips", { replace: true });
+    }
+  }, [isEdit, existingTrip, navigate]);
 
   /* ── Derived preview data ─────────────────────────────────── */
   const selectedDestination = useMemo<Destination | null>(
@@ -154,8 +189,9 @@ export function CreateTripPage() {
     );
   };
 
-  /* ── Save as Draft (name-only validation) ─────────────────── */
+  /* ── Save as Draft (name-only validation, create mode only) ─ */
   const handleSaveDraft = async () => {
+    if (isEdit) return;
     const parsed = createTripSchema("draft").safeParse(values);
     if (!parsed.success) {
       const firstIssue = parsed.error.issues[0];
@@ -178,12 +214,21 @@ export function CreateTripPage() {
     }
   };
 
-  /* ── Create (full validation via resolver) ────────────────── */
+  /* ── Create / Update (full validation via resolver) ───────── */
   const onValid = async (data: TripFormValues) => {
+    const activityIds = addedActivities.map((activity) => activity.id);
     try {
+      if (isEdit && tripId) {
+        const trip = await updateTrip.mutateAsync({ tripId, values: data, activityIds });
+        toast.success("Trip updated!", {
+          description: `${trip.name} — all changes saved.`,
+        });
+        navigate("/trips");
+        return;
+      }
       const trip = await createTrip.mutateAsync({
         values: data,
-        activityIds: addedActivities.map((activity) => activity.id),
+        activityIds,
       });
       clearLocalDraft();
       toast.success("Trip created!", {
@@ -219,16 +264,19 @@ export function CreateTripPage() {
     navigate("/trips");
   };
 
-  const busy = createTrip.isPending || saveDraft.isPending;
+  const busy = createTrip.isPending || updateTrip.isPending || saveDraft.isPending;
 
   return (
     <AppShell
       crumbs={[
+        { label: "Home", to: "/dashboard" },
         { label: "My Trips", to: "/trips" },
-        { label: "Create Trip" },
+        { label: isEdit ? "Edit" : "Create Trip" },
       ]}
-      title="Create a New Trip"
-      description="Plan smarter — pick a destination, dates and budget, then let GlobeTrotter scaffold your itinerary."
+      title={isEdit ? "Edit Trip" : "Create a New Trip"}
+      description={isEdit
+        ? "Adjust the details and save when you're ready."
+        : "Plan smarter — pick a destination, dates and budget, then let GlobeTrotter scaffold your itinerary."}
       actions={
         <>
           <Button variant="ghost" asChild className="hidden md:inline-flex">
@@ -237,11 +285,13 @@ export function CreateTripPage() {
               Back to My Trips
             </Link>
           </Button>
-          <DraftStatus
-            state={draftState}
-            savedAt={savedAt}
-            className="hidden sm:inline-flex"
-          />
+          {!isEdit && (
+            <DraftStatus
+              state={draftState}
+              savedAt={savedAt}
+              className="hidden sm:inline-flex"
+            />
+          )}
         </>
       }
     >
@@ -449,8 +499,9 @@ export function CreateTripPage() {
           onCancel={requestCancel}
           onSaveDraft={() => void handleSaveDraft()}
           savingDraft={saveDraft.isPending}
-          creating={createTrip.isPending}
+          creating={createTrip.isPending || updateTrip.isPending}
           draftState={draftState}
+          mode={isEdit ? "edit" : "create"}
         />
       </form>
 
@@ -479,8 +530,8 @@ export function CreateTripPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Full-page busy overlay while creating */}
-      {createTrip.isPending ? (
+      {/* Full-page busy overlay while creating/updating */}
+      {(createTrip.isPending || updateTrip.isPending) ? (
         <div
           role="status"
           aria-live="polite"
@@ -488,7 +539,7 @@ export function CreateTripPage() {
         >
           <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
           <p className="text-sm font-medium text-foreground">
-            Creating your trip…
+            {isEdit ? "Saving changes…" : "Creating your trip…"}
           </p>
         </div>
       ) : null}

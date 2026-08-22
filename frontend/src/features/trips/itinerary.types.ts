@@ -27,6 +27,8 @@ export interface ItineraryStop {
   id: string;
   /** Actual destination catalog identifier — never just a display name. */
   destinationId: string;
+  /** Denormalized display name for UI — set from catalog on add. */
+  destinationName: string;
   arrivalDate: string; // YYYY-MM-DD
   departureDate: string; // YYYY-MM-DD
   order: number;
@@ -81,11 +83,13 @@ export interface ActivityInput {
   image?: string;
   imageAlt?: string;
   catalogActivityId?: string;
+  source?: "catalog" | "custom";
 }
 
 /** Payload for creating/updating a city stop. */
 export interface StopInput {
   destinationId: string;
+  destinationName: string;
   arrivalDate: string;
   departureDate: string;
 }

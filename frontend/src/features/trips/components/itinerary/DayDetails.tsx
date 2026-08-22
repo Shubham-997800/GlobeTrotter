@@ -66,7 +66,6 @@ export function DayDetails({
 
   // Re-sync drafts when switching days or after external updates.
   useEffect(() => {
-    // oxlint-disable-next-line react/set-state-in-effect -- controlled draft state must mirror the active day, which can also change externally.
     setNotesDraft(day.notes);
     setLocationDraft(
       destinations.find((d) => d.id === day.destinationId) ?? null,

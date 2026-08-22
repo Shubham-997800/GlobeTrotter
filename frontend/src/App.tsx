@@ -21,6 +21,9 @@ const LandingPage = lazy(() =>
 const CreateTripPage = lazy(() =>
   import("@/pages/trips/CreateTripPage").then((m) => ({ default: m.CreateTripPage })),
 );
+const MyTripsPage = lazy(() =>
+  import("@/pages/trips/MyTripsPage").then((m) => ({ default: m.MyTripsPage })),
+);
 const ItineraryBuilderPage = lazy(() =>
   import("@/pages/trips/ItineraryBuilderPage").then((m) => ({
     default: m.ItineraryBuilderPage,
@@ -75,18 +78,6 @@ function AppToaster() {
 
 /** Signed-in-only modules awaiting their dedicated screens. */
 const APP_SECTIONS = [
-  {
-    path: "/dashboard",
-    title: "Dashboard",
-    description:
-      "Your travel overview — upcoming trips, budgets and recent activity will live here.",
-  },
-  {
-    path: "/trips",
-    title: "My Trips",
-    description:
-      "Browse, organize and revisit every journey you have planned so far.",
-  },
   {
     path: "/explore",
     title: "Explore",
@@ -170,13 +161,14 @@ export default function App() {
 
             {/* Protected */}
             <Route
-              path="/app"
+              path="/dashboard"
               element={
                 <ProtectedRoute>
                   <AppDashboardPage />
                 </ProtectedRoute>
               }
             />
+            <Route path="/app" element={<Navigate to="/dashboard" replace />} />
             {APP_SECTIONS.map((section) => (
               <Route
                 key={section.path}
@@ -193,6 +185,14 @@ export default function App() {
             ))}
 
             {/* Trips module */}
+            <Route
+              path="/trips"
+              element={
+                <ProtectedRoute>
+                  <MyTripsPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/trips/create"
               element={
@@ -214,7 +214,15 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-
+            {/* Edit reuses the create form with a loaded record */}
+            <Route
+              path="/trips/:tripId/edit"
+              element={
+                <ProtectedRoute>
+                  <CreateTripPage />
+                </ProtectedRoute>
+              }
+            />
             {/* Role protected */}
             <Route
               path="/admin"
