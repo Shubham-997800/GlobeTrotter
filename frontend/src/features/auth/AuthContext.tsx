@@ -10,9 +10,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authService } from "./auth.service";
 import {
   type AuthSession,
+  type ChangePasswordPayload,
   type ForgotPasswordPayload,
   type LoginPayload,
   type RegisterPayload,
+  type UpdateProfilePayload,
   type User,
 } from "./auth.types";
 
@@ -24,6 +26,10 @@ interface AuthContextValue {
   register: (payload: RegisterPayload) => Promise<User>;
   requestPasswordReset: (payload: ForgotPasswordPayload) => Promise<{ token: string }>;
   resetPassword: (payload: { token: string; password: string }) => Promise<void>;
+  updateProfile: (patch: UpdateProfilePayload) => Promise<User>;
+  changePassword: (payload: ChangePasswordPayload) => Promise<void>;
+  deactivateAccount: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   logout: () => void;
 }
 
@@ -92,6 +98,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryClient.clear();
   }, [queryClient]);
 
+  const updateProfileMutation = useMutation({
+    mutationFn: ({
+      userId,
+      patch,
+    }: {
+      userId: string;
+      patch: UpdateProfilePayload;
+    }) => authService.updateProfile(userId, patch),
+  });
+
+  const changePasswordMutation = useMutation({
+    mutationFn: ({ userId, payload }: { userId: string; payload: ChangePasswordPayload }) =>
+      authService.changePassword(userId, payload),
+  });
+
+  const requireUserId = useCallback(() => {
+    if (!session?.user) throw new Error("Not authenticated.");
+    return session.user.id;
+  }, [session]);
+
+  const updateProfile = useCallback(
+    async (patch: UpdateProfilePayload) => {
+      const updated = await updateProfileMutation.mutateAsync({
+        userId: requireUserId(),
+        patch,
+      });
+      setSession((prev) => (prev ? { ...prev, user: updated } : prev));
+      return updated;
+    },
+    [updateProfileMutation, requireUserId],
+  );
+
+  const changePassword = useCallback(
+    async (payload: ChangePasswordPayload) =>
+      changePasswordMutation.mutateAsync({ userId: requireUserId(), payload }),
+    [changePasswordMutation, requireUserId],
+  );
+
+  const deactivateAccount = useCallback(async () => {
+    await authService.deactivateAccount(requireUserId());
+    setSession(null);
+    queryClient.clear();
+  }, [requireUserId, queryClient]);
+
+  const deleteAccount = useCallback(async () => {
+    await authService.deleteAccount(requireUserId());
+    setSession(null);
+    queryClient.clear();
+  }, [requireUserId, queryClient]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user: session?.user ?? null,
@@ -101,6 +157,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       register,
       requestPasswordReset,
       resetPassword,
+      updateProfile,
+      changePassword,
+      deactivateAccount,
+      deleteAccount,
       logout,
     }),
     [
@@ -110,6 +170,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       register,
       requestPasswordReset,
       resetPassword,
+      updateProfile,
+      changePassword,
+      deactivateAccount,
+      deleteAccount,
       logout,
     ],
   );

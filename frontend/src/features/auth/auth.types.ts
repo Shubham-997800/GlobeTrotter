@@ -1,16 +1,42 @@
 export type UserRole = "user" | "admin";
 
+export type AccountStatus = "active" | "deactivated";
+
+export type BudgetPreference = "budget" | "mid-range" | "luxury" | "flexible";
+
+export type TripDurationPreference =
+  | "weekend"
+  | "one-week"
+  | "two-weeks"
+  | "longer"
+  | "flexible";
+
+export interface TravelPreferences {
+  travelStyle: string[];
+  favoriteDestinations: string[];
+  interests: string[];
+  activities: string[];
+  budget: BudgetPreference;
+  tripDuration: TripDurationPreference;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
   createdAt: string;
   role?: UserRole;
+  status?: AccountStatus;
   avatarUrl?: string;
   phone?: string;
+  dateOfBirth?: string;
+  gender?: string;
   city?: string;
+  stateRegion?: string;
   country?: string;
+  timezone?: string;
   bio?: string;
+  preferences?: TravelPreferences;
 }
 
 export type AuthErrorCode =
@@ -58,6 +84,25 @@ export interface ForgotPasswordPayload {
 export interface ResetPasswordPayload {
   token: string;
   password: string;
+}
+
+export interface UpdateProfilePayload {
+  name?: string;
+  avatarUrl?: string | null;
+  phone?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  city?: string;
+  stateRegion?: string;
+  country?: string;
+  timezone?: string;
+  bio?: string;
+  preferences?: TravelPreferences;
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface AuthSession {

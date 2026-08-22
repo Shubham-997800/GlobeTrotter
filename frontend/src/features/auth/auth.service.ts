@@ -1,10 +1,12 @@
 import {
   ApiError,
   type AuthSession,
+  type ChangePasswordPayload,
   type ForgotPasswordPayload,
   type LoginPayload,
   type RegisterPayload,
   type ResetPasswordPayload,
+  type UpdateProfilePayload,
   type User,
 } from "./auth.types";
 
@@ -73,11 +75,15 @@ function delay(ms = MOCK_LATENCY_MS): Promise<void> {
 }
 
 function createSession(user: StoredUser): AuthSession {
-  const { password: _password, ...safeUser } = user;
   return {
-    user: safeUser,
+    user: stripPassword(user),
     token: `mock.${btoa(`${user.id}:${Date.now()}`)}`,
   };
+}
+
+function stripPassword(user: StoredUser): User {
+  const { password: _password, ...safeUser } = user;
+  return safeUser;
 }
 
 function readSession(): AuthSession | null {
@@ -120,6 +126,26 @@ function createResetToken(): string {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
     "",
   );
+}
+
+/** Replaces the user inside whichever storage currently holds the session. */
+function refreshSessionUser(user: User): void {
+  for (const storage of [localStorage, sessionStorage]) {
+    const raw = storage.getItem(SESSION_KEY);
+    if (!raw) continue;
+    try {
+      const parsed = JSON.parse(raw) as AuthSession;
+      if (parsed?.user?.id === user.id) {
+        storage.setItem(
+          SESSION_KEY,
+          JSON.stringify({ ...parsed, user }),
+        );
+      }
+    } catch {
+      // corrupted session — leave as-is; readSession() guards against it
+    }
+    return;
+  }
 }
 
 function readResets(): StoredReset[] {
@@ -233,6 +259,81 @@ export const authService = {
     users[userIndex] = { ...users[userIndex], password: payload.password };
     writeStoredUsers(users);
     writeResets(resets.filter((candidate) => candidate.token !== reset.token));
+  },
+
+  async updateProfile(
+    userId: string,
+    patch: UpdateProfilePayload,
+  ): Promise<User> {
+    await delay();
+    const users = readStoredUsers();
+    const index = users.findIndex((candidate) => candidate.id === userId);
+    if (index === -1) {
+      throw new ApiError(
+        "ACCOUNT_NOT_FOUND",
+        "This account no longer exists.",
+      );
+    }
+    const { avatarUrl, ...rest } = patch;
+    const next: StoredUser = {
+      ...users[index],
+      ...rest,
+      ...(avatarUrl === null
+        ? { avatarUrl: undefined }
+        : avatarUrl !== undefined
+          ? { avatarUrl }
+          : {}),
+    };
+    users[index] = next;
+    writeStoredUsers(users);
+    refreshSessionUser(stripPassword(next));
+    return stripPassword(next);
+  },
+
+  async changePassword(
+    userId: string,
+    payload: ChangePasswordPayload,
+  ): Promise<void> {
+    await delay();
+    const users = readStoredUsers();
+    const index = users.findIndex((candidate) => candidate.id === userId);
+    if (index === -1) {
+      throw new ApiError(
+        "ACCOUNT_NOT_FOUND",
+        "This account no longer exists.",
+      );
+    }
+    if (users[index].password !== payload.currentPassword) {
+      throw new ApiError(
+        "INVALID_CREDENTIALS",
+        "Your current password is incorrect.",
+      );
+    }
+    users[index] = { ...users[index], password: payload.newPassword };
+    writeStoredUsers(users);
+  },
+
+  async deactivateAccount(userId: string): Promise<void> {
+    await delay();
+    const users = readStoredUsers();
+    const index = users.findIndex((candidate) => candidate.id === userId);
+    if (index === -1) {
+      throw new ApiError(
+        "ACCOUNT_NOT_FOUND",
+        "This account no longer exists.",
+      );
+    }
+    users[index] = { ...users[index], status: "deactivated" };
+    writeStoredUsers(users);
+    clearSession();
+  },
+
+  async deleteAccount(userId: string): Promise<void> {
+    await delay();
+    writeStoredUsers(
+      readStoredUsers().filter((candidate) => candidate.id !== userId),
+    );
+    clearSession();
   },
 
   logout(): void {

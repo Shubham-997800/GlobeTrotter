@@ -86,6 +86,90 @@ function pad2(value: number): string {
   return String(value).padStart(2, "0");
 }
 
+/** Rolling two-week list grouped by day — the calendar's agenda view. */
+function AgendaView({
+  anchor,
+  events,
+  onEventClick,
+}: {
+  anchor: string;
+  events: CalendarEvent[];
+  onEventClick: (event: CalendarEvent) => void;
+}) {
+  const days = useMemo(() => {
+    const buckets = new Map<string, CalendarEvent[]>();
+    for (const event of events) {
+      const bucket = buckets.get(event.date);
+      if (bucket) bucket.push(event);
+      else buckets.set(event.date, [event]);
+    }
+    return [...buckets.entries()]
+      .filter(([key]) => key >= anchor && key <= addDaysToKey(anchor, 13))
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, dayEvents]) => ({
+        key,
+        label: dayTitle(key),
+        today: key === todayKey(),
+        events: [...dayEvents].sort((a, b) =>
+          (a.startTime ?? "").localeCompare(b.startTime ?? ""),
+        ),
+      }));
+  }, [anchor, events]);
+
+  if (days.length === 0) {
+    return (
+      <p className="rounded-2xl border border-dashed border-subtle-border px-6 py-12 text-center text-sm text-muted-foreground">
+        No events in the next two weeks. Use “New entry” to plan something.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {days.map((day) => (
+        <section
+          key={day.key}
+          aria-label={day.label}
+          className="rounded-2xl border bg-card p-3 shadow-sm"
+        >
+          <h3 className="mb-2 flex items-center gap-2 px-1 text-sm font-semibold text-card-foreground">
+            {day.label}
+            {day.today ? (
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                Today
+              </span>
+            ) : null}
+            <span className="ml-auto text-xs font-normal text-muted-foreground">
+              {day.events.length}
+            </span>
+          </h3>
+          <ul className="divide-y divide-border">
+            {day.events.map((event) => (
+              <li key={event.id}>
+                <button
+                  type="button"
+                  onClick={() => onEventClick(event)}
+                  className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <span className="w-16 shrink-0 text-xs font-medium text-travel-blue">
+                    {event.startTime ? formatTimeLabel(event.startTime) : "All day"}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-sm text-card-foreground">
+                    {event.title}
+                    {event.location ? (
+                      <span className="text-muted-foreground"> · {event.location}</span>
+                    ) : null}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  );
+}
+
 /** Adds whole months while clamping the day-of-month (Jan 31 → Feb 28). */
 function addMonthsKey(key: string, delta: number): string {
   const year = Number(key.slice(0, 4));
@@ -172,11 +256,19 @@ export function CalendarPage() {
       ? monthTitle(year, monthIndex)
       : view === "week"
         ? rangeTitle(week[0], week[6])
-        : dayTitle(anchor);
+        : view === "agenda"
+          ? rangeTitle(anchor, addDaysToKey(anchor, 13))
+          : dayTitle(anchor);
 
   const step = (delta: number) => {
     if (view === "month") setAnchor(addMonthsKey(anchor, delta));
-    else setAnchor(addDaysToKey(anchor, delta * (view === "week" ? 7 : 1)));
+    else
+      setAnchor(
+        addDaysToKey(
+          anchor,
+          delta * (view === "week" || view === "agenda" ? 7 : 1),
+        ),
+      );
   };
 
   const openCreateForm = (date?: string) => {
@@ -359,6 +451,15 @@ export function CalendarPage() {
               <Button variant="ghost" size="sm" onClick={() => setAnchor(todayKey())}>
                 Today
               </Button>
+              <input
+                type="date"
+                value={anchor}
+                onChange={(event) => {
+                  if (event.target.value) setAnchor(event.target.value);
+                }}
+                aria-label="Pick a date"
+                className="h-9 rounded-lg border border-input bg-card px-2 text-sm text-card-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [color-scheme:light] dark:[color-scheme:dark]"
+              />
               <Button
                 variant="outline"
                 size="icon"
@@ -375,6 +476,7 @@ export function CalendarPage() {
                 <TabsTrigger value="month">Month</TabsTrigger>
                 <TabsTrigger value="week">Week</TabsTrigger>
                 <TabsTrigger value="day">Day</TabsTrigger>
+                <TabsTrigger value="agenda">Agenda</TabsTrigger>
               </TabsList>
             </Tabs>
 
@@ -485,6 +587,12 @@ export function CalendarPage() {
               onSelectDay={setAnchor}
               onEventClick={setDetails}
               onCreateAt={(date) => openCreateForm(date)}
+            />
+          ) : view === "agenda" ? (
+            <AgendaView
+              anchor={anchor}
+              events={filtered}
+              onEventClick={setDetails}
             />
           ) : (
             <DayAgenda

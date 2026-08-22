@@ -1,5 +1,6 @@
 import { Bell, Check } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -97,6 +98,15 @@ export function NotificationMenu({ items }: NotificationMenuProps) {
             );
           })
         )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link
+            to="/notifications"
+            className="cursor-pointer text-center text-sm font-medium text-primary"
+          >
+            View all notifications
+          </Link>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

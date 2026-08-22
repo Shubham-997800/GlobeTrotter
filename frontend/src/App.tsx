@@ -46,6 +46,21 @@ const CalendarPage = lazy(() =>
     default: m.CalendarPage,
 })),
 );
+const ProfilePage = lazy(() =>
+  import("@/pages/profile/ProfilePage").then((m) => ({
+    default: m.ProfilePage,
+  })),
+);
+const SettingsPage = lazy(() =>
+  import("@/pages/settings/SettingsPage").then((m) => ({
+    default: m.SettingsPage,
+  })),
+);
+const NotificationsPage = lazy(() =>
+  import("@/pages/notifications/NotificationsPage").then((m) => ({
+    default: m.NotificationsPage,
+  })),
+);
 const ForgotPasswordPage = lazy(() =>
   import("@/pages/auth/ForgotPasswordPage").then((m) => ({
     default: m.ForgotPasswordPage,
@@ -110,22 +125,6 @@ function AppToaster() {
     />
   );
 }
-
-/** Signed-in-only modules awaiting their dedicated screens. */
-const APP_SECTIONS = [
-  {
-    path: "/profile",
-    title: "Profile",
-    description:
-      "Manage your account details, avatar and travel preferences.",
-  },
-  {
-    path: "/settings",
-    title: "Settings",
-    description:
-      "Tune notifications, currency, privacy and other app preferences.",
-  },
-] as const;
 
 export default function App() {
   return (
@@ -204,20 +203,32 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            {APP_SECTIONS.map((section) => (
-              <Route
-                key={section.path}
-                path={section.path}
-                element={
-                  <ProtectedRoute>
-                    <AppSectionPlaceholder
-                      title={section.title}
-                      description={section.description}
-                    />
-                  </ProtectedRoute>
-                }
-              />
-            ))}
+            {/* Profile & settings */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Notifications */}
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <NotificationsPage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Trips module */}
             <Route

@@ -56,7 +56,7 @@ export interface UpdateCustomEventInput extends Partial<CustomEventInput> {
 
 /* ── View state ────────────────────────────────────────────────── */
 
-export type CalendarViewId = "month" | "week" | "day";
+export type CalendarViewId = "month" | "week" | "day" | "agenda";
 
 export type TripFilterId = "all" | "upcoming" | "ongoing" | "completed";
 
