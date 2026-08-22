@@ -54,7 +54,7 @@ export function useDraftAutosave({
     if (dirtyToken === 0) return;
 
     // Immediate feedback before the debounce window elapses is intentional.
-    // oxlint-disable-next-line react(set-state-in-effect)
+    // oxlint-disable-next-line react/set-state-in-effect
     setState("dirty");
     const timer = setTimeout(() => {
       setState("saving");

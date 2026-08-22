@@ -1,4 +1,3 @@
-/* oxlint-disable react(incompatible-library) -- react-hook-form's API intentionally returns fresh function identities per render. */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -87,6 +86,7 @@ export function CreateTripPage() {
   /* ── Dirty tracking (drives autosave + guards) ────────────── */
   const [dirtyToken, setDirtyToken] = useState(0);
   useEffect(() => {
+    // oxlint-disable-next-line react/incompatible-library -- RHF watch() intentionally returns a fresh function per render.
     const subscription = watch(() => setDirtyToken((token) => token + 1));
     return () => subscription.unsubscribe();
   }, [watch]);

@@ -1,4 +1,3 @@
-/* oxlint-disable react(incompatible-library) -- react-hook-form's API intentionally returns fresh function identities per render. */
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, Sparkles } from "lucide-react";
@@ -52,6 +51,7 @@ export function LoginForm() {
     defaultValues: { identifier: "", password: "", remember: true },
   });
 
+  // oxlint-disable-next-line react/incompatible-library -- RHF watch() intentionally returns a fresh function per render.
   const remember = watch("remember");
 
   const onSubmit = async (values: LoginValues) => {

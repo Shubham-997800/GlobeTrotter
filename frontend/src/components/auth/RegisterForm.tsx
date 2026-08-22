@@ -1,4 +1,3 @@
-/* oxlint-disable react(incompatible-library) -- react-hook-form's API intentionally returns fresh function identities per render. */
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Globe, Mail, MapPin, Phone } from "lucide-react";
@@ -58,6 +57,7 @@ export function RegisterForm() {
     },
   });
 
+  // oxlint-disable-next-line react/incompatible-library -- RHF watch() intentionally returns a fresh function per render.
   const password = watch("password");
   const isBusy = status !== "idle";
 
