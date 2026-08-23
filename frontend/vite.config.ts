@@ -44,10 +44,17 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // Dev-only: forwards /api/* to the Express backend.
+      // Forwards /api/* to the deployed API by default so a fresh clone
+      // works without running the backend locally. To develop against a
+      // local backend instead, set VITE_API_PROXY_TARGET=http://localhost:4000.
+      // After deploying on Render, replace the host below with your real
+      // service URL (e.g. https://globetrotter-api-xxxx.onrender.com).
       "/api": {
-        target: process.env.VITE_API_PROXY_TARGET ?? "http://localhost:4000",
+        target:
+          process.env.VITE_API_PROXY_TARGET ??
+          "https://REPLACE-WITH-YOUR-RENDER-URL.onrender.com",
         changeOrigin: true,
+        secure: true,
       },
     },
   },

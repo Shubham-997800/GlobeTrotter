@@ -28,16 +28,44 @@ globetrotter/
 └── package.json       root scripts (delegate via --prefix)
 ```
 
-## Quick Start
+## Quick Start (testers)
 
 ```bash
-# 1. Install both workspaces
+npm run install:all
+npm run dev
+```
+
+Open http://localhost:5173 — done. The dev server proxies `/api` to the deployed GlobeTrotter API, so no backend or database setup is needed. Sign up with any email/password and your data is yours alone.
+
+> Running locally without a deployed API? Start the API too (`npm run dev:api`) and point the frontend at it: create `frontend/.env` with `VITE_API_PROXY_TARGET=http://localhost:4000`.
+
+## Deploy Your Own API (Render)
+
+The repo ships with a Render blueprint (`render.yaml`) — secrets stay out of git and are entered once in Render's dashboard:
+
+1. Push this repo to GitHub.
+2. Render Dashboard → **New → Blueprint** → select the repo.
+3. When prompted, fill in `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` from [supabase.com/dashboard](https://supabase.com/dashboard) → your project → **Project Settings → API**.
+4. Run the SQL migrations from `backend/sql/` in order (`schema.sql`, then each migration) via the Supabase SQL Editor.
+5. After deploy, copy your service URL (e.g. `https://globetrotter-api-xxxx.onrender.com`) into `frontend/vite.config.ts` as the default proxy target, commit, push.
+
+Health check: `GET /api/health` → `{ "status": "ok", "supabaseConfigured": true }`
+
+> ⚠️ Never commit real keys anywhere in this repo. `service_role` bypasses all database security — it must only ever live in Render's environment settings (or your local `backend/.env`, which is gitignored).
+
+## Full-Stack Local Development
+
+```bash
+# 1. Configure the API — copy the example and fill in Supabase values
+cp backend/.env.example backend/.env
+
+# 2. Install both workspaces
 npm run install:all
 
-# 2. Terminal 1 — API on http://localhost:4000
+# 3. Terminal 1 — API on http://localhost:4000
 npm run dev:api
 
-# 3. Terminal 2 — Web app on http://localhost:5173
+# 4. Terminal 2 — Web app on http://localhost:5173 (with VITE_API_PROXY_TARGET=http://localhost:4000 in frontend/.env)
 npm run dev
 ```
 
