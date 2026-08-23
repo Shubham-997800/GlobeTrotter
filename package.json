@@ -4,6 +4,7 @@
   "private": true,
   "description": "GlobeTrotter — travel-themed Work OS starter (frontend + backend monorepo)",
   "scripts": {
+    "postinstall": "npm run install:all",
     "install:all": "npm install --prefix frontend && npm install --prefix backend",
     "dev": "npm run dev --prefix frontend",
     "dev:api": "npm run dev --prefix backend",
