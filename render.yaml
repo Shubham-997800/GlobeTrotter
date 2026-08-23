@@ -9,7 +9,9 @@ services:
     runtime: node
     plan: free
     rootDir: backend
-    buildCommand: npm ci && npm run build
+    # --include=dev: Render builds with NODE_ENV=production, which makes
+    # npm skip devDependencies — but typescript/@types/node are needed here.
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     autoDeploy: true
