@@ -52,7 +52,7 @@ export default defineConfig({
       "/api": {
         target:
           process.env.VITE_API_PROXY_TARGET ??
-          "https://REPLACE-WITH-YOUR-RENDER-URL.onrender.com",
+          "https://globetrotter-b769.onrender.com",
         changeOrigin: true,
         secure: true,
       },
