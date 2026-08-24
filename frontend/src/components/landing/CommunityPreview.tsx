@@ -33,7 +33,7 @@ export function CommunityPreview({
 
         <Reveal className="mt-12 flex justify-center" delay={0.1}>
           <Button size="lg" asChild>
-            <Link to="/get-started">
+            <Link to="/register">
               <Users className="mr-1 h-4 w-4" aria-hidden="true" />
               {community.ctaLabel}
               <ArrowRight className="ml-1 h-4 w-4" aria-hidden="true" />

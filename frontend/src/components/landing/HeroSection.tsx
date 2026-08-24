@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { SafeImg } from "@/components/ui/safe-img";
 import { Container } from "@/components/landing/Container";
 import type { HeroContent, TrustStat } from "@/lib/types";
 
@@ -155,8 +156,8 @@ export function HeroSection({ hero, trustStats }: HeroSectionProps) {
           >
             <div className="relative px-6 pt-8 pb-6">
               {/* Main destination visual */}
-              <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-border shadow-xl shadow-black/5">
-                <img
+              <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-border shadow-xl shadow-black/5 bg-muted">
+                <SafeImg
                   src={HERO_IMG}
                   alt="Misty mountain valley bathed in golden sunlight"
                   className="h-full w-full object-cover"

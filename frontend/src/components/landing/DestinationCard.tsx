@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Star, MapPin } from "lucide-react";
 
+import { SafeImg } from "@/components/ui/safe-img";
 import type { Destination } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +28,7 @@ export function DestinationCard({
         className="flex h-full flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-        <img
+        <SafeImg
           src={destination.image}
           alt={destination.alt}
           loading="lazy"

@@ -89,6 +89,13 @@ export function LandingNavbar({
         className,
       )}
     >
+      {/* Skip navigation */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-2 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
       <Container>
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
@@ -175,18 +182,27 @@ export function LandingNavbar({
                 </SheetHeader>
 
                 <div className="flex flex-col gap-1 p-4">
-                  {navLinks.map((link) => (
-                    <a
-                      key={link.id}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleNavClick(link.href);
-                      }}
-                      className="rounded-lg px-3 py-3 text-base font-medium text-secondary-text transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
-                    >
-                      {link.label}
-                    </a>
-                  ))}
+                  {navLinks.map((link) => {
+                    const isActive = active === link.id;
+                    return (
+                      <a
+                        key={link.id}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleNavClick(link.href);
+                        }}
+                        aria-current={isActive ? "page" : undefined}
+                        className={cn(
+                          "rounded-lg px-3 py-3 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
+                          isActive
+                            ? "bg-active-nav text-primary"
+                            : "text-secondary-text hover:bg-hover hover:text-foreground",
+                        )}
+                      >
+                        {link.label}
+                      </a>
+                    );
+                  })}
                 </div>
 
                 <div className="mt-auto space-y-2 border-t border-border p-6">

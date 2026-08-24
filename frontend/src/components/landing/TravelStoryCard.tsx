@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Heart, MessageCircle, MapPin } from "lucide-react";
 
+import { SafeImg } from "@/components/ui/safe-img";
 import type { TravelStory } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +20,7 @@ export function TravelStoryCard({ story, className }: TravelStoryCardProps) {
     >
       {/* Post image */}
       <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-        <img
+        <SafeImg
           src={story.image}
           alt={story.alt}
           loading="lazy"
@@ -38,7 +39,7 @@ export function TravelStoryCard({ story, className }: TravelStoryCardProps) {
       {/* Body */}
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-center gap-3">
-          <img
+          <SafeImg
             src={story.avatar}
             alt={`${story.username} avatar`}
             loading="lazy"

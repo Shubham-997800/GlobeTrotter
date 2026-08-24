@@ -55,9 +55,9 @@ export const landingConfig: LandingConfig = {
   },
 
   trustStats: [
-    { icon: Users, value: "10K+", label: "Travelers" },
-    { icon: Luggage, value: "2.5K+", label: "Trips Planned" },
-    { icon: MapPin, value: "120+", label: "Destinations" },
+    { icon: Users, value: "500+", label: "Travelers" },
+    { icon: Luggage, value: "200+", label: "Trips Planned" },
+    { icon: MapPin, value: "50+", label: "Destinations" },
   ],
 
   featuresHeading: {
@@ -251,27 +251,27 @@ export const landingConfig: LandingConfig = {
 
   testimonials: [
     {
-      name: "Priya Sharma",
-      role: "Solo Traveler · 12 trips planned",
+      name: "Early Tester",
+      role: "Solo Traveler · Beta Program",
       quote:
-        "GlobeTrotter turned my Japan trip from a 3-week spreadsheet nightmare into a 20-minute planning session. The budget tracker alone saved me ₹15,000.",
-      avatar: avatar("Priya Sharma", "e74c3c"),
+        "The budget tracker helped me stay on top of expenses during a multi-city trip. No more spreadsheets.",
+      avatar: avatar("Early Tester", "e74c3c"),
       rating: 5,
     },
     {
-      name: "Rohan & Ananya",
-      role: "Couple · Bali & Thailand trips",
+      name: "Beta User",
+      role: "Couple · Weekend Trips",
       quote:
-        "We used to fight over which restaurant to book. Now we just share the itinerary and both know exactly what's happening. Total game-changer for couples.",
-      avatar: avatar("Rohan Ananya", "3498db"),
+        "We shared the itinerary and both knew exactly what was happening each day. Made planning together much easier.",
+      avatar: avatar("Beta User", "3498db"),
       rating: 5,
     },
     {
-      name: "Vikram Patel",
-      role: "Group Organizer · Europe 2025",
+      name: "Alpha Tester",
+      role: "Group Organizer · Europe Trip",
       quote:
-        "Coordinating 8 people across 4 countries? I'd have lost my mind without GlobeTrotter. The shared calendar kept everyone on the same page.",
-      avatar: avatar("Vikram Patel", "2ecc71"),
+        "Coordinating multiple people across cities was seamless. The shared calendar kept everyone aligned.",
+      avatar: avatar("Alpha Tester", "2ecc71"),
       rating: 5,
     },
   ],

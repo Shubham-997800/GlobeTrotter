@@ -5,10 +5,10 @@ import { Reveal } from "@/components/landing/Reveal";
 import { useCountUp } from "@/hooks/useCountUp";
 
 const STATS = [
-  { icon: Luggage, value: 2500, suffix: "+", label: "Trips Planned" },
-  { icon: MapPin, value: 120, suffix: "+", label: "Destinations" },
-  { icon: Sparkles, value: 15000, suffix: "+", label: "Activities" },
-  { icon: Users, value: 10000, suffix: "+", label: "Happy Travelers" },
+  { icon: Luggage, value: 200, suffix: "+", label: "Trips Planned" },
+  { icon: MapPin, value: 50, suffix: "+", label: "Destinations" },
+  { icon: Sparkles, value: 500, suffix: "+", label: "Activities" },
+  { icon: Users, value: 500, suffix: "+", label: "Happy Travelers" },
 ];
 
 function formatNumber(n: number): string {

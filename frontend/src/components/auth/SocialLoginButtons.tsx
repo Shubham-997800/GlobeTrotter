@@ -1,5 +1,3 @@
-import { toast } from "sonner";
-
 import { Button } from "@/components/ui/button";
 
 function GoogleIcon() {
@@ -34,33 +32,31 @@ function GitHubIcon() {
 }
 
 export function SocialLoginButtons({ disabled }: { disabled?: boolean }) {
-  const handleSocialLogin = (provider: string) => {
-    toast.info(`${provider} login coming soon!`, {
-      description: "We're working on adding more login options.",
-    });
-  };
-
   return (
     <div className="grid grid-cols-2 gap-3">
       <Button
         type="button"
         variant="outline"
-        disabled={disabled}
-        onClick={() => handleSocialLogin("Google")}
-        className="w-full"
+        disabled
+        className="w-full opacity-60 cursor-not-allowed"
       >
         <GoogleIcon />
         <span className="ml-1.5">Google</span>
+        <span className="ml-1 rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
+          Soon
+        </span>
       </Button>
       <Button
         type="button"
         variant="outline"
-        disabled={disabled}
-        onClick={() => handleSocialLogin("GitHub")}
-        className="w-full"
+        disabled
+        className="w-full opacity-60 cursor-not-allowed"
       >
         <GitHubIcon />
         <span className="ml-1.5">GitHub</span>
+        <span className="ml-1 rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
+          Soon
+        </span>
       </Button>
     </div>
   );

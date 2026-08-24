@@ -1,11 +1,46 @@
 import { Reveal } from "@/components/landing/Reveal";
 
 const PARTNERS = [
-  "Travel + Leisure",
-  "Condé Nast",
-  "Lonely Planet",
-  "TripAdvisor",
-  "Booking.com",
+  {
+    name: "Travel + Leisure",
+    svg: (
+      <svg viewBox="0 0 140 20" className="h-5 w-auto fill-current" aria-hidden="true">
+        <text x="0" y="15" className="text-[13px] font-bold" fill="currentColor">Travel + Leisure</text>
+      </svg>
+    ),
+  },
+  {
+    name: "Condé Nast",
+    svg: (
+      <svg viewBox="0 0 100 20" className="h-5 w-auto fill-current" aria-hidden="true">
+        <text x="0" y="15" className="text-[13px] font-semibold" fill="currentColor">Condé Nast</text>
+      </svg>
+    ),
+  },
+  {
+    name: "Lonely Planet",
+    svg: (
+      <svg viewBox="0 0 120 20" className="h-5 w-auto fill-current" aria-hidden="true">
+        <text x="0" y="15" className="text-[13px] font-bold" fill="currentColor">Lonely Planet</text>
+      </svg>
+    ),
+  },
+  {
+    name: "TripAdvisor",
+    svg: (
+      <svg viewBox="0 0 110 20" className="h-5 w-auto fill-current" aria-hidden="true">
+        <text x="0" y="15" className="text-[13px] font-bold" fill="currentColor">TripAdvisor</text>
+      </svg>
+    ),
+  },
+  {
+    name: "Booking.com",
+    svg: (
+      <svg viewBox="0 0 120 20" className="h-5 w-auto fill-current" aria-hidden="true">
+        <text x="0" y="15" className="text-[13px] font-bold" fill="currentColor">Booking.com</text>
+      </svg>
+    ),
+  },
 ];
 
 export function PartnerLogos() {
@@ -14,15 +49,16 @@ export function PartnerLogos() {
       <Reveal>
         <div className="mx-auto max-w-5xl px-6 text-center">
           <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-            Trusted by travelers featured in
+            Trusted by travelers worldwide
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
-            {PARTNERS.map((name) => (
+            {PARTNERS.map((partner) => (
               <span
-                key={name}
-                className="text-sm font-semibold text-muted-foreground/60 transition-colors hover:text-foreground/40"
+                key={partner.name}
+                className="text-muted-foreground/50 transition-colors hover:text-muted-foreground/80"
+                aria-label={partner.name}
               >
-                {name}
+                {partner.svg}
               </span>
             ))}
           </div>

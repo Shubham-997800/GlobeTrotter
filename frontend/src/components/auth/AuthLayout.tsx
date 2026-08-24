@@ -25,9 +25,9 @@ const HIGHLIGHTS = [
 
 const BRAND_TESTIMONIAL = {
   quote:
-    "GlobeTrotter saved me 20+ hours on my Japan trip. The budget tracker alone is worth it.",
-  name: "Priya Sharma",
-  trips: "12 trips planned",
+    "A travel planner that keeps your itinerary, budget and group in sync — all in one place.",
+  name: "Built for Travelers",
+  trips: "GlobeTrotter Team",
 };
 
 const container = {
@@ -53,14 +53,30 @@ export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
   return (
     <div className="grid min-h-dvh bg-background lg:grid-cols-2">
       {/* Mobile brand banner */}
-      <div className="flex items-center justify-center bg-gradient-to-br from-primary/[0.06] to-travel-blue/[0.04] px-6 py-6 lg:hidden">
-        <div className="text-center">
-          <p className="font-heading text-lg font-bold text-foreground">
-            {appName}
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-background to-travel-blue/[0.06] px-6 py-8 lg:hidden">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-primary/[0.08] blur-3xl"
+        />
+        <div className="relative text-center">
+          <Logo name={appName} className="justify-center" />
+          <p className="mt-3 font-heading text-lg font-bold text-foreground">
+            Every journey, planned to perfection.
           </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Plan smarter. Travel better.
-          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <CheckCircle2 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+              Itinerary Builder
+            </span>
+            <span className="flex items-center gap-1">
+              <CheckCircle2 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+              Budget Tracker
+            </span>
+            <span className="flex items-center gap-1">
+              <CheckCircle2 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+              Group Sync
+            </span>
+          </div>
         </div>
       </div>
 
@@ -70,6 +86,7 @@ export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
         style={{
           backgroundImage:
             "url(https://images.unsplash.com/photo-1531932594968-e5e5e9dee95a?w=800&q=80&auto=format&fit=crop)",
+          backgroundColor: "#101914",
         }}
       >
         {/* Dark overlay */}
