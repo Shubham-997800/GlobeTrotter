@@ -74,7 +74,7 @@ export function SystemErrorPage({ type }: SystemErrorPageProps) {
             <config.icon className="h-8 w-8 text-primary" aria-hidden="true" />
           </div>
           <div>
-            <h1 className="font-display text-3xl font-bold text-foreground">{type === "404" ? "404" : type === "403" ? "403" : type === "500" ? "500" : ""}</h1>
+            <h1 className="font-heading text-3xl font-bold text-foreground">{type === "404" ? "404" : type === "403" ? "403" : type === "500" ? "500" : ""}</h1>
             <h2 className="mt-2 text-xl font-bold text-foreground">{config.title}</h2>
             <p className="mt-3 text-sm text-muted-foreground">{config.description}</p>
           </div>

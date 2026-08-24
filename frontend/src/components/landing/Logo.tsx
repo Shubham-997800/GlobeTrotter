@@ -32,7 +32,7 @@ export function Logo({
       </motion.span>
       <span className="flex flex-col items-start leading-tight">
         <span
-          className={cn("font-display text-base font-semibold tracking-tight", textClassName)}
+          className={cn("font-heading text-base font-semibold tracking-tight", textClassName)}
         >
           {name}
         </span>

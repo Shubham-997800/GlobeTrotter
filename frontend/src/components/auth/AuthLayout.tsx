@@ -63,7 +63,7 @@ export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
             initial={reduceMotion ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="font-display text-balance text-3xl font-bold tracking-tight text-foreground xl:text-4xl"
+            className="font-heading text-balance text-3xl font-bold tracking-tight text-foreground xl:text-4xl"
           >
             Every journey, planned to perfection.
           </motion.h2>

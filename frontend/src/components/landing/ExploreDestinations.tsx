@@ -38,8 +38,8 @@ export function ExploreDestinations({ discover }: { discover: DiscoverContent })
   return (
     <section id="explore" className="scroll-mt-24 py-20 sm:py-28">
       <Container>
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <SectionHeading heading={discover.heading} align="left" />
+        <div className="flex flex-col gap-8 items-center">
+          <SectionHeading heading={discover.heading} align="center" />
           <Reveal className="shrink-0">
             <Button variant="secondary" size="lg" asChild>
               <Link to="/get-started">

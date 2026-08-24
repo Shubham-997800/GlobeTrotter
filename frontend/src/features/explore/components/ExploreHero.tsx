@@ -52,7 +52,7 @@ export function ExploreHero({ destination, stats }: ExploreHeroProps) {
           {/* Destination name */}
           <h1
             id="explore-hero-heading"
-            className="font-display mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl text-balance"
+            className="font-heading mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl text-balance"
           >
             {destination.city}
           </h1>

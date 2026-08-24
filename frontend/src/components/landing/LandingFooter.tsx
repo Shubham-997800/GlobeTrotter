@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { Container } from "@/components/landing/Container";
 import { Logo } from "@/components/landing/Logo";
+import { LegalDialog } from "@/components/legal/LegalDialog";
 import { Separator } from "@/components/ui/separator";
 import type { FooterContent } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -106,6 +107,24 @@ export function LandingFooter({
           <p>
             © {year} {appName}. All rights reserved.
           </p>
+          <div className="flex items-center gap-4">
+            <LegalDialog
+              type="privacy"
+              trigger={
+                <button className="text-xs text-muted-foreground transition-colors hover:text-foreground">
+                  Privacy Policy
+                </button>
+              }
+            />
+            <LegalDialog
+              type="terms"
+              trigger={
+                <button className="text-xs text-muted-foreground transition-colors hover:text-foreground">
+                  Terms & Conditions
+                </button>
+              }
+            />
+          </div>
           <span className="flex items-center gap-1">
             <span aria-hidden="true">🌍</span>
             <span>{footer.madeWithTagline ?? "Made for Travelers"}</span>

@@ -79,11 +79,11 @@ export function CTASection({ cta }: CTASectionProps) {
             />
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute left-1/2 top-0 -z-0 h-64 w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.10] blur-3xl"
+              className="pointer-events-none absolute left-1/2 top-0 -z-10 h-64 w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.10] blur-3xl"
             />
             <motion.div
               aria-hidden="true"
-              className="pointer-events-none absolute right-10 bottom-10 -z-0 h-48 w-48 rounded-full bg-travel-blue/[0.08] blur-3xl"
+              className="pointer-events-none absolute right-10 bottom-10 -z-10 h-48 w-48 rounded-full bg-travel-blue/[0.08] blur-3xl"
               animate={{ y: [0, -12, 0], x: [0, 6, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
             />
@@ -95,7 +95,7 @@ export function CTASection({ cta }: CTASectionProps) {
                 {cta.badge}
               </span>
 
-              <h2 className="font-display text-balance mt-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+              <h2 className="font-heading text-balance mt-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
                 {cta.title}
               </h2>
 
@@ -103,14 +103,14 @@ export function CTASection({ cta }: CTASectionProps) {
                 {cta.description}
               </p>
 
-              <p className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <Button size="lg" asChild>
                   <Link to={cta.primaryCTA.href}>
                     {cta.primaryCTA.label}
                     <ArrowRight className="ml-1 h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
-              </p>
+              </div>
 
               <p className="mt-5 flex items-center gap-1.5 text-sm text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5 text-travel-blue" aria-hidden="true" />

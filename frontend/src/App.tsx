@@ -1,8 +1,7 @@
 import { Suspense, lazy } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import { AuthProvider } from "@/features/auth/AuthContext";
@@ -127,8 +126,6 @@ function RouteFallback() {
   );
 }
 
-const queryClient = new QueryClient();
-
 function AppToaster() {
   const { resolvedTheme } = useTheme();
   return (
@@ -143,9 +140,7 @@ function AppToaster() {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <BrowserRouter>
           <Suspense fallback={<RouteFallback />}>
             <Routes>
             {/* Public */}
@@ -379,8 +374,6 @@ export default function App() {
             </Routes>
           </Suspense>
           <AppToaster />
-        </BrowserRouter>
       </AuthProvider>
-    </QueryClientProvider>
   );
 }

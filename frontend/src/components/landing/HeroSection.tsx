@@ -83,7 +83,7 @@ export function HeroSection({ hero, trustStats }: HeroSectionProps) {
 
             <motion.h1
               variants={item}
-              className="font-display text-balance mt-6 text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-[3.4rem]"
+              className="font-heading text-balance mt-6 text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-[3.4rem]"
             >
               {hero.title}
             </motion.h1>
@@ -151,7 +151,7 @@ export function HeroSection({ hero, trustStats }: HeroSectionProps) {
             }
             className="relative mx-auto w-full max-w-xl lg:max-w-none"
           >
-            <div className="relative">
+            <div className="relative px-6 pt-8 pb-6">
               {/* Main destination visual */}
               <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-border shadow-xl shadow-black/5">
                 <img
@@ -221,7 +221,8 @@ export function HeroSection({ hero, trustStats }: HeroSectionProps) {
                         y: { delay: 1.2, duration: 3, repeat: Infinity, ease: "easeInOut" },
                       }
                 }
-                className="absolute -bottom-6 -right-2 hidden w-52 rounded-2xl border border-border bg-card p-4 shadow-lg shadow-black/10 sm:block"
+                className="absolute -bottom-1 right-3 z-10 hidden w-52 rounded-2xl border border-border bg-card p-4 shadow-lg shadow-black/10 sm:block"
+                aria-hidden="true"
               >
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-medium text-muted-foreground">
@@ -264,13 +265,14 @@ export function HeroSection({ hero, trustStats }: HeroSectionProps) {
                         y: { delay: 1.5, duration: 3.5, repeat: Infinity, ease: "easeInOut" },
                       }
                 }
-                className="absolute -left-5 -top-7 hidden w-44 rounded-2xl border border-border bg-card p-3.5 shadow-lg shadow-black/10 sm:block"
+                className="absolute left-0 top-0 z-10 hidden w-52 rounded-2xl border border-border bg-card p-3.5 shadow-lg shadow-black/10 sm:block"
+                aria-hidden="true"
               >
                 <div className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-travel-blue/15 text-travel-blue">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-travel-blue/15 text-travel-blue">
                     <Users className="h-4 w-4" aria-hidden="true" />
                   </span>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs font-semibold text-foreground">
                       Group Trip
                     </p>
@@ -279,16 +281,16 @@ export function HeroSection({ hero, trustStats }: HeroSectionProps) {
                     </p>
                   </div>
                 </div>
-                <div className="mt-2.5 flex -space-x-2">
+                <div className="mt-2.5 flex -space-x-1.5">
                   {["MC", "AM", "SR"].map((initials) => (
                     <span
                       key={initials}
-                      className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-card bg-muted text-[9px] font-semibold text-secondary-text"
+                      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-card bg-muted text-[9px] font-semibold text-secondary-text"
                     >
                       {initials}
                     </span>
                   ))}
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-card bg-primary text-[9px] font-semibold text-primary-foreground">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-card bg-primary text-[9px] font-semibold text-primary-foreground">
                     +1
                   </span>
                 </div>

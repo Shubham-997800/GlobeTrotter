@@ -38,8 +38,9 @@ export const landingConfig: LandingConfig = {
 
   navLinks: [
     { id: "home", label: "Home", href: "#home" },
-    { id: "explore", label: "Explore", href: "#explore" },
+    { id: "features", label: "Features", href: "#features" },
     { id: "how-it-works", label: "How It Works", href: "#how-it-works" },
+    { id: "explore", label: "Explore", href: "#explore" },
     { id: "community", label: "Community", href: "#community" },
   ],
 

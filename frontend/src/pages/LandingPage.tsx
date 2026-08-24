@@ -29,7 +29,7 @@ export function LandingPage() {
   } = landingConfig;
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col overflow-x-hidden">
       <LandingNavbar appName={appName} navLinks={navLinks} />
       <main className="flex-1">
         <HeroSection hero={hero} trustStats={trustStats} />
