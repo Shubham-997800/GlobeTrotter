@@ -292,10 +292,8 @@
   }
   html {
     scroll-behavior: smooth;
-    /* overflow-x: hidden (not clip — clip gets silently upgraded to auto when
-       paired with overflow-y: scroll per CSS spec, causing horizontal scrollbar) */
     overflow-x: hidden;
-    overflow-y: scroll;
+    scrollbar-gutter: stable;
   }
   body {
     background-color: var(--color-background);

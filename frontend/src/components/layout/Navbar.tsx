@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Globe, LogOut, Menu, Search, Settings, UserRound } from "lucide-react";
 
@@ -25,7 +26,6 @@ import { SidebarBrand, SidebarNav } from "@/components/layout/Sidebar";
 import { NotificationMenu } from "@/features/dashboard/components/NotificationMenu";
 import { GlobalSearch } from "@/features/dashboard/components/GlobalSearch";
 import { useAuth } from "@/features/auth/useAuth";
-import { cn } from "@/lib/utils";
 
 interface NavbarProps {
   drawerOpen: boolean;
@@ -35,6 +35,7 @@ interface NavbarProps {
 export function Navbar({ drawerOpen, onDrawerOpenChange }: NavbarProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const navbarRef = useRef<HTMLElement>(null);
   const initials = (user?.name ?? user?.email ?? "U")
     .split(/\s+/)
     .map((part) => part[0])
@@ -44,16 +45,31 @@ export function Navbar({ drawerOpen, onDrawerOpenChange }: NavbarProps) {
 
   const closeDrawer = () => onDrawerOpenChange(false);
 
+  // Lock navbar width on mount to prevent ANY layout shift from portals/dropdowns.
+  useEffect(() => {
+    const el = navbarRef.current;
+    if (!el) return;
+    const w = el.getBoundingClientRect().width;
+    el.style.width = `${w}px`;
+    return () => {
+      el.style.width = "";
+    };
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 border-b border-subtle-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="flex h-14 items-center gap-2 px-4 pt-[env(safe-area-inset-top)] sm:px-6">
-        {/* Mobile nav drawer trigger */}
+    <header
+      ref={navbarRef}
+      className="sticky top-0 z-40 border-b border-border/60 bg-background/80"
+    >
+      <div className="flex h-14 items-center gap-3 px-4 pt-[env(safe-area-inset-top)] sm:px-6">
+
+        {/* ── Zone 1: Hamburger + Brand ── */}
         <Sheet open={drawerOpen} onOpenChange={onDrawerOpenChange}>
           <SheetTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 lg:hidden"
+              className="h-8 w-8 shrink-0 lg:hidden"
               aria-label="Open navigation menu"
             >
               <Menu className="h-5 w-5" />
@@ -79,51 +95,45 @@ export function Navbar({ drawerOpen, onDrawerOpenChange }: NavbarProps) {
           </SheetContent>
         </Sheet>
 
-        {/* Brand — same style as landing page Logo */}
         <Link
           to="/dashboard"
           aria-label="GlobeTrotter dashboard"
-          className="shrink-0"
+          className="flex shrink-0 items-center gap-2"
         >
-          <span className="inline-flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-travel-blue text-primary-foreground shadow-sm">
-              <Globe className="h-4 w-4" aria-hidden="true" />
-            </span>
-            <span className="font-heading text-base font-semibold tracking-tight text-foreground">
-              GlobeTrotter
-            </span>
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-travel-blue text-primary-foreground shadow-sm">
+            <Globe className="h-4 w-4" aria-hidden="true" />
+          </span>
+          <span className="font-heading text-base font-semibold tracking-tight text-foreground">
+            GlobeTrotter
           </span>
         </Link>
 
-        {/* Spacer */}
-        <div className="min-w-0 flex-1" />
-
-        {/* Mobile search trigger */}
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 md:hidden"
-              aria-label="Search destinations, trips and activities"
-            >
-              <Search className="h-[18px] w-[18px]" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-lg p-6">
-            <div className="mt-4">
-              <GlobalSearch />
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Desktop search — inline */}
-        <div className="hidden min-w-0 max-w-sm flex-1 md:block">
+        {/* ── Zone 2: Search — takes remaining space ── */}
+        <div className="hidden min-w-0 flex-1 justify-center md:flex">
           <GlobalSearch />
         </div>
 
-        {/* Right actions */}
-        <div className="flex items-center gap-0.5">
+        {/* ── Zone 3: Actions ── */}
+        <div className="flex shrink-0 items-center gap-1">
+          {/* Mobile search */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 md:hidden"
+                aria-label="Search destinations, trips and activities"
+              >
+                <Search className="h-[18px] w-[18px]" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-lg p-6">
+              <div className="mt-4">
+                <GlobalSearch />
+              </div>
+            </DialogContent>
+          </Dialog>
+
           <NotificationMenu />
           <ThemeToggle />
 
