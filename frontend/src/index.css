@@ -330,8 +330,6 @@
 #main-content {
   scrollbar-gutter: stable both-edges;
   scroll-behavior: auto;
-  max-width: 1536px;
-  margin-inline: auto;
 }
 
 /* When Radix locks body scroll (Dialog/Sheet), lock <main> too */
