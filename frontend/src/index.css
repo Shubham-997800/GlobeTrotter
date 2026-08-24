@@ -292,7 +292,9 @@
   }
   html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
+    overflow-x: clip;
+    /* Always show vertical scrollbar — prevents left-shift when dropdowns open/close */
+    overflow-y: scroll;
   }
   body {
     background-color: var(--color-background);
@@ -300,6 +302,7 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow-x: clip;
   }
 }
 
@@ -327,24 +330,7 @@
   }
 }
 
-/* Prevent layout shift when body scroll is locked by Radix Dialog/Sheet/Dropdown */
+/* When Radix locks body scroll (Dialog/Sheet), body ko lock karo lekin html ka scrollbar rahega */
 body[data-scroll-locked] {
-  /* Use clip instead of hidden — clip doesn't affect layout or scrollbar */
-  overflow: clip !important;
-  overflow-block: clip !important;
-}
-
-/* Ensure dropdowns/popovers don't cause content shift */
-[data-radix-popper-content-wrapper] {
-  position: fixed !important;
-  z-index: 50 !important;
-}
-
-/* Prevent content shift when Radix portals mount/unmount */
-html:has([data-radix-popper-content-wrapper]) {
-  overflow-x: clip !important;
-}
-
-html:has([data-radix-portal]) {
-  overflow-x: clip !important;
+  overflow: hidden !important;
 }
