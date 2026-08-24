@@ -64,16 +64,16 @@ function FilterControls({
   "filters" | "onFiltersChange" | "destinationOptions"
 > & { idPrefix: string }) {
   return (
-    <div className="space-y-4">
-      <div className="space-y-1.5">
-        <Label htmlFor={`${idPrefix}-country`}>Destination</Label>
+    <div className={idPrefix === "desktop" ? "flex items-center gap-2 flex-wrap" : "space-y-4"}>
+      <div className={idPrefix === "desktop" ? "" : "space-y-1.5"}>
+        {idPrefix !== "desktop" && <Label htmlFor={`${idPrefix}-country`}>Destination</Label>}
         <Select
           value={filters.country || "all"}
           onValueChange={(value) =>
             onFiltersChange({ country: value === "all" ? "" : value })
           }
         >
-          <SelectTrigger id={`${idPrefix}-country`} aria-label="Filter by country">
+          <SelectTrigger id={`${idPrefix}-country`} aria-label="Filter by country" className={idPrefix === "desktop" ? "h-9 w-[140px]" : undefined}>
             <SelectValue placeholder="All countries" />
           </SelectTrigger>
           <SelectContent>
@@ -87,15 +87,15 @@ function FilterControls({
         </Select>
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor={`${idPrefix}-date`}>Travel dates</Label>
+      <div className={idPrefix === "desktop" ? "" : "space-y-1.5"}>
+        {idPrefix !== "desktop" && <Label htmlFor={`${idPrefix}-date`}>Travel dates</Label>}
         <Select
           value={filters.dateFilter}
           onValueChange={(value) =>
             onFiltersChange({ dateFilter: value as MyTripsDateFilterId })
           }
         >
-          <SelectTrigger id={`${idPrefix}-date`} aria-label="Filter by travel dates">
+          <SelectTrigger id={`${idPrefix}-date`} aria-label="Filter by travel dates" className={idPrefix === "desktop" ? "h-9 w-[140px]" : undefined}>
             <CalendarRange className="mr-1 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span className="flex-1 text-left">
               {DATE_OPTIONS.find((o) => o.value === filters.dateFilter)?.label ??
@@ -162,13 +162,13 @@ function FilterControls({
         ) : null}
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor={`${idPrefix}-sort`}>Sort by</Label>
+      <div className={idPrefix === "desktop" ? "" : "space-y-1.5"}>
+        {idPrefix !== "desktop" && <Label htmlFor={`${idPrefix}-sort`}>Sort by</Label>}
         <Select
           value={filters.sort}
           onValueChange={(value) => onFiltersChange({ sort: value as MyTripsSortId })}
         >
-          <SelectTrigger id={`${idPrefix}-sort`} aria-label="Sort trips">
+          <SelectTrigger id={`${idPrefix}-sort`} aria-label="Sort trips" className={idPrefix === "desktop" ? "h-9 w-[150px]" : undefined}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
