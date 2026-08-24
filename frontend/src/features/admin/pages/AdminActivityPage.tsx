@@ -1,12 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Activity, UserPlus, Map } from "lucide-react";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { Activity, AlertCircle, Inbox, UserPlus, Map } from "lucide-react";
 import { useAdminDashboard } from "../useAdmin";
 
-const TYPE_CONFIG: Record<string, { icon: React.ReactNode; badgeVariant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
-  user_registered: { icon: <UserPlus className="h-4 w-4" />, badgeVariant: "default", label: "User" },
-  trip_created: { icon: <Map className="h-4 w-4" />, badgeVariant: "secondary", label: "Trip" },
+const TYPE_CONFIG: Record<string, { icon: React.ReactNode; badgeVariant: "default" | "secondary" | "destructive" | "outline"; label: string; borderColor: string }> = {
+  user_registered: { icon: <UserPlus className="h-4 w-4" />, badgeVariant: "default", label: "User", borderColor: "border-l-blue-500" },
+  trip_created: { icon: <Map className="h-4 w-4" />, badgeVariant: "secondary", label: "Trip", borderColor: "border-l-emerald-500" },
 };
 
 export function AdminActivityPage() {
@@ -15,18 +16,42 @@ export function AdminActivityPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight">Activity Feed</h1>
-        <div className="space-y-4">
-          {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-16 w-full" />)}
-        </div>
+        <PageHeader title="Activity Feed" description="Recent platform events and actions" />
+        <Card>
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex gap-4">
+                  <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-1/3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-destructive">Failed to load activity feed.</p>
+      <div className="space-y-6">
+        <PageHeader title="Activity Feed" description="Recent platform events and actions" />
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 mb-4">
+              <AlertCircle className="h-6 w-6 text-destructive" />
+            </div>
+            <h3 className="text-lg font-semibold">Something went wrong</h3>
+            <p className="text-sm text-muted-foreground mt-1 max-w-sm">
+              We couldn&apos;t load the activity feed. Please try again later.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -35,7 +60,7 @@ export function AdminActivityPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Activity Feed</h1>
+      <PageHeader title="Activity Feed" description="Recent platform events and actions" />
 
       <Card>
         <CardHeader>
@@ -46,16 +71,23 @@ export function AdminActivityPage() {
         </CardHeader>
         <CardContent>
           {feed.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No recent activity.</p>
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">
+                <Inbox className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold">No activity yet</h3>
+              <p className="text-sm text-muted-foreground mt-1 max-w-sm">
+                When users register or create trips, their activity will appear here.
+              </p>
+            </div>
           ) : (
             <div className="relative space-y-0">
-              {/* Timeline line */}
               <div className="absolute left-[15px] top-0 bottom-0 w-px bg-border" aria-hidden="true" />
 
               {feed.map((item, i) => {
-                const config = TYPE_CONFIG[item.type] ?? { icon: <Activity className="h-4 w-4" />, badgeVariant: "outline" as const, label: "System" };
+                const config = TYPE_CONFIG[item.type] ?? { icon: <Activity className="h-4 w-4" />, badgeVariant: "outline" as const, label: "System", borderColor: "border-l-muted-foreground" };
                 return (
-                  <div key={i} className="relative flex gap-4 py-3">
+                  <div key={i} className={`relative flex gap-4 border-l-2 ${config.borderColor} py-3 pl-4 -ml-px`}>
                     <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-background border border-border">
                       {config.icon}
                     </div>

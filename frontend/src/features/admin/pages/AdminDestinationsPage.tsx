@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, ChevronLeft, ChevronRight, Plus, Pencil, Trash2, Star } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Plus, Pencil, Trash2, Star, MapPin, AlertTriangle, Globe } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -25,6 +32,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/shared/PageHeader";
 import {
   useAdminDestinations,
   useAdminCreateDestination,
@@ -69,7 +77,7 @@ export function AdminDestinationsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const params = { page, limit: 15, search, sort: sortBy, order: sortOrder };
-  const { data, isLoading, isError } = useAdminDestinations(params);
+  const { data, isLoading, isError, refetch } = useAdminDestinations(params);
   const createMutation = useAdminCreateDestination();
   const updateMutation = useAdminUpdateDestination();
   const deleteMutation = useAdminDeleteDestination();
@@ -121,15 +129,17 @@ export function AdminDestinationsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold tracking-tight">Destination Management</h1>
-        <Button onClick={openCreate}>
-          <Plus className="h-4 w-4 mr-1" />
-          Add Destination
-        </Button>
-      </div>
+      <PageHeader
+        title="Destinations"
+        description="Manage the destination catalog"
+        actions={
+          <Button onClick={openCreate}>
+            <Plus className="h-4 w-4 mr-1" />
+            Add Destination
+          </Button>
+        }
+      />
 
-      {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -140,6 +150,17 @@ export function AdminDestinationsPage() {
             className="pl-9"
           />
         </div>
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="city">City</SelectItem>
+            <SelectItem value="country">Country</SelectItem>
+            <SelectItem value="rating">Rating</SelectItem>
+            <SelectItem value="estimatedDailyCostInr">Cost</SelectItem>
+          </SelectContent>
+        </Select>
         <Button
           variant="ghost"
           size="sm"
@@ -149,54 +170,100 @@ export function AdminDestinationsPage() {
         </Button>
       </div>
 
-      {/* Table */}
       <Card>
         <CardContent className="p-0">
           {isLoading ? (
             <div className="p-6 space-y-3">
-              {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-12 w-full" />)}
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
             </div>
           ) : isError ? (
-            <div className="p-6 text-center text-destructive">Failed to load destinations.</div>
+            <div className="flex flex-col items-center justify-center gap-3 py-16 px-6 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+                <AlertTriangle className="h-6 w-6 text-destructive" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Failed to load destinations</p>
+                <p className="text-sm text-muted-foreground">
+                  Something went wrong while fetching the destination catalog.
+                </p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
+                Try again
+              </Button>
+            </div>
           ) : !data?.destinations?.length ? (
-            <div className="p-6 text-center text-muted-foreground">No destinations found.</div>
+            <div className="flex flex-col items-center justify-center gap-3 py-16 px-6 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                <Globe className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium">No destinations found</p>
+                <p className="text-sm text-muted-foreground">
+                  {search
+                    ? "Try adjusting your search terms."
+                    : "Get started by adding your first destination."}
+                </p>
+              </div>
+              {!search && (
+                <Button size="sm" onClick={openCreate}>
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Destination
+                </Button>
+              )}
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>City</TableHead>
-                    <TableHead>Country</TableHead>
-                    <TableHead>Rating</TableHead>
-                    <TableHead>Reviews</TableHead>
-                    <TableHead>Daily Cost</TableHead>
+                    <TableHead className="w-[250px]">City</TableHead>
+                    <TableHead className="w-[160px]">Country</TableHead>
+                    <TableHead className="w-[100px]">Rating</TableHead>
+                    <TableHead className="w-[100px]">Reviews</TableHead>
+                    <TableHead className="w-[120px]">Daily Cost</TableHead>
                     <TableHead>Tags</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="w-[100px] text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.destinations.map((dest) => (
-                    <TableRow key={dest.id}>
-                      <TableCell className="font-medium">{dest.city}</TableCell>
-                      <TableCell className="text-muted-foreground">{dest.country}</TableCell>
+                    <TableRow
+                      key={dest.id}
+                      className="transition-colors hover:bg-muted/50"
+                    >
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+                          {dest.city}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {dest.country}
+                      </TableCell>
                       <TableCell>
                         <span className="inline-flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-warning-text text-warning-text" />
+                          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                           {dest.rating.toFixed(1)}
                         </span>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">{dest.reviews}</TableCell>
-                      <TableCell>₹{dest.estimatedDailyCostInr.toLocaleString()}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {dest.reviews.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="tabular-nums">
+                        ₹{dest.estimatedDailyCostInr.toLocaleString()}
+                      </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
-                          {dest.tags.slice(0, 3).map((tag) => (
+                          {dest.tags.slice(0, 2).map((tag) => (
                             <Badge key={tag} variant="secondary" className="text-xs">
                               {tag}
                             </Badge>
                           ))}
-                          {dest.tags.length > 3 && (
+                          {dest.tags.length > 2 && (
                             <Badge variant="outline" className="text-xs">
-                              +{dest.tags.length - 3}
+                              +{dest.tags.length - 2}
                             </Badge>
                           )}
                         </div>
@@ -230,7 +297,6 @@ export function AdminDestinationsPage() {
         </CardContent>
       </Card>
 
-      {/* Pagination */}
       {data?.pagination && data.pagination.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
@@ -239,18 +305,29 @@ export function AdminDestinationsPage() {
             {data.pagination.total} destinations
           </p>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1}
+              onClick={() => setPage(page - 1)}
+            >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="text-sm">Page {data.pagination.page} of {data.pagination.totalPages}</span>
-            <Button variant="outline" size="sm" disabled={page >= data.pagination.totalPages} onClick={() => setPage(page + 1)}>
+            <span className="text-sm">
+              Page {data.pagination.page} of {data.pagination.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= data.pagination.totalPages}
+              onClick={() => setPage(page + 1)}
+            >
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
       )}
 
-      {/* Create / Edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -321,7 +398,6 @@ export function AdminDestinationsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete confirmation */}
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <DialogContent>
           <DialogHeader>

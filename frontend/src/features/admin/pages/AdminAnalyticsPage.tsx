@@ -2,16 +2,34 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
 import { useAdminAnalytics } from "../useAdmin";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { StatCard } from "../components/StatCard";
+import { Button } from "@/components/ui/button";
 
 const COLORS = ["#6366f1", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"];
 
+function computeTrend(data: { count: number }[] | undefined): { value: number; direction: "up" | "down" | "neutral" } | undefined {
+  if (!data || data.length < 2) return undefined;
+  const latest = data[data.length - 1].count;
+  const prev = data[data.length - 2].count;
+  if (prev === 0) return undefined;
+  const pct = Math.round(((latest - prev) / prev) * 100);
+  return { value: Math.abs(pct), direction: pct > 0 ? "up" : pct < 0 ? "down" : "neutral" };
+}
+
 export function AdminAnalyticsPage() {
-  const { data, isLoading, isError } = useAdminAnalytics();
+  const { data, isLoading, isError, refetch } = useAdminAnalytics();
 
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
+        <Skeleton className="h-24" />
+        <div className="grid gap-4 lg:grid-cols-4">
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+        </div>
         <div className="grid gap-6 lg:grid-cols-2">
           <Skeleton className="h-80" />
           <Skeleton className="h-80" />
@@ -24,40 +42,31 @@ export function AdminAnalyticsPage() {
 
   if (isError) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-destructive">Failed to load analytics.</p>
+      <div className="space-y-6">
+        <PageHeader title="Analytics" description="Platform performance and trends" />
+        <div className="flex min-h-[400px] flex-col items-center justify-center gap-4">
+          <p className="text-destructive">Failed to load analytics.</p>
+          <Button variant="outline" onClick={() => refetch()}>Retry</Button>
+        </div>
       </div>
     );
   }
 
+  const userTrend = computeTrend(data?.userGrowth);
+  const tripTrend = computeTrend(data?.tripsOverTime);
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
+      <PageHeader title="Analytics" description="Platform performance and trends" />
 
-      {/* Summary stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-muted-foreground">Total Users</p>
-            <p className="text-2xl font-bold">{data?.totalUsers ?? 0}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-muted-foreground">Total Trips</p>
-            <p className="text-2xl font-bold">{data?.totalTrips ?? 0}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-sm text-muted-foreground">Avg Trip Duration</p>
-            <p className="text-2xl font-bold">{data?.avgTripDuration ?? 0} days</p>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 lg:grid-cols-4">
+        <StatCard title="Total Users" value={data?.totalUsers ?? 0} trend={userTrend} />
+        <StatCard title="Total Trips" value={data?.totalTrips ?? 0} trend={tripTrend} />
+        <StatCard title="Avg Trip Duration" value={`${data?.avgTripDuration ?? 0} days`} />
+        <StatCard title="Budget Tiers" value={data?.budgetDistribution?.length ?? 0} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* User Growth */}
         <Card>
           <CardHeader><CardTitle>User Growth</CardTitle></CardHeader>
           <CardContent>
@@ -78,7 +87,6 @@ export function AdminAnalyticsPage() {
           </CardContent>
         </Card>
 
-        {/* Trips Over Time */}
         <Card>
           <CardHeader><CardTitle>Trips Over Time</CardTitle></CardHeader>
           <CardContent>
@@ -99,7 +107,6 @@ export function AdminAnalyticsPage() {
           </CardContent>
         </Card>
 
-        {/* Budget Distribution */}
         <Card>
           <CardHeader><CardTitle>Budget Distribution</CardTitle></CardHeader>
           <CardContent>
@@ -129,7 +136,6 @@ export function AdminAnalyticsPage() {
           </CardContent>
         </Card>
 
-        {/* Trip Status Breakdown */}
         <Card>
           <CardHeader><CardTitle>Trip Status</CardTitle></CardHeader>
           <CardContent>

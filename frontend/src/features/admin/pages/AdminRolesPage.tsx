@@ -1,8 +1,9 @@
-import { Shield, ShieldCheck, Users, AlertTriangle } from "lucide-react";
+import { Shield, ShieldCheck, Users, AlertTriangle, Check } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/features/auth/useAuth";
+import { PageHeader } from "@/components/shared/PageHeader";
 
 const PERMISSIONS = [
   { role: "admin", permissions: ["View all users", "Manage user roles", "View all trips", "Manage destinations", "Manage activities", "View analytics", "Access admin dashboard", "View activity feed"] },
@@ -14,31 +15,24 @@ export function AdminRolesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Roles & Permissions</h1>
+      <PageHeader title="Roles & Permissions" description="Understand access levels and authorization" />
 
-      {/* Current role info */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
-            Your Role
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-3">
-            <Badge variant={user?.role === "admin" ? "default" : "secondary"} className="text-sm">
-              {user?.role ?? "user"}
-            </Badge>
-            <span className="text-sm text-muted-foreground">
-              {user?.role === "admin"
-                ? "You have full administrative access to the system."
-                : "You have standard user access."}
-            </span>
-          </div>
+      <Card className="relative overflow-hidden border-2 border-primary/20">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent" />
+        <CardContent className="relative flex flex-col items-center gap-3 py-6 text-center">
+          <Shield className="h-8 w-8 text-primary" />
+          <span className="text-sm font-medium text-muted-foreground">Your current role</span>
+          <Badge variant={user?.role === "admin" ? "default" : "secondary"} className="px-4 py-1 text-base font-semibold">
+            {user?.role ?? "user"}
+          </Badge>
+          <span className="text-sm text-muted-foreground">
+            {user?.role === "admin"
+              ? "You have full administrative access to the system."
+              : "You have standard user access."}
+          </span>
         </CardContent>
       </Card>
 
-      {/* Role cards */}
       <div className="grid gap-6 lg:grid-cols-2">
         {PERMISSIONS.map((rolePerm) => (
           <Card key={rolePerm.role}>
@@ -58,10 +52,10 @@ export function AdminRolesPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2">
+              <ul className="space-y-2.5">
                 {rolePerm.permissions.map((perm) => (
-                  <li key={perm} className="flex items-center gap-2 text-sm">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                  <li key={perm} className="flex items-center gap-2.5 text-sm">
+                    <Check className="h-4 w-4 text-primary shrink-0" />
                     {perm}
                   </li>
                 ))}
@@ -71,7 +65,6 @@ export function AdminRolesPage() {
         ))}
       </div>
 
-      {/* Authorization notice */}
       <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30">
         <CardContent className="flex items-start gap-3 p-4">
           <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
