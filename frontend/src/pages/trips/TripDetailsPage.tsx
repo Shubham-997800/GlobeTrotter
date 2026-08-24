@@ -836,13 +836,16 @@ export function TripDetailsPage() {
               onValueChange={setActiveTab}
               className="space-y-5"
             >
-              <TabsList className="flex w-full gap-1 overflow-x-auto sm:w-auto">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
-                <TabsTrigger value="activities">Activities</TabsTrigger>
-                <TabsTrigger value="budget">Budget</TabsTrigger>
-                <TabsTrigger value="notes">Notes</TabsTrigger>
-              </TabsList>
+              <div className="relative">
+                <TabsList className="flex w-full gap-1 overflow-x-auto sm:w-auto">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
+                  <TabsTrigger value="activities">Activities</TabsTrigger>
+                  <TabsTrigger value="budget">Budget</TabsTrigger>
+                  <TabsTrigger value="notes">Notes</TabsTrigger>
+                </TabsList>
+                <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent" aria-hidden="true" />
+              </div>
 
               <TabsContent value="overview">
                 <OverviewTab trip={trip} itinerary={itinerary} />

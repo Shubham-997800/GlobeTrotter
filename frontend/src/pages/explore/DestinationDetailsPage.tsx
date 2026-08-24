@@ -155,7 +155,7 @@ export function DestinationDetailsPage() {
             <img
               src={destination.image}
               alt={destination.imageAlt}
-              className="aspect-[16/9] w-full object-cover sm:aspect-[2/1] lg:aspect-auto lg:h-[500px]"
+              className="aspect-[16/9] w-full object-cover sm:aspect-[2/1] lg:aspect-auto lg:h-[420px]"
               loading="eager"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/10" />
@@ -256,7 +256,7 @@ export function DestinationDetailsPage() {
 
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full">
+          <TabsList className="w-full overflow-x-auto">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="places">Top Places</TabsTrigger>
             <TabsTrigger value="activities">Activities</TabsTrigger>
@@ -398,7 +398,7 @@ export function DestinationDetailsPage() {
 
         {/* Mobile Action Bar */}
         <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden animate-slide-up">
-          <div className="mx-auto max-w-4xl px-4 pb-safe">
+          <div className="mx-auto max-w-4xl px-4 pb-[env(safe-area-inset-bottom,0px)]">
             <div className="rounded-t-2xl border border-subtle-border bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-xl shadow-black/10">
               <div className="flex items-center gap-3">
                 <Button asChild variant="secondary" className="flex-1">

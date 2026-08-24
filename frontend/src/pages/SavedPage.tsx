@@ -267,7 +267,7 @@ function DestinationCard({
         <button
           type="button"
           onClick={() => onRemove(destination.id)}
-          className="absolute right-2.5 top-2.5 flex size-8 items-center justify-center rounded-full bg-black/40 text-white opacity-0 backdrop-blur-sm transition-all hover:bg-black/60 group-hover:opacity-100"
+          className="absolute right-2.5 top-2.5 flex size-8 items-center justify-center rounded-full bg-black/40 text-white opacity-100 sm:opacity-0 backdrop-blur-sm transition-all hover:bg-black/60 sm:group-hover:opacity-100"
           aria-label="Remove from saved"
         >
           <Trash2 className="size-3.5" />

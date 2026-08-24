@@ -248,24 +248,24 @@ export function CreateTripPage() {
         : "Plan smarter — pick a destination, dates and budget, then let GlobeTrotter scaffold your itinerary."}
       actions={
         <>
-          <Button variant="ghost" asChild className="hidden md:inline-flex">
+          <Button variant="ghost" asChild className="inline-flex">
             <Link to="/trips">
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-              Back to My Trips
+              <span className="hidden md:inline">Back to My Trips</span>
             </Link>
           </Button>
           {!isEdit && (
             <DraftStatus
               state={draftState}
               savedAt={savedAt}
-              className="hidden sm:inline-flex"
+              className="inline-flex"
             />
           )}
         </>
       }
     >
       <form onSubmit={handleSubmit(onValid, onInvalid)} noValidate>
-        <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           {/* ── Sections ─────────────────────────────────────── */}
           <div className="min-w-0 space-y-5">
             <SectionCard

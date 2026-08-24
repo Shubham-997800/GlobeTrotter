@@ -13,6 +13,7 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
+  Filter,
   MapPin,
   Pencil,
   Plus,
@@ -38,6 +39,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState, ErrorState } from "@/features/dashboard/components/States";
 import { tripsService } from "@/features/trips/trips.service";
@@ -202,6 +210,7 @@ export function CalendarPage() {
   const [details, setDetails] = useState<CalendarEvent | null>(null);
   const [pendingDelete, setPendingDelete] = useState<CalendarEvent | null>(null);
   const [activeDrag, setActiveDrag] = useState<EventDragData | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const eventsQuery = useCalendarEvents();
   const tripsQuery = useQuery({
@@ -481,6 +490,89 @@ export function CalendarPage() {
 
           <h2 className="mr-auto text-sm font-semibold text-card-foreground">{title}</h2>
 
+          <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm" className="sm:hidden h-8 gap-1.5">
+                <Filter className="size-4" aria-hidden="true" />
+                Filters
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="sm:hidden">
+              <SheetHeader>
+                <SheetTitle>Filters</SheetTitle>
+              </SheetHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">Trip stage</label>
+                  <Select
+                    value={filters.trips}
+                    onValueChange={(value) =>
+                      setFilters((current) => ({
+                        ...current,
+                        trips: value as CalendarFiltersState["trips"],
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="h-9 w-full text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All trips</SelectItem>
+                      <SelectItem value="upcoming">Upcoming</SelectItem>
+                      <SelectItem value="ongoing">Ongoing</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">Event type</label>
+                  <Select
+                    value={filters.eventType}
+                    onValueChange={(value) =>
+                      setFilters((current) => ({
+                        ...current,
+                        eventType: value as CalendarFiltersState["eventType"],
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="h-9 w-full text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All types</SelectItem>
+                      <SelectItem value="activity">Attractions</SelectItem>
+                      <SelectItem value="food">Food</SelectItem>
+                      <SelectItem value="transport">Transport</SelectItem>
+                      <SelectItem value="accommodation">Stay</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">Status</label>
+                  <Select
+                    value={filters.status}
+                    onValueChange={(value) =>
+                      setFilters((current) => ({
+                        ...current,
+                        status: value as CalendarFiltersState["status"],
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="h-9 w-full text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Any status</SelectItem>
+                      <SelectItem value="planned">Planned</SelectItem>
+                      <SelectItem value="completed">Done</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+
           <Tabs value={view} onValueChange={(value) => setView(value as CalendarViewId)}>
             <TabsList className="h-8">
               <TabsTrigger value="month" className="h-7 px-2.5 text-xs">Month</TabsTrigger>
@@ -553,6 +645,50 @@ export function CalendarPage() {
             </Select>
           </div>
         </div>
+
+        {upcoming.length > 0 && (
+          <div className="lg:hidden">
+            <div className="rounded-2xl border bg-card p-3 shadow-sm">
+              <h2 className="mb-2 text-sm font-semibold text-card-foreground">Coming up</h2>
+              <ul className="space-y-2">
+                {upcoming.slice(0, 3).map((event) => {
+                  const dayNumber = Number(event.date.slice(8, 10));
+                  const monthShort = new Intl.DateTimeFormat("en-GB", {
+                    month: "short",
+                    timeZone: "UTC",
+                  }).format(new Date(`${event.date}T00:00:00Z`));
+                  return (
+                    <li key={event.id}>
+                      <button
+                        type="button"
+                        onClick={() => setDetails(event)}
+                        className="flex w-full items-center gap-3 rounded-xl border border-subtle-border p-2 text-left transition-colors hover:border-strong-border hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <span className="w-10 shrink-0 rounded-lg bg-travel-blue-subtle py-1 text-center">
+                          <span className="block text-sm font-bold leading-tight text-travel-blue">
+                            {dayNumber}
+                          </span>
+                          <span className="block text-[10px] uppercase leading-tight text-travel-blue">
+                            {monthShort}
+                          </span>
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium text-card-foreground">
+                            {event.title}
+                          </span>
+                          <span className="block truncate text-xs text-muted-foreground">
+                            {event.startTime ? formatTimeLabel(event.startTime) : "All day"}
+                            {event.location ? ` · ${event.location}` : ""}
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+        )}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0 space-y-4">

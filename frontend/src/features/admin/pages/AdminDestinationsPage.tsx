@@ -214,85 +214,138 @@ export function AdminDestinationsPage() {
               )}
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[250px]">City</TableHead>
-                    <TableHead className="w-[160px]">Country</TableHead>
-                    <TableHead className="w-[100px]">Rating</TableHead>
-                    <TableHead className="w-[100px]">Reviews</TableHead>
-                    <TableHead className="w-[120px]">Daily Cost</TableHead>
-                    <TableHead>Tags</TableHead>
-                    <TableHead className="w-[100px] text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.destinations.map((dest) => (
-                    <TableRow
-                      key={dest.id}
-                      className="transition-colors hover:bg-muted/50"
-                    >
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
-                          {dest.city}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {dest.country}
-                      </TableCell>
-                      <TableCell>
-                        <span className="inline-flex items-center gap-1">
-                          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                          {dest.rating.toFixed(1)}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {dest.reviews.toLocaleString()}
-                      </TableCell>
-                      <TableCell className="tabular-nums">
-                        ₹{dest.estimatedDailyCostInr.toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {dest.tags.slice(0, 2).map((tag) => (
-                            <Badge key={tag} variant="secondary" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                          {dest.tags.length > 2 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{dest.tags.length - 2}
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => openEdit(dest as unknown as DestFormState)}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-destructive"
-                            onClick={() => setDeleteConfirm(dest.id)}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </TableCell>
+            <>
+            <div className="hidden md:block">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[250px]">City</TableHead>
+                      <TableHead className="w-[160px]">Country</TableHead>
+                      <TableHead className="w-[100px]">Rating</TableHead>
+                      <TableHead className="w-[100px]">Reviews</TableHead>
+                      <TableHead className="w-[120px]">Daily Cost</TableHead>
+                      <TableHead>Tags</TableHead>
+                      <TableHead className="w-[100px] text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {data.destinations.map((dest) => (
+                      <TableRow
+                        key={dest.id}
+                        className="transition-colors hover:bg-muted/50"
+                      >
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+                            {dest.city}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {dest.country}
+                        </TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center gap-1">
+                            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                            {dest.rating.toFixed(1)}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {dest.reviews.toLocaleString()}
+                        </TableCell>
+                        <TableCell className="tabular-nums">
+                          ₹{dest.estimatedDailyCostInr.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {dest.tags.slice(0, 2).map((tag) => (
+                              <Badge key={tag} variant="secondary" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                            {dest.tags.length > 2 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{dest.tags.length - 2}
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => openEdit(dest as unknown as DestFormState)}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive"
+                              onClick={() => setDeleteConfirm(dest.id)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
+            <div className="block md:hidden space-y-3">
+              {data.destinations.map((dest) => (
+                <div key={dest.id} className="rounded-xl border border-border bg-card p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">{dest.city}</span>
+                    <span className="inline-flex items-center gap-1 text-sm">
+                      <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                      {dest.rating.toFixed(1)}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                    <span>{dest.country}</span>
+                    <span>₹{dest.estimatedDailyCostInr.toLocaleString()}/day</span>
+                    <span>{dest.reviews.toLocaleString()} reviews</span>
+                    <div className="flex flex-wrap gap-1">
+                      {dest.tags.slice(0, 2).map((tag) => (
+                        <Badge key={tag} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                      {dest.tags.length > 2 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{dest.tags.length - 2}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openEdit(dest as unknown as DestFormState)}
+                    >
+                      <Pencil className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={() => setDeleteConfirm(dest.id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            </>
           )}
         </CardContent>
       </Card>
@@ -343,7 +396,7 @@ export function AdminDestinationsPage() {
                 <Input id="dest-id" value={form.id} onChange={(e) => setForm({ ...form, id: e.target.value })} placeholder="e.g. rome" />
               </div>
             )}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="dest-city">City</Label>
                 <Input id="dest-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
@@ -357,7 +410,7 @@ export function AdminDestinationsPage() {
               <Label htmlFor="dest-desc">Description</Label>
               <Textarea id="dest-desc" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="dest-image">Image URL</Label>
                 <Input id="dest-image" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} />
@@ -367,7 +420,7 @@ export function AdminDestinationsPage() {
                 <Input id="dest-alt" value={form.imageAlt} onChange={(e) => setForm({ ...form, imageAlt: e.target.value })} />
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="dest-rating">Rating</Label>
                 <Input id="dest-rating" type="number" min="0" max="5" step="0.1" value={form.rating} onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })} />

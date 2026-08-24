@@ -236,6 +236,10 @@ export default function PublicTripViewPage() {
                                       <p className="truncate text-xs text-muted-foreground">
                                         {activity.category} · {activity.location}
                                       </p>
+                                      <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground sm:hidden">
+                                        <Clock className="h-3 w-3" />
+                                        {activity.startTime} – {activity.endTime}
+                                      </div>
                                     </div>
                                     <div className="hidden text-right sm:block">
                                       <p className="flex items-center gap-1 text-xs text-muted-foreground">

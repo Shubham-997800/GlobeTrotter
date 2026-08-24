@@ -382,7 +382,7 @@ export default function ItineraryBuilderPage() {
       description="Craft each day at your own pace."
       actions={<ViewSwitcher value={view} onChange={setView} />}
     >
-      <div className="space-y-6 pb-28">
+      <div className="space-y-6 pb-20 sm:pb-28">
         <TripHeader
           trip={trip}
           isDeleting={deleteTripMutation.isPending}
@@ -463,7 +463,7 @@ export default function ItineraryBuilderPage() {
             />
 
             {selectedDay ? (
-              <div className="space-y-6">
+              <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
                 <div className="min-w-0 space-y-4">
                   <DayDetails
                     key={selectedDay.id}
@@ -573,7 +573,7 @@ export default function ItineraryBuilderPage() {
 
         {/* Sticky action bar */}
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-subtle-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-3 py-2 sm:px-4 sm:py-3">
             <DraftStatus state={saveState} savedAt={lastSavedAt} />
             {issues.length > 0 ? (
               <span className="inline-flex items-center gap-1.5 rounded-full border border-warning-border bg-warning-bg px-2.5 py-1 text-xs font-medium text-warning-text">
@@ -591,7 +591,8 @@ export default function ItineraryBuilderPage() {
                     .then(() => toast.success("Itinerary saved."));
                 }}
               >
-                Save now
+                <span className="hidden sm:inline">Save now</span>
+                <span className="sm:hidden">Save</span>
               </Button>
               <Button
                 size="sm"

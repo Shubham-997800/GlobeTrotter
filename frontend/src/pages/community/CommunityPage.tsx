@@ -29,6 +29,7 @@ import {
   toCommunityUser,
   useCommunityFeed,
   useCommunitySearch,
+  useTrending,
 } from "@/features/community/useCommunity";import { PostCard } from "@/features/community/components/post-card";
 import { PostComposer } from "@/features/community/components/post-composer";
 import { ProfileDialog } from "@/features/community/components/profile-dialog";
@@ -61,6 +62,7 @@ export function CommunityPage() {
   }, [searchInput]);
 
   const feed = useCommunityFeed(tab);
+  const trending = useTrending();
   const searching = query.length > 0;
 
   return (
@@ -107,6 +109,22 @@ export function CommunityPage() {
               ) : null}
             </div>
 
+            <section className="xl:hidden" aria-label="Trending topics">
+              <h2 className="mb-2 text-sm font-semibold text-card-foreground">Trending</h2>
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {(trending.data?.tags ?? []).slice(0, 5).map((tag) => (
+                  <button
+                    key={tag.tag}
+                    type="button"
+                    onClick={() => setSearchInput(tag.tag)}
+                    className="shrink-0 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground transition-colors hover:border-strong-border hover:bg-accent hover:text-foreground"
+                  >
+                    #{tag.tag}
+                  </button>
+                ))}
+              </div>
+            </section>
+
             {searching ? (
               <SearchResults
                 query={query}
@@ -116,16 +134,19 @@ export function CommunityPage() {
             ) : (
               <>
                 <Tabs value={tab} onValueChange={(value) => setTab(value as FeedTabId)}>
-                  <TabsList className="w-full justify-start overflow-x-auto">
-                    {FEED_TABS.map((entry) => (
-                      <TabsTrigger key={entry.id} value={entry.id} className="gap-1.5">
-                        {entry.id === "saved" ? (
-                          <Bookmark className="size-3.5" aria-hidden="true" />
-                        ) : null}
-                        {entry.label}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
+                  <div className="relative">
+                    <TabsList className="w-full justify-start overflow-x-auto">
+                      {FEED_TABS.map((entry) => (
+                        <TabsTrigger key={entry.id} value={entry.id} className="gap-1.5">
+                          {entry.id === "saved" ? (
+                            <Bookmark className="size-3.5" aria-hidden="true" />
+                          ) : null}
+                          {entry.label}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                    <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent" aria-hidden="true" />
+                  </div>
                 </Tabs>
 
                 {/* Feed */}
@@ -188,11 +209,13 @@ export function CommunityPage() {
             )}
           </div>
 
-          <TrendingSidebar
-            viewerId={viewerId}
-            onPickQuery={(picked) => setSearchInput(picked)}
-            onOpenProfile={setProfileUser}
-          />
+          <div className="hidden xl:block">
+            <TrendingSidebar
+              viewerId={viewerId}
+              onPickQuery={(picked) => setSearchInput(picked)}
+              onOpenProfile={setProfileUser}
+            />
+          </div>
         </div>
 
         <ProfileDialog user={profileUser} viewerId={viewerId} onClose={() => setProfileUser(null)} />

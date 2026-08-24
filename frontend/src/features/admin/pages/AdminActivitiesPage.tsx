@@ -189,53 +189,91 @@ export function AdminActivitiesPage() {
               )}
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>City</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead>Cost</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.activities.map((act) => (
-                    <TableRow key={act.id}>
-                      <TableCell className="font-medium">{act.name}</TableCell>
-                      <TableCell className="text-muted-foreground">{act.city}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="capitalize">{act.category}</Badge>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">{act.durationHours}h</TableCell>
-                      <TableCell>₹{act.costInr.toLocaleString()}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => openEdit(act as unknown as ActFormState)}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-destructive"
-                            onClick={() => setDeleteConfirm(act.id)}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </TableCell>
+            <>
+            <div className="hidden md:block">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>City</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Duration</TableHead>
+                      <TableHead>Cost</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {data.activities.map((act) => (
+                      <TableRow key={act.id}>
+                        <TableCell className="font-medium">{act.name}</TableCell>
+                        <TableCell className="text-muted-foreground">{act.city}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="capitalize">{act.category}</Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">{act.durationHours}h</TableCell>
+                        <TableCell>₹{act.costInr.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => openEdit(act as unknown as ActFormState)}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive"
+                              onClick={() => setDeleteConfirm(act.id)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
+            <div className="block md:hidden space-y-3">
+              {data.activities.map((act) => (
+                <div key={act.id} className="rounded-xl border border-border bg-card p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">{act.name}</span>
+                    <Badge variant="secondary" className="capitalize">{act.category}</Badge>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                    <span>{act.city}</span>
+                    <span>{act.durationHours}h</span>
+                    <span>₹{act.costInr.toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openEdit(act as unknown as ActFormState)}
+                    >
+                      <Pencil className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={() => setDeleteConfirm(act.id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            </>
           )}
         </CardContent>
       </Card>
@@ -277,7 +315,7 @@ export function AdminActivitiesPage() {
               <Label htmlFor="act-name">Name</Label>
               <Input id="act-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="act-city">City</Label>
                 <Input id="act-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
@@ -287,7 +325,7 @@ export function AdminActivitiesPage() {
                 <Input id="act-country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="act-cat">Category</Label>
                 <Select
@@ -311,7 +349,7 @@ export function AdminActivitiesPage() {
                 <Input id="act-dur" type="number" min="0" value={form.durationHours} onChange={(e) => setForm({ ...form, durationHours: Number(e.target.value) })} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="act-cost">Cost (INR)</Label>
                 <Input id="act-cost" type="number" min="0" value={form.costInr} onChange={(e) => setForm({ ...form, costInr: Number(e.target.value) })} />

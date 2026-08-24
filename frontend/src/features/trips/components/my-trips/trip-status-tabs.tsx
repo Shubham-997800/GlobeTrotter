@@ -23,7 +23,7 @@ export function TripStatusTabs({
   tabs: StatusTabInfo[];
 }) {
   return (
-    <div className="min-w-0 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="relative min-w-0 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <Tabs value={value} onValueChange={(v) => onValueChange(v as MyTripsStatusFilter)}>
         <TabsList className="w-max max-w-none">
           {tabs.map((tab) => (
@@ -48,6 +48,7 @@ export function TripStatusTabs({
           ))}
         </TabsList>
       </Tabs>
+      <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent" aria-hidden="true" />
     </div>
   );
 }

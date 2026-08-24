@@ -142,68 +142,114 @@ export function AdminUsersPage() {
               </div>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[28%]">User</TableHead>
-                    <TableHead className="w-[22%]">Email</TableHead>
-                    <TableHead className="w-[12%]">Role</TableHead>
-                    <TableHead className="w-[16%]">Location</TableHead>
-                    <TableHead className="w-[12%]">Joined</TableHead>
-                    <TableHead className="w-[10%] text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.users.map((user) => (
-                    <TableRow key={user.id} className="transition-colors hover:bg-muted/50">
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
-                            {user.name?.charAt(0)?.toUpperCase() ?? "?"}
-                          </div>
-                          <span className="truncate max-w-[150px]">{user.name || "Unnamed"}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground truncate max-w-[200px]">
-                        {user.email || "—"}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={user.role === "admin" ? "default" : "secondary"}>
-                          {user.role}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {[user.city, user.country].filter(Boolean).join(", ") || "—"}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            setConfirmRoleUser({
-                              id: user.id,
-                              name: user.name || "Unnamed",
-                              currentRole: user.role,
-                            })
-                          }
-                        >
-                          {user.role === "admin" ? (
-                            <ShieldOff className="h-4 w-4 mr-1" />
-                          ) : (
-                            <Shield className="h-4 w-4 mr-1" />
-                          )}
-                          {user.role === "admin" ? "Demote" : "Promote"}
-                        </Button>
-                      </TableCell>
+            <>
+            <div className="hidden md:block">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[28%]">User</TableHead>
+                      <TableHead className="w-[22%]">Email</TableHead>
+                      <TableHead className="w-[12%]">Role</TableHead>
+                      <TableHead className="w-[16%]">Location</TableHead>
+                      <TableHead className="w-[12%]">Joined</TableHead>
+                      <TableHead className="w-[10%] text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {data.users.map((user) => (
+                      <TableRow key={user.id} className="transition-colors hover:bg-muted/50">
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
+                              {user.name?.charAt(0)?.toUpperCase() ?? "?"}
+                            </div>
+                            <span className="truncate max-w-[150px]">{user.name || "Unnamed"}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground truncate max-w-[200px]">
+                          {user.email || "—"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={user.role === "admin" ? "default" : "secondary"}>
+                            {user.role}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {[user.city, user.country].filter(Boolean).join(", ") || "—"}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              setConfirmRoleUser({
+                                id: user.id,
+                                name: user.name || "Unnamed",
+                                currentRole: user.role,
+                              })
+                            }
+                          >
+                            {user.role === "admin" ? (
+                              <ShieldOff className="h-4 w-4 mr-1" />
+                            ) : (
+                              <Shield className="h-4 w-4 mr-1" />
+                            )}
+                            {user.role === "admin" ? "Demote" : "Promote"}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
+            <div className="block md:hidden space-y-3">
+              {data.users.map((user) => (
+                <div key={user.id} className="rounded-xl border border-border bg-card p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
+                        {user.name?.charAt(0)?.toUpperCase() ?? "?"}
+                      </div>
+                      <span className="font-medium">{user.name || "Unnamed"}</span>
+                    </div>
+                    <Badge variant={user.role === "admin" ? "default" : "secondary"}>
+                      {user.role}
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                    <span>{user.email || "—"}</span>
+                    <span>{[user.city, user.country].filter(Boolean).join(", ") || "—"}</span>
+                    <span>{new Date(user.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        setConfirmRoleUser({
+                          id: user.id,
+                          name: user.name || "Unnamed",
+                          currentRole: user.role,
+                        })
+                      }
+                    >
+                      {user.role === "admin" ? (
+                        <ShieldOff className="h-4 w-4 mr-1" />
+                      ) : (
+                        <Shield className="h-4 w-4 mr-1" />
+                      )}
+                      {user.role === "admin" ? "Demote" : "Promote"}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            </>
           )}
         </CardContent>
       </Card>

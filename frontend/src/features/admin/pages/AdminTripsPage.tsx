@@ -144,68 +144,96 @@ export function AdminTripsPage() {
         </Card>
       ) : (
         <>
-          <Card>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[22%]">Trip Name</TableHead>
-                      <TableHead className="w-[14%]">Owner</TableHead>
-                      <TableHead className="w-[16%]">Destination</TableHead>
-                      <TableHead className="w-[18%]">Dates</TableHead>
-                      <TableHead className="w-[10%]">Status</TableHead>
-                      <TableHead className="w-[12%]">Created</TableHead>
-                      <TableHead className="text-right w-[8%]">
-                        Actions
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data.trips.map((trip) => (
-                      <TableRow
-                        key={trip.id}
-                        className="transition-colors hover:bg-muted/50"
-                      >
-                        <TableCell className="font-medium">
-                          {trip.name}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {trip.ownerName}
-                        </TableCell>
-                        <TableCell className="capitalize">
-                          {trip.destinationId?.replace(/-/g, " ")}
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {trip.startDate} – {trip.endDate}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              trip.status === "planned" ? "default" : "secondary"
-                            }
-                          >
-                            {trip.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {new Date(trip.createdAt).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button asChild variant="ghost" size="sm">
-                            <Link to={`/trips/${trip.id}`}>
-                              <ExternalLink className="h-4 w-4 mr-1" />
-                              View
-                            </Link>
-                          </Button>
-                        </TableCell>
+          <div className="hidden md:block">
+            <Card>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[22%]">Trip Name</TableHead>
+                        <TableHead className="w-[14%]">Owner</TableHead>
+                        <TableHead className="w-[16%]">Destination</TableHead>
+                        <TableHead className="w-[18%]">Dates</TableHead>
+                        <TableHead className="w-[10%]">Status</TableHead>
+                        <TableHead className="w-[12%]">Created</TableHead>
+                        <TableHead className="text-right w-[8%]">
+                          Actions
+                        </TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {data.trips.map((trip) => (
+                        <TableRow
+                          key={trip.id}
+                          className="transition-colors hover:bg-muted/50"
+                        >
+                          <TableCell className="font-medium">
+                            {trip.name}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {trip.ownerName}
+                          </TableCell>
+                          <TableCell className="capitalize">
+                            {trip.destinationId?.replace(/-/g, " ")}
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {trip.startDate} – {trip.endDate}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                trip.status === "planned" ? "default" : "secondary"
+                              }
+                            >
+                              {trip.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {new Date(trip.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button asChild variant="ghost" size="sm">
+                              <Link to={`/trips/${trip.id}`}>
+                                <ExternalLink className="h-4 w-4 mr-1" />
+                                View
+                              </Link>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="block md:hidden space-y-3">
+            {data.trips.map((trip) => (
+              <div key={trip.id} className="rounded-xl border border-border bg-card p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">{trip.name}</span>
+                  <Badge variant={trip.status === "planned" ? "default" : "secondary"}>
+                    {trip.status}
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                  <span>{trip.ownerName}</span>
+                  <span className="capitalize">{trip.destinationId?.replace(/-/g, " ")}</span>
+                  <span>{trip.startDate} – {trip.endDate}</span>
+                  <span>{new Date(trip.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div>
+                  <Button asChild variant="ghost" size="sm">
+                    <Link to={`/trips/${trip.id}`}>
+                      <ExternalLink className="h-4 w-4 mr-1" />
+                      View
+                    </Link>
+                  </Button>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            ))}
+          </div>
 
           {data.pagination && data.pagination.totalPages > 1 && (
             <div className="flex items-center justify-between">

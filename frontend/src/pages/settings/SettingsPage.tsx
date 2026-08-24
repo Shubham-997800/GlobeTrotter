@@ -1739,7 +1739,7 @@ export function SettingsPage() {
           {/* Mobile / tablet pills */}
           <nav
             aria-label="Settings sections"
-            className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:hidden"
+            className="relative -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:hidden"
           >
             {NAV_ITEMS.map((item) => {
               const isActive = item.id === active;
@@ -1761,6 +1761,10 @@ export function SettingsPage() {
                 </button>
               );
             })}
+            <div
+              className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent"
+              aria-hidden="true"
+            />
           </nav>
 
           <main className="min-w-0 flex-1 space-y-6">
