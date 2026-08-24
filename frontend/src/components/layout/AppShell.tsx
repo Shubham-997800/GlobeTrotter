@@ -44,7 +44,7 @@ export function AppShell({
   }, [sidebarCollapsed]);
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-background">
+    <div className="flex h-dvh flex-col overflow-hidden bg-background">
       {/* Skip navigation — keyboard users land here */}
       <a
         href="#main-content"
@@ -53,48 +53,53 @@ export function AppShell({
         Skip to main content
       </a>
 
-      {/* Desktop sidebar — NEVER scrolls */}
-      <DesktopSidebar
-        collapsed={sidebarCollapsed}
-        onToggleCollapsed={() => setSidebarCollapsed((prev) => !prev)}
+      {/* Navbar — full width at top */}
+      <Navbar
+        drawerOpen={drawerOpen}
+        onDrawerOpenChange={setDrawerOpen}
       />
 
-      {/* Right column: navbar + scrollable content */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Navbar
-          drawerOpen={drawerOpen}
-          onDrawerOpenChange={setDrawerOpen}
+      {/* Below navbar: sidebar left + main right */}
+      <div className="flex min-h-0 flex-1">
+        {/* Desktop sidebar — NEVER scrolls */}
+        <DesktopSidebar
+          collapsed={sidebarCollapsed}
+          onToggleCollapsed={() => setSidebarCollapsed((prev) => !prev)}
         />
-        <OfflineBanner />
 
-        {/* ONLY this area scrolls */}
-        <main
-          id="main-content"
-          className="min-w-0 flex-1 overflow-y-auto"
-        >
-          <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-            {title || actions ? (
-              <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-                <div className="min-w-0">
-                  {title ? (
-                    <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                      {title}
-                    </h1>
-                  ) : null}
-                  {description ? (
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {description}
-                    </p>
+        {/* Right column: scrollable content */}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <OfflineBanner />
+
+          {/* ONLY this area scrolls */}
+          <main
+            id="main-content"
+            className="min-w-0 flex-1 overflow-y-auto"
+          >
+            <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+              {title || actions ? (
+                <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+                  <div className="min-w-0">
+                    {title ? (
+                      <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                        {title}
+                      </h1>
+                    ) : null}
+                    {description ? (
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {description}
+                      </p>
+                    ) : null}
+                  </div>
+                  {actions ? (
+                    <div className="flex items-center gap-2">{actions}</div>
                   ) : null}
                 </div>
-                {actions ? (
-                  <div className="flex items-center gap-2">{actions}</div>
-                ) : null}
-              </div>
-            ) : null}
-            {children}
-          </div>
-        </main>
+              ) : null}
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );
