@@ -54,7 +54,7 @@ export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
         }}
       >
         {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black/70" />
+        <div className="absolute inset-0 bg-black/80" />
         {/* Gradient accent */}
         <div
           aria-hidden="true"
