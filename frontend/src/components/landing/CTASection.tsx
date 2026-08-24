@@ -95,7 +95,7 @@ export function CTASection({ cta }: CTASectionProps) {
                 {cta.badge}
               </span>
 
-              <h2 className="text-balance mt-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+              <h2 className="font-display text-balance mt-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
                 {cta.title}
               </h2>
 

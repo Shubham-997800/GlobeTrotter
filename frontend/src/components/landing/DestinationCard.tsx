@@ -51,7 +51,7 @@ export function DestinationCard({
 
         {/* Bottom metadata */}
         <div className="absolute inset-x-3 bottom-3 translate-y-1 transition-transform duration-300 group-hover:translate-y-0">
-          <h3 className="text-lg font-bold text-white">{destination.city}</h3>
+          <h3 className="font-display text-lg font-bold text-white">{destination.city}</h3>
           <p className="mt-0.5 flex items-center gap-1 text-xs text-white/80">
             <MapPin className="h-3 w-3" aria-hidden="true" />
             {destination.country}

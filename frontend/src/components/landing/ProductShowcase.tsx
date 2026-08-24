@@ -75,7 +75,7 @@ export function ProductShowcase({ showcase }: { showcase: ShowcaseContent }) {
           <div>
             <Reveal>
               <Badge variant="soft">{showcase.badge}</Badge>
-              <h2 className="text-balance mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+              <h2 className="font-display text-balance mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
                 {showcase.title}
               </h2>
               <p className="text-pretty mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">

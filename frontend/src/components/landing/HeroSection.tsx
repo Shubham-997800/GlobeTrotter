@@ -83,7 +83,7 @@ export function HeroSection({ hero, trustStats }: HeroSectionProps) {
 
             <motion.h1
               variants={item}
-              className="text-balance mt-6 text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-[3.4rem]"
+              className="font-display text-balance mt-6 text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-[3.4rem]"
             >
               {hero.title}
             </motion.h1>
