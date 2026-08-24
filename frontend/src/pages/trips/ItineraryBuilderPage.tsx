@@ -463,7 +463,7 @@ export default function ItineraryBuilderPage() {
             />
 
             {selectedDay ? (
-              <div className="grid gap-6 xl:grid-cols-[1fr_340px]">
+              <div className="space-y-6">
                 <div className="min-w-0 space-y-4">
                   <DayDetails
                     key={selectedDay.id}
@@ -540,7 +540,7 @@ export default function ItineraryBuilderPage() {
                   </DndContext>
                 </div>
 
-                <aside className="min-w-0 space-y-4 xl:sticky xl:top-24 xl:self-start">
+                <aside className="min-w-0 space-y-4">
                   <StopsPanel
                     stops={sortedStops}
                     tripDates={dates}
