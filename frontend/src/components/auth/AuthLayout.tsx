@@ -46,16 +46,15 @@ export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
   return (
     <div className="grid min-h-dvh bg-background lg:grid-cols-2">
       {/* Brand panel — desktop only */}
-      <aside className="relative hidden min-h-dvh overflow-hidden border-r border-border bg-gray-900 lg:flex lg:flex-col lg:justify-between lg:p-10 xl:p-14">
-        {/* Full background image */}
-        <img
-          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80&auto=format"
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+      <aside
+        className="relative hidden min-h-dvh overflow-hidden border-r border-border bg-cover bg-center bg-no-repeat lg:flex lg:flex-col lg:justify-between lg:p-10 xl:p-14"
+        style={{
+          backgroundImage:
+            "url(https://images.unsplash.com/photo-1531932594968-e5e5e9dee95a?w=800&q=80&auto=format&fit=crop)",
+        }}
+      >
         {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-black/50" />
         {/* Gradient accent */}
         <div
           aria-hidden="true"
