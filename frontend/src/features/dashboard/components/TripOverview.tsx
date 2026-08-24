@@ -33,8 +33,8 @@ function BudgetMeter({
   return (
     <div>
       <div className="mb-1 flex items-baseline justify-between gap-2 text-xs">
-        <span className="font-medium">Budget</span>
-        <span className="tabular-nums opacity-90">
+        <span className="font-medium text-white/80">Budget</span>
+        <span className="tabular-nums text-white/80">
           {formatInr(spentInr)} / {formatInr(totalInr)}
         </span>
       </div>
@@ -44,7 +44,7 @@ function BudgetMeter({
         aria-valuenow={Math.min(spentInr, totalInr)}
         aria-valuemin={0}
         aria-valuemax={totalInr}
-        className="h-2 overflow-hidden rounded-full bg-black/30 backdrop-blur-[2px]"
+        className="h-1.5 overflow-hidden rounded-full bg-white/20"
       >
         <div
           className="h-full rounded-full bg-gradient-to-r from-budget to-food transition-all duration-500"
@@ -57,19 +57,19 @@ function BudgetMeter({
 
 function OngoingTripCard({ trip }: { trip: Trip }) {
   return (
-    <article className="group relative min-h-[19rem] overflow-hidden rounded-2xl text-white shadow-md">
+    <article className="group relative min-h-[18rem] overflow-hidden rounded-2xl text-white shadow-md">
       <SafeImg
-          src={trip.image}
-          alt={trip.imageAlt}
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-        />
+        src={trip.image}
+        alt={trip.imageAlt}
+        loading="lazy"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+      />
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/15"
+        className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10"
       />
 
-      <div className="relative flex h-full min-h-[19rem] flex-col p-5 sm:p-6">
+      <div className="relative flex h-full min-h-[18rem] flex-col p-5 sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold uppercase tracking-wide">
             <span className="relative flex size-1.5" aria-hidden="true">
@@ -91,7 +91,7 @@ function OngoingTripCard({ trip }: { trip: Trip }) {
         <p className="mt-1 text-sm text-white/85">
           {trip.destinations.join(" → ")}
         </p>
-        <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-white/80">
+        <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-white/70">
           <CalendarDays className="size-3.5" aria-hidden="true" />
           {trip.startDate} – {trip.endDate}
         </p>
@@ -99,8 +99,8 @@ function OngoingTripCard({ trip }: { trip: Trip }) {
         {/* Trip progress */}
         <div className="mt-4">
           <div className="mb-1 flex items-baseline justify-between gap-2 text-xs">
-            <span className="font-medium">Trip Progress</span>
-            <span className="tabular-nums opacity-90">{trip.progress}%</span>
+            <span className="font-medium text-white/80">Trip Progress</span>
+            <span className="tabular-nums text-white/80">{trip.progress}%</span>
           </div>
           <div
             role="progressbar"
@@ -108,7 +108,7 @@ function OngoingTripCard({ trip }: { trip: Trip }) {
             aria-valuenow={trip.progress}
             aria-valuemin={0}
             aria-valuemax={100}
-            className="h-2 overflow-hidden rounded-full bg-black/30 backdrop-blur-[2px]"
+            className="h-1.5 overflow-hidden rounded-full bg-white/20"
           >
             <div
               className="h-full rounded-full bg-gradient-to-r from-travel-blue to-primary transition-all duration-500"
@@ -117,7 +117,7 @@ function OngoingTripCard({ trip }: { trip: Trip }) {
           </div>
         </div>
 
-        {/* Budget — separate indicator */}
+        {/* Budget */}
         <div className="mt-3">
           <BudgetMeter
             spentInr={trip.budget?.spentInr ?? 0}
@@ -125,7 +125,7 @@ function OngoingTripCard({ trip }: { trip: Trip }) {
           />
         </div>
 
-        <Button asChild size="sm" className="mt-5 self-start">
+        <Button asChild size="sm" className="mt-4 self-start">
           <Link to={`/trips/${trip.id}/itinerary`}>
             Continue Trip
             <ArrowRight className="size-4" aria-hidden="true" />
@@ -138,13 +138,13 @@ function OngoingTripCard({ trip }: { trip: Trip }) {
 
 function UpcomingTripCard({ trip }: { trip: Trip }) {
   return (
-    <article className="group flex items-center gap-4 rounded-2xl border border-subtle-border bg-card p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+    <article className="group flex items-center gap-3.5 rounded-xl border border-subtle-border bg-card p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm">
       <SafeImg
-          src={trip.image}
-          alt={trip.imageAlt}
-          loading="lazy"
-          className="size-16 shrink-0 rounded-xl object-cover sm:size-20"
-        />
+        src={trip.image}
+        alt={trip.imageAlt}
+        loading="lazy"
+        className="size-14 shrink-0 rounded-lg object-cover sm:size-16"
+      />
       <div className="min-w-0 flex-1">
         <h3 className="truncate text-sm font-semibold text-foreground">
           {trip.name}
@@ -162,7 +162,7 @@ function UpcomingTripCard({ trip }: { trip: Trip }) {
         to={`/trips/${trip.id}/itinerary`}
         className="ml-auto inline-flex shrink-0 items-center rounded-full bg-primary-light px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-white dark:bg-primary/15 dark:hover:bg-primary dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        View Trip
+        View
       </Link>
     </article>
   );
@@ -172,7 +172,7 @@ export function TripOverview({ trips }: TripOverviewProps) {
   const ongoing = trips.find((trip) => trip.status === "ongoing");
   const upcoming = trips
     .filter((trip) => trip.status === "upcoming")
-    .slice(0, 2);
+    .slice(0, 3);
 
   return (
     <section aria-labelledby="your-trips-heading">
@@ -207,7 +207,7 @@ export function TripOverview({ trips }: TripOverviewProps) {
           action={{ label: "Plan a New Trip", to: "/trips/create" }}
         />
       ) : (
-        <div className="grid gap-4 lg:grid-cols-[1.35fr_1fr]">
+        <div className="space-y-3">
           {ongoing ? (
             <OngoingTripCard trip={ongoing} />
           ) : (
@@ -225,11 +225,9 @@ export function TripOverview({ trips }: TripOverviewProps) {
             </div>
           )}
           {upcoming.length > 0 ? (
-            <div className="space-y-4">
-              {upcoming.map((trip) => (
-                <UpcomingTripCard key={trip.id} trip={trip} />
-              ))}
-            </div>
+            upcoming.map((trip) => (
+              <UpcomingTripCard key={trip.id} trip={trip} />
+            ))
           ) : null}
         </div>
       )}

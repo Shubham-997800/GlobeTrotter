@@ -15,11 +15,11 @@ const TYPE_STYLES: Record<
   ActivityEvent["type"],
   { icon: typeof Luggage; classes: string }
 > = {
-  "trip-created": { icon: Luggage, classes: "bg-primary-light text-primary dark:bg-primary/15" },
-  "activity-added": { icon: Ticket, classes: "bg-activity/15 text-activity dark:bg-activity/20" },
-  "itinerary-updated": { icon: Route, classes: "bg-travel-blue/15 text-travel-blue dark:bg-travel-blue/20" },
-  "budget-updated": { icon: Wallet, classes: "bg-budget/15 text-budget dark:bg-budget/20" },
-  "community-post": { icon: UsersRound, classes: "bg-stay/15 text-stay dark:bg-stay/20" },
+  "trip-created": { icon: Luggage, classes: "bg-primary/10 text-primary" },
+  "activity-added": { icon: Ticket, classes: "bg-activity/10 text-activity" },
+  "itinerary-updated": { icon: Route, classes: "bg-travel-blue/10 text-travel-blue" },
+  "budget-updated": { icon: Wallet, classes: "bg-budget/10 text-budget" },
+  "community-post": { icon: UsersRound, classes: "bg-stay/10 text-stay" },
 };
 
 export function RecentActivity() {
@@ -50,7 +50,7 @@ export function RecentActivity() {
           const style = TYPE_STYLES[event.type];
           const Icon = style.icon;
           return (
-            <li key={event.id} className="relative py-2">
+            <li key={event.id} className="relative py-2.5">
               <span
                 aria-hidden="true"
                 className={cn(

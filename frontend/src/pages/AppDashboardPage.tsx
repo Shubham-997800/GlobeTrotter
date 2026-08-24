@@ -40,33 +40,30 @@ export function AppDashboardPage() {
 
   return (
     <AppShell>
-      <div className="space-y-10">
-        {isLoading ? (
-          <DashboardSkeleton />
-        ) : isError || !data ? (
-          <ErrorState
-            title="Couldn't load your dashboard"
-            description="We had trouble fetching your trips and recommendations. Give it another go."
-            onRetry={() => refetch()}
+      {isLoading ? (
+        <DashboardSkeleton />
+      ) : isError || !data ? (
+        <ErrorState
+          title="Couldn't load your dashboard"
+          description="We had trouble fetching your trips and recommendations. Give it another go."
+          onRetry={() => refetch()}
+        />
+      ) : (
+        <div className="space-y-8">
+          <WelcomeSection />
+          <TravelBanner slides={data.featuredSlides} />
+          <TripOverview trips={data.myTrips} />
+          <QuickActions />
+          <RegionalSelections />
+          <PopularDestinations
+            destinations={data.destinations}
+            savedIds={savedIds}
+            onToggleSaved={(id) => toggleSaved.mutate(id)}
           />
-        ) : (
-          <>
-            <WelcomeSection />
-            <TravelBanner slides={data.featuredSlides} />
-            <RegionalSelections />
-            <PopularDestinations
-              destinations={data.destinations}
-              savedIds={savedIds}
-              onToggleSaved={(id) => toggleSaved.mutate(id)}
-            />
-            <TripOverview trips={data.myTrips} />
-            <QuickActions />
-
-            <RecentActivity />
-            <TravelInsights />
-          </>
-        )}
-      </div>
+          <TravelInsights />
+          <RecentActivity />
+        </div>
+      )}
     </AppShell>
   );
 }

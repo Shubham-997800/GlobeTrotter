@@ -38,7 +38,7 @@ export function PopularDestinations({
 
   return (
     <section aria-labelledby="popular-destinations-heading">
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+      <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2
             id="popular-destinations-heading"
@@ -74,11 +74,11 @@ export function PopularDestinations({
               aria-selected={selected}
               onClick={() => setActiveCategory(filter.id)}
               className={cn(
-                "shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+                "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 selected
                   ? "bg-primary text-white shadow-sm"
-                  : "border border-subtle-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                  : "border border-subtle-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground",
               )}
             >
               {filter.label}
@@ -88,13 +88,13 @@ export function PopularDestinations({
       </div>
 
       {/* Cards */}
-      <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {visible.map((destination) => {
           const saved = savedIds.includes(destination.id);
           return (
             <li key={destination.id} className="list-none">
-              <article className="group relative h-full overflow-hidden rounded-2xl border border-subtle-border bg-card transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
-                <div className="relative aspect-[4/3] overflow-hidden">
+              <article className="group relative h-full overflow-hidden rounded-xl border border-subtle-border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                <div className="relative aspect-[16/10] overflow-hidden">
                   <SafeImg
                     src={destination.image}
                     alt={destination.imageAlt}
@@ -111,17 +111,17 @@ export function PopularDestinations({
                         ? `Remove ${destination.city} from saved destinations`
                         : `Save ${destination.city} for later`
                     }
-                    className="absolute right-2.5 top-2.5 z-20 rounded-full bg-black/40 p-1.5 text-white backdrop-blur-sm transition-colors hover:bg-black/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                    className="absolute right-2 top-2 z-20 rounded-full bg-black/40 p-1.5 text-white backdrop-blur-sm transition-colors hover:bg-black/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                   >
                     <Bookmark
-                      className={cn("size-4", saved && "fill-current")}
+                      className={cn("size-3.5", saved && "fill-current")}
                       aria-hidden="true"
                     />
                   </button>
                   {/* Whole-card link */}
                   <Link
                     to="/explore"
-                    className="absolute inset-0 z-10 rounded-t-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                    className="absolute inset-0 z-10 rounded-t-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                   >
                     <span className="sr-only">
                       View {destination.city}, {destination.country}
@@ -129,29 +129,29 @@ export function PopularDestinations({
                   </Link>
                 </div>
 
-                <div className="p-4">
-                  <p className="text-xs font-medium uppercase tracking-wider text-secondary-text">
+                <div className="p-3.5">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-secondary-text">
                     {destination.country}
                   </p>
-                  <h3 className="mt-0.5 text-base font-semibold text-foreground">
+                  <h3 className="mt-0.5 text-sm font-semibold text-foreground">
                     {destination.city}
                   </h3>
                   <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
                     {destination.description}
                   </p>
 
-                  <div className="mt-3 flex items-center justify-between border-t border-subtle-border pt-3 text-sm">
-                    <span className="inline-flex items-center gap-1 font-medium text-foreground">
+                  <div className="mt-2.5 flex items-center justify-between border-t border-subtle-border pt-2.5">
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-foreground">
                       <Star
-                        className="size-4 fill-warning-text text-warning-text"
+                        className="size-3.5 fill-warning-text text-warning-text"
                         aria-hidden="true"
                       />
                       {destination.rating.toFixed(1)}
-                      <span className="text-xs font-normal text-secondary-text">
+                      <span className="font-normal text-secondary-text">
                         ({formatReviews(destination.reviews)})
                       </span>
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       from{" "}
                       <strong className="font-semibold text-foreground">
                         ₹{destination.estimatedBudgetInr.toLocaleString("en-IN")}

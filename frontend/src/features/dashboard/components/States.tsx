@@ -13,7 +13,12 @@ interface EmptyStateProps {
   action?: { label: string; to: string };
 }
 
-export function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {
+export function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action,
+}: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-subtle-border px-6 py-12 text-center">
       <span className="mb-4 flex size-12 items-center justify-center rounded-full bg-primary-light dark:bg-primary/15">
@@ -21,7 +26,9 @@ export function EmptyState({ icon: Icon, title, description, action }: EmptyStat
       </span>
       <h3 className="text-base font-semibold text-foreground">{title}</h3>
       {description ? (
-        <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>
+        <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+          {description}
+        </p>
       ) : null}
       {action ? (
         <Button asChild size="sm" className="mt-5">
@@ -48,13 +55,13 @@ export function ErrorState({
   return (
     <div
       role="alert"
-      className="flex flex-col items-center justify-center rounded-2xl border border-warning-border bg-warning-bg px-6 py-12 text-center"
+      className="flex flex-col items-center justify-center rounded-2xl border border-error-border bg-error-bg px-6 py-12 text-center"
     >
-      <span className="mb-4 flex size-12 items-center justify-center rounded-full bg-warning-border/40">
-        <AlertTriangle className="size-6 text-warning-text" aria-hidden="true" />
+      <span className="mb-4 flex size-12 items-center justify-center rounded-full bg-error-border/40">
+        <AlertTriangle className="size-6 text-error-text" aria-hidden="true" />
       </span>
-      <h3 className="text-base font-semibold text-warning-text">{title}</h3>
-      <p className="mt-1 max-w-sm text-sm text-warning-text/90">{description}</p>
+      <h3 className="text-base font-semibold text-error-text">{title}</h3>
+      <p className="mt-1 max-w-sm text-sm text-error-text/80">{description}</p>
       {onRetry ? (
         <Button variant="outline" size="sm" className="mt-5" onClick={onRetry}>
           <RefreshCw className="size-4" aria-hidden="true" />
@@ -68,92 +75,102 @@ export function ErrorState({
 /* ── DashboardSkeleton ───────────────────────────────────────── */
 
 function Bar({ className }: { className?: string }) {
-  return <div aria-hidden="true" className={`animate-pulse rounded-lg bg-muted ${className ?? ""}`} />;
+  return (
+    <div
+      aria-hidden="true"
+      className={`animate-pulse rounded-lg bg-muted ${className ?? ""}`}
+    />
+  );
 }
 
 /** Layout-matched placeholder shown while the dashboard snapshot loads. */
 export function DashboardSkeleton() {
   return (
-    <div className="space-y-10" aria-hidden="true">
+    <div className="space-y-8" aria-hidden="true">
       {/* Welcome */}
       <div className="space-y-3">
         <Bar className="h-4 w-40" />
         <Bar className="h-8 w-80 max-w-full" />
         <Bar className="h-4 w-64 max-w-full" />
+        <div className="flex gap-3 pt-1">
+          <Bar className="h-9 w-32 rounded-lg" />
+          <Bar className="h-9 w-40 rounded-lg" />
+        </div>
       </div>
 
       {/* Featured banner */}
-      <Bar className="h-72 rounded-3xl sm:h-80 lg:h-96" />
+      <Bar className="h-72 rounded-2xl sm:h-80 lg:h-96" />
 
       {/* Regional selections */}
-      <section className="space-y-4">
+      <section className="space-y-3">
         <Bar className="h-6 w-56" />
         <div className="flex gap-2 overflow-hidden">
           {["w-16", "w-20", "w-24", "w-20", "w-24", "w-16"].map((w, i) => (
             <Bar key={i} className={`h-8 shrink-0 ${w}`} />
           ))}
         </div>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <div className="flex gap-4 overflow-hidden">
           {[0, 1, 2].map((i) => (
-            <Bar key={i} className="h-52 rounded-xl" />
+            <Bar key={i} className="h-48 w-64 shrink-0 rounded-xl" />
           ))}
         </div>
       </section>
 
       {/* Popular destinations */}
-      <section className="space-y-4">
+      <section className="space-y-3">
         <Bar className="h-6 w-64" />
         <div className="flex gap-2">
           {["w-20", "w-20", "w-24", "w-16", "w-24"].map((w, i) => (
             <Bar key={i} className={`h-8 ${w}`} />
           ))}
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {[0, 1, 2].map((i) => (
-            <Bar key={i} className="h-72 rounded-2xl" />
+            <Bar key={i} className="h-64 rounded-xl" />
           ))}
         </div>
       </section>
 
       {/* Your trips */}
-      <section className="space-y-4">
+      <section className="space-y-3">
         <Bar className="h-6 w-40" />
-        <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-          <Bar className="h-64 rounded-2xl" />
-          <div className="space-y-4">
-            <Bar className="h-28 rounded-2xl" />
-            <Bar className="h-28 rounded-2xl" />
-          </div>
-        </div>
+        <Bar className="h-64 rounded-2xl" />
+        <Bar className="h-20 rounded-xl" />
+        <Bar className="h-20 rounded-xl" />
       </section>
 
       {/* Quick actions */}
-      <section className="space-y-4">
+      <section className="space-y-3">
         <Bar className="h-6 w-48" />
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {[0, 1, 2, 3].map((i) => (
-            <Bar key={i} className="h-32 rounded-2xl" />
+            <Bar key={i} className="h-16 rounded-xl" />
           ))}
         </div>
       </section>
 
-      {/* Activity + insights */}
-      <section className="space-y-4">
+      {/* Insights */}
+      <section className="space-y-3">
         <Bar className="h-6 w-44" />
-        <div className="space-y-4">
-          {[0, 1, 2].map((i) => (
+        <div className="grid grid-cols-2 gap-3">
+          {[0, 1, 2, 3].map((i) => (
+            <Bar key={i} className="h-28 rounded-xl" />
+          ))}
+        </div>
+      </section>
+
+      {/* Activity */}
+      <section className="space-y-3">
+        <Bar className="h-6 w-44" />
+        <div className="space-y-3">
+          {[0, 1, 2, 3, 4].map((i) => (
             <div key={i} className="flex items-center gap-3">
-              <Bar className="size-10 shrink-0 rounded-full" />
-              <div className="flex-1 space-y-2">
+              <Bar className="size-7 shrink-0 rounded-full" />
+              <div className="flex-1 space-y-1.5">
                 <Bar className="h-3.5 w-1/3" />
                 <Bar className="h-3 w-2/3" />
               </div>
             </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {[0, 1, 2, 3].map((i) => (
-            <Bar key={i} className="h-28 rounded-2xl" />
           ))}
         </div>
       </section>
