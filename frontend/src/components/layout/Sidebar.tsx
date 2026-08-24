@@ -210,7 +210,7 @@ export function DesktopSidebar({
       <aside
         data-collapsed={collapsed}
         className={cn(
-          "sticky top-14 hidden h-[calc(100dvh-3.5rem)] shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200 ease-in-out lg:flex",
+          "hidden h-full shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200 ease-in-out lg:flex",
           collapsed ? "w-[68px] px-2 py-3" : "w-64 px-3 py-3",
         )}
       >

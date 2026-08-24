@@ -44,7 +44,7 @@ export function AppShell({
   }, [sidebarCollapsed]);
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="flex h-dvh overflow-hidden bg-background">
       {/* Skip navigation — keyboard users land here */}
       <a
         href="#main-content"
@@ -53,22 +53,25 @@ export function AppShell({
         Skip to main content
       </a>
 
-      <Navbar
-        drawerOpen={drawerOpen}
-        onDrawerOpenChange={setDrawerOpen}
+      {/* Desktop sidebar — NEVER scrolls */}
+      <DesktopSidebar
+        collapsed={sidebarCollapsed}
+        onToggleCollapsed={() => setSidebarCollapsed((prev) => !prev)}
       />
 
-      <OfflineBanner />
-
-      <div className="flex min-h-[calc(100dvh-3.5rem)]">
-        {/* Desktop sidebar */}
-        <DesktopSidebar
-          collapsed={sidebarCollapsed}
-          onToggleCollapsed={() => setSidebarCollapsed((prev) => !prev)}
+      {/* Right column: navbar + scrollable content */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Navbar
+          drawerOpen={drawerOpen}
+          onDrawerOpenChange={setDrawerOpen}
         />
+        <OfflineBanner />
 
-        {/* Page content */}
-        <main id="main-content" className="min-w-0 flex-1">
+        {/* ONLY this area scrolls */}
+        <main
+          id="main-content"
+          className="min-w-0 flex-1 overflow-y-auto"
+        >
           <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
             {title || actions ? (
               <div className="mb-6 flex flex-wrap items-end justify-between gap-3">

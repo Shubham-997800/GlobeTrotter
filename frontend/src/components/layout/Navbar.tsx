@@ -44,7 +44,7 @@ export function Navbar({ drawerOpen, onDrawerOpenChange }: NavbarProps) {
   const closeDrawer = () => onDrawerOpenChange(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+    <header className="z-40 shrink-0 border-b border-border/60 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
       {/*
         3-zone flex layout:
         Zone 1 — shrink-0: hamburger + brand (never shrinks)
