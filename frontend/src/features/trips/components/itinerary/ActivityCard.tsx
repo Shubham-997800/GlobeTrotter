@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
@@ -61,7 +61,7 @@ interface ActivityCardProps {
  * action (including reorder) also exists as a keyboard-reachable menu
  * item, so drag-and-drop is never the only path.
  */
-export function ActivityCard({
+export const ActivityCard = React.memo(function ActivityCard({
   activity,
   currency,
   overlaps,
@@ -126,6 +126,8 @@ export function ActivityCard({
             <img
               src={activity.image}
               alt={activity.imageAlt ?? ""}
+              width="112"
+              height="80"
               loading="lazy"
               className="h-full w-full object-cover"
             />
@@ -275,4 +277,4 @@ export function ActivityCard({
       </Dialog>
     </li>
   );
-}
+});

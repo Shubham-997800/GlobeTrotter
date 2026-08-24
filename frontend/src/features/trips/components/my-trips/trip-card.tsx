@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import {
   Archive,
@@ -47,7 +48,7 @@ interface TripCardProps extends TripCardActions {
  * Travel-oriented trip card. Clean hierarchy:
  * image → status badge → name → destination → dates → quick stats → actions.
  */
-export function TripCard({
+export const TripCard = React.memo(function TripCard({
   trip,
   selected = false,
   selectionActive = false,
@@ -256,4 +257,4 @@ export function TripCard({
       </div>
     </article>
   );
-}
+});

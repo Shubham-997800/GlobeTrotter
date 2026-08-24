@@ -102,7 +102,7 @@ function MonthDayCell({
           type="button"
           onClick={() => onSelect(cell.key)}
           className={cn(
-            "flex size-6 items-center justify-center rounded-full text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            "flex size-11 items-center justify-center rounded-full text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             isToday
               ? "bg-primary text-primary-foreground"
               : selected
@@ -118,7 +118,7 @@ function MonthDayCell({
         <button
           type="button"
           onClick={() => onCreate(cell.key)}
-          className="rounded-md p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
+          className="rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
           aria-label={`Add event on ${cell.key}`}
         >
           <Plus className="size-4" aria-hidden="true" />

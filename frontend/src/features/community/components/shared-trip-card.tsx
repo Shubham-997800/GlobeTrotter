@@ -38,6 +38,8 @@ export function SharedTripCard({ snapshot }: { snapshot: SharedTripSnapshot }) {
           <img
             src={snapshot.coverImage}
             alt={snapshot.name}
+            width="400"
+            height="160"
             loading="lazy"
             className="size-full object-cover"
           />

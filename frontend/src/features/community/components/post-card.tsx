@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Bookmark,
   Flag,
@@ -71,7 +71,7 @@ const REPORT_REASONS: { value: ReportReason; label: string }[] = [
  * Feed post card — author header, story content or shared-trip embed,
  * engagement actions and the inline comment thread.
  */
-export function PostCard({
+export const PostCard = React.memo(function PostCard({
   post,
   viewer,
   onOpenProfile,
@@ -460,4 +460,4 @@ export function PostCard({
       </Dialog>
     </article>
   );
-}
+});

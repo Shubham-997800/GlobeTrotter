@@ -112,6 +112,8 @@ export function DestinationCard({
             <img
               src={destination.image}
               alt={destination.imageAlt}
+              width="400"
+              height="250"
               loading={isFeatured ? "eager" : "lazy"}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
@@ -393,6 +395,8 @@ export function DestinationCardCompact({
       <img
         src={destination.image}
         alt={destination.imageAlt}
+        width="64"
+        height="64"
         className="size-16 shrink-0 rounded-lg object-cover"
         loading="lazy"
       />

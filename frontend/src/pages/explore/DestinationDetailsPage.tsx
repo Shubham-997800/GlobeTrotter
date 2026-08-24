@@ -155,6 +155,8 @@ export function DestinationDetailsPage() {
             <img
               src={destination.image}
               alt={destination.imageAlt}
+              width="800"
+              height="450"
               className="aspect-[16/9] w-full object-cover sm:aspect-[2/1] lg:aspect-auto lg:h-[420px]"
               loading="eager"
             />
@@ -495,6 +497,8 @@ function PlaceCard({ place }: { place: PlaceCard }) {
           <img
             src={place.image}
             alt={place.imageAlt}
+            width="400"
+            height="250"
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
@@ -525,6 +529,8 @@ function ActivityCard({ activity, destinationId }: { activity: ExploreActivity; 
         <img
           src={activity.image}
           alt={activity.imageAlt}
+          width="400"
+          height="250"
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
@@ -576,6 +582,8 @@ function DestinationCardCompact({ destination }: { destination: ExploreDestinati
         <img
           src={destination.image}
           alt={destination.imageAlt}
+          width="400"
+          height="250"
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />

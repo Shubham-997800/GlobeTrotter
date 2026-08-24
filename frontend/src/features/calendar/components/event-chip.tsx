@@ -1,3 +1,4 @@
+import React from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
 import type { CalendarEvent, EventDragData } from "../calendar.types";
@@ -20,7 +21,7 @@ export function dragDataFor(event: CalendarEvent): EventDragData {
   };
 }
 
-export function EventChip({
+export const EventChip = React.memo(function EventChip({
   event,
   compact = false,
   draggable = true,
@@ -74,7 +75,7 @@ export function EventChip({
   );
 
   return chip;
-}
+});
 
 /** Static chip for the drag overlay / read-only contexts. */
 export function StaticEventChip({ event }: { event: CalendarEvent }) {

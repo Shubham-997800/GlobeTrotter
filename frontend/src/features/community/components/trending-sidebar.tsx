@@ -55,6 +55,8 @@ export function TrendingSidebar({
                         <img
                           src={destination.image}
                           alt={destination.imageAlt ?? `${destination.city}, ${destination.country}`}
+                          width="48"
+                          height="48"
                           loading="lazy"
                           className="size-full object-cover"
                         />

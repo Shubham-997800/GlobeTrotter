@@ -838,29 +838,39 @@ export function TripDetailsPage() {
             >
               <div className="relative">
                 <TabsList className="flex w-full gap-1 overflow-x-auto sm:w-auto">
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
-                  <TabsTrigger value="activities">Activities</TabsTrigger>
-                  <TabsTrigger value="budget">Budget</TabsTrigger>
-                  <TabsTrigger value="notes">Notes</TabsTrigger>
+                  <TabsTrigger value="overview" id="tab-overview">Overview</TabsTrigger>
+                  <TabsTrigger value="itinerary" id="tab-itinerary">Itinerary</TabsTrigger>
+                  <TabsTrigger value="activities" id="tab-activities">Activities</TabsTrigger>
+                  <TabsTrigger value="budget" id="tab-budget">Budget</TabsTrigger>
+                  <TabsTrigger value="notes" id="tab-notes">Notes</TabsTrigger>
                 </TabsList>
                 <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent" aria-hidden="true" />
               </div>
 
               <TabsContent value="overview">
-                <OverviewTab trip={trip} itinerary={itinerary} />
+                <section aria-labelledby="tab-overview">
+                  <OverviewTab trip={trip} itinerary={itinerary} />
+                </section>
               </TabsContent>
               <TabsContent value="itinerary">
-                <ItineraryReadOnlyTab trip={trip} itinerary={itinerary} />
+                <section aria-labelledby="tab-itinerary">
+                  <ItineraryReadOnlyTab trip={trip} itinerary={itinerary} />
+                </section>
               </TabsContent>
               <TabsContent value="activities">
-                <ActivitiesTab trip={trip} itinerary={itinerary} />
+                <section aria-labelledby="tab-activities">
+                  <ActivitiesTab trip={trip} itinerary={itinerary} />
+                </section>
               </TabsContent>
               <TabsContent value="budget">
-                <BudgetTab trip={trip} itinerary={itinerary} />
+                <section aria-labelledby="tab-budget">
+                  <BudgetTab trip={trip} itinerary={itinerary} />
+                </section>
               </TabsContent>
               <TabsContent value="notes">
-                <NotesTab itinerary={itinerary} />
+                <section aria-labelledby="tab-notes">
+                  <NotesTab itinerary={itinerary} />
+                </section>
               </TabsContent>
             </Tabs>
           </>
