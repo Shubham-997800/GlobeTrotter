@@ -11,7 +11,6 @@ import {
   Sparkles,
   Ticket,
   Wallet,
-  X,
 } from "lucide-react";
 
 import {
@@ -33,7 +32,7 @@ import { DraftStatus } from "@/features/trips/components/DraftStatus";
 import { BudgetSetup } from "@/features/trips/components/BudgetSetup";
 import { InterestSelector } from "@/features/trips/components/InterestSelector";
 import { SectionCard } from "@/features/trips/components/SectionCard";
-import { SuggestedActivities } from "@/features/trips/components/SuggestedActivities";
+
 import { SuggestedDestinations } from "@/features/trips/components/SuggestedDestinations";
 import { TripActionBar } from "@/features/trips/components/TripActionBar";
 import { TripPreview } from "@/features/trips/components/TripPreview";
@@ -45,9 +44,8 @@ import {
   emptyTripDraft,
   type TripFormValues,
 } from "@/features/trips/schemas/create-trip.schema";
-import { destinations, activities } from "@/features/trips/trips.data";
+import { destinations } from "@/features/trips/trips.data";
 import type {
-  ActivitySuggestion,
   BudgetTierDef,
   Destination,
   InterestId,
@@ -112,15 +110,7 @@ export function CreateTripPage() {
     return () => subscription.unsubscribe();
   }, [watch]);
 
-  const [addedActivities, setAddedActivities] = useState<ActivitySuggestion[]>(() =>
-    isEdit && existingTrip
-      ? (existingTrip.activityIds ?? [])
-          .map((id) => activities.find((activity) => activity.id === id))
-          .filter((activity): activity is ActivitySuggestion => Boolean(activity))
-      : [],
-  );
-  const touchedBeyondForm = addedActivities.length > 0;
-  const hasUnsavedWork = dirtyToken > 0 || touchedBeyondForm;
+  const hasUnsavedWork = dirtyToken > 0;
 
   const { draftState, savedAt, markSavedNow, clearLocalDraft } =
     useDraftAutosave({ values, dirtyToken, enabled: !isEdit });
@@ -174,21 +164,6 @@ export function CreateTripPage() {
     setValue("destinationId", destination?.id ?? "", { shouldValidate: true });
   };
 
-  const onActivityAdd = (activity: ActivitySuggestion) => {
-    setAddedActivities((current) =>
-      current.some((item) => item.id === activity.id)
-        ? current
-        : [...current, activity],
-    );
-    toast.success(`${activity.name} added to your trip`);
-  };
-
-  const removeActivity = (activityId: string) => {
-    setAddedActivities((current) =>
-      current.filter((item) => item.id !== activityId),
-    );
-  };
-
   /* ── Save as Draft (name-only validation, create mode only) ─ */
   const handleSaveDraft = async () => {
     if (isEdit) return;
@@ -202,7 +177,7 @@ export function CreateTripPage() {
     try {
       await saveDraft.mutateAsync({
         values: parsed.data as TripFormValues,
-        activityIds: addedActivities.map((activity) => activity.id),
+        activityIds: [],
       });
       clearLocalDraft();
       markSavedNow();
@@ -216,10 +191,9 @@ export function CreateTripPage() {
 
   /* ── Create / Update (full validation via resolver) ───────── */
   const onValid = async (data: TripFormValues) => {
-    const activityIds = addedActivities.map((activity) => activity.id);
     try {
       if (isEdit && tripId) {
-        const trip = await updateTrip.mutateAsync({ tripId, values: data, activityIds });
+        const trip = await updateTrip.mutateAsync({ tripId, values: data, activityIds: [] });
         toast.success("Trip updated!", {
           description: `${trip.name} — all changes saved.`,
         });
@@ -228,7 +202,7 @@ export function CreateTripPage() {
       }
       const trip = await createTrip.mutateAsync({
         values: data,
-        activityIds,
+        activityIds: [],
       });
       clearLocalDraft();
       toast.success("Trip created!", {
@@ -431,61 +405,25 @@ export function CreateTripPage() {
 
             <SectionCard
               icon={<Ticket />}
-              title="Activities"
-              description="Browse ideas and add what excites you — day-wise scheduling comes next."
+              title="Quick Start Tip"
+              description="After creating your trip, you'll add activities in the itinerary builder."
             >
-              <div className="space-y-4">
-                <SuggestedActivities
-                  addedIds={addedActivities.map((activity) => activity.id)}
-                  onAdd={onActivityAdd}
-                />
-
-                {/* Added list */}
-                {addedActivities.length > 0 ? (
-                  <ul
-                    aria-label="Activities added to this trip"
-                    className="flex flex-wrap gap-2"
-                  >
-                    {addedActivities.map((activity) => (
-                      <li key={activity.id}>
-                        <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 py-1 pl-3 pr-1 text-sm font-medium text-foreground">
-                          {activity.name}
-                          <button
-                            type="button"
-                            onClick={() => removeActivity(activity.id)}
-                            aria-label={`Remove ${activity.name}`}
-                            className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          >
-                            <X className="h-3 w-3" aria-hidden="true" />
-                          </button>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="rounded-xl border border-dashed border-strong-border p-4 text-center text-sm text-muted-foreground">
-                    Nothing added yet — tap “Add to Trip” on any idea above.
-                    {" "}
-                    {values.interests.length > 0 ? (
-                      <>We're prioritizing{" "}
-                        <span className="font-medium text-foreground">
-                          {values.interests.map(interestLabel).slice(0, 3).join(", ")}
-                        </span>{" "}
-                        for you.
-                      </>
-                    ) : null}
-                  </p>
-                )}
+              <div className="rounded-xl border border-dashed border-strong-border p-4 text-center text-sm text-muted-foreground">
+                <p>
+                  Activities and day-wise scheduling are handled in the{" "}
+                  <span className="font-medium text-foreground">Itinerary Builder</span>{" "}
+                  — you'll be redirected there right after creating your trip.
+                </p>
               </div>
             </SectionCard>
           </div>
 
           {/* ── Live preview ─────────────────────────────────── */}
           <div className="lg:relative">
-            <TripPreview
+              <TripPreview
               values={values}
               destination={selectedDestination}
-              activities={addedActivities}
+              activities={[]}
             />
           </div>
         </div>

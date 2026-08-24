@@ -320,7 +320,7 @@ export const tripsService = {
   /** Narrow field patch (status flips from the itinerary builder, …). */
   async patchTrip(
     tripId: string,
-    patch: Partial<Pick<TripRecord, "name" | "description" | "coverImage" | "status">>,
+    patch: Partial<Pick<TripRecord, "name" | "description" | "coverImage" | "status" | "budgetAmount" | "currency">>,
   ): Promise<TripRecord> {
     await delay(MUTATION_LATENCY_MS);
     const records = readJson<TripRecord[]>(TRIPS_KEY, []);

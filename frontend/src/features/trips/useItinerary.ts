@@ -367,6 +367,8 @@ export interface EditableTripPatch {
   name: string;
   description: string;
   coverImage: string;
+  budgetAmount: number;
+  currency: string;
 }
 
 export function useEditTrip(tripId: string) {
@@ -377,6 +379,8 @@ export function useEditTrip(tripId: string) {
         name: patch.name.trim(),
         description: patch.description.trim() || undefined,
         coverImage: patch.coverImage || undefined,
+        budgetAmount: patch.budgetAmount,
+        currency: patch.currency,
       }),
     onSuccess: (trip) => {
       queryClient.setQueryData(itineraryKeys.trip(tripId), trip);

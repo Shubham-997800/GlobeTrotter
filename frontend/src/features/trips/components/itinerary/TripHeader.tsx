@@ -11,6 +11,7 @@ import {
   Pencil,
   Share2,
   Trash2,
+  Wallet,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -37,7 +38,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { CoverImageUpload } from "@/features/trips/components/CoverImageUpload";
 import type { EditableTripPatch } from "@/features/trips/useItinerary";
-import { destinations } from "@/features/trips/trips.data";
+import { destinations, currencies } from "@/features/trips/trips.data";
 import type { TripRecord } from "@/features/trips/trips.types";
 import {
   formatDateRange,
@@ -134,10 +135,13 @@ export function TripHeader({
                   {duration ? (
                     <span className="inline-flex items-center gap-1">
                       <Clock3 className="h-3.5 w-3.5 text-travel-blue" aria-hidden="true" />
-                      {duration.days} days · {duration.nights} nights ·{" "}
-                      {formatMoney(trip.budgetAmount, trip.currency)} budget
+                      {duration.days} days · {duration.nights} nights
                     </span>
                   ) : null}
+                  <span className="inline-flex items-center gap-1">
+                    <Wallet className="h-3.5 w-3.5 text-travel-blue" aria-hidden="true" />
+                    {formatMoney(trip.budgetAmount, trip.currency)} budget
+                  </span>
                 </p>
               </div>
 
@@ -269,6 +273,8 @@ function TripEditDialog({
   const [name, setName] = useState(trip.name);
   const [description, setDescription] = useState(trip.description ?? "");
   const [coverImage, setCoverImage] = useState(trip.coverImage ?? "");
+  const [budgetAmount, setBudgetAmount] = useState(String(trip.budgetAmount));
+  const [currency, setCurrency] = useState(trip.currency);
   const [nameError, setNameError] = useState<string | null>(null);
 
   // Reset local state each time the dialog opens so stale edits never leak.
@@ -277,6 +283,8 @@ function TripEditDialog({
       setName(trip.name);
       setDescription(trip.description ?? "");
       setCoverImage(trip.coverImage ?? "");
+      setBudgetAmount(String(trip.budgetAmount));
+      setCurrency(trip.currency);
       setNameError(null);
     }
   }, [open, trip]);
@@ -286,7 +294,13 @@ function TripEditDialog({
       setNameError("Give your trip a name.");
       return;
     }
-    onSave({ name, description, coverImage });
+    onSave({
+      name,
+      description,
+      coverImage,
+      budgetAmount: Number(budgetAmount) || 0,
+      currency,
+    });
   };
 
   return (
@@ -343,6 +357,35 @@ function TripEditDialog({
           <div className="space-y-1.5">
             <Label>Cover photo</Label>
             <CoverImageUpload value={coverImage} onChange={setCoverImage} disabled={saving} />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-trip-budget">Budget</Label>
+              <Input
+                id="edit-trip-budget"
+                type="number"
+                min={0}
+                value={budgetAmount}
+                onChange={(event) => setBudgetAmount(event.target.value)}
+                placeholder="e.g. 50000"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-trip-currency">Currency</Label>
+              <select
+                id="edit-trip-currency"
+                value={currency}
+                onChange={(event) => setCurrency(event.target.value)}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                {currencies.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.code} — {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <DialogFooter className="gap-2 sm:gap-0">

@@ -1,16 +1,7 @@
 import { AppShell } from "@/components/layout/AppShell";
 import {
-  RegionalSelections,
-} from "@/features/dashboard/components/RegionalSelections";
-import {
   PopularDestinations,
 } from "@/features/dashboard/components/PopularDestinations";
-import {
-  TravelBanner,
-} from "@/features/dashboard/components/TravelBanner";
-import {
-  TravelInsights,
-} from "@/features/dashboard/components/TravelInsights";
 import {
   TripOverview,
 } from "@/features/dashboard/components/TripOverview";
@@ -51,16 +42,13 @@ export function AppDashboardPage() {
       ) : (
         <div className="space-y-8">
           <WelcomeSection />
-          <TravelBanner slides={data.featuredSlides} />
           <TripOverview trips={data.myTrips} />
           <QuickActions />
-          <RegionalSelections />
           <PopularDestinations
             destinations={data.destinations}
             savedIds={savedIds}
             onToggleSaved={(id) => toggleSaved.mutate(id)}
           />
-          <TravelInsights />
           <RecentActivity />
         </div>
       )}

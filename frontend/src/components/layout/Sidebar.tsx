@@ -5,7 +5,6 @@ import {
   CalendarDays,
   Compass,
   Globe,
-  HelpCircle,
   LayoutDashboard,
   Map,
   PanelLeftClose,
@@ -46,7 +45,6 @@ const MAIN_NAV: NavItemDef[] = [
 const ACCOUNT_NAV: NavItemDef[] = [
   { to: "/profile", label: "Profile", icon: UserRound },
   { to: "/settings", label: "Settings", icon: Settings },
-  { to: "/help", label: "Help & Support", icon: HelpCircle },
 ];
 
 interface SidebarChromeProps {

@@ -56,8 +56,8 @@ const TripDetailsPage = lazy(() =>
     default: m.TripDetailsPage,
   })),
 );
-const BudgetPage = lazy(() =>
-  import("@/pages/trips/BudgetPage").then((m) => ({ default: m.BudgetPage })),
+const PublicTripViewPage = lazy(() =>
+  import("@/pages/trips/PublicTripViewPage"),
 );
 const ShareTripPage = lazy(() =>
   import("@/pages/trips/ShareTripPage").then((m) => ({
@@ -212,6 +212,16 @@ export default function App() {
               element={<Navigate to="/register" replace />}
             />
 
+            {/* Public trip view — no auth required */}
+            <Route
+              path="/trip/:tripId/public"
+              element={
+                <Suspense fallback={<RouteFallback />}>
+                  <PublicTripViewPage />
+                </Suspense>
+              }
+            />
+
             {/* Protected */}
             <Route
               path="/dashboard"
@@ -317,14 +327,7 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/trips/:tripId/budget"
-              element={
-                <ProtectedRoute>
-                  <PageTransition><BudgetPage /></PageTransition>
-                </ProtectedRoute>
-              }
-            />
+            
             <Route
               path="/trips/:tripId/share"
               element={

@@ -117,8 +117,7 @@ export async function loadDashboard(): Promise<DashboardSnapshot> {
   await delay(700);
 
   const records = await tripsService.listTrips();
-  const realTrips = records.map(recordToTrip);
-  const myTrips = [...realTrips, ...demoTrips];
+  const myTrips = records.map(recordToTrip);
 
   const completedCount = myTrips.filter((t) => t.status === "completed").length;
   const ongoingCount = myTrips.filter((t) => t.status === "ongoing").length;

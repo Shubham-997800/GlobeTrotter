@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Copy, Globe, Link2, Lock, Trash2, UserPlus } from "lucide-react";
+import { ArrowLeft, Copy, ExternalLink, Globe, Link2, Lock, Trash2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout/AppShell";
@@ -31,7 +31,7 @@ export function ShareTripPage() {
   const trip = tripQuery.data;
 
   const [visibility, setVisibility] = useState<Visibility>("link");
-  const link = `https://globetrotter.app/share/${tripId ?? "trip"}`;
+  const link = `${window.location.origin}/trip/${tripId ?? "trip"}/public`;
   const [email, setEmail] = useState("");
   const [members, setMembers] = useState<
     { name: string; email: string; role: "viewer" | "editor" }[]
@@ -118,7 +118,7 @@ export function ShareTripPage() {
               <div>
                 <h2 className="text-sm font-semibold text-foreground">Share link</h2>
                 <p className="text-sm text-muted-foreground">
-                  Anyone with this link can view the trip.
+                  Anyone with this link can view the trip itinerary.
                 </p>
               </div>
               <div className="flex flex-col gap-2 sm:flex-row">
@@ -127,6 +127,11 @@ export function ShareTripPage() {
                   <Copy className="mr-1.5 h-4 w-4" /> Copy link
                 </Button>
               </div>
+              <Button variant="outline" size="sm" asChild className="w-full sm:w-auto">
+                <a href={link} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="mr-1.5 h-3.5 w-3.5" /> Preview public page
+                </a>
+              </Button>
             </Card>
 
             <Card className="space-y-4 p-5">

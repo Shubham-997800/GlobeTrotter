@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MapPin, Sparkles, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -11,16 +11,48 @@ import { EmptyState } from "@/features/dashboard/components/States";
 import { destinations, activities } from "@/features/trips/trips.data";
 import type { Destination, ActivitySuggestion } from "@/features/trips/trips.types";
 
+const SAVED_DEST_KEY = "globetrotter.saved.destinations";
+const SAVED_ACT_KEY = "globetrotter.saved.activities";
+
+function readJsonSet(key: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return new Set();
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed)
+      ? new Set(parsed.filter((id): id is string => typeof id === "string"))
+      : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function writeJsonSet(key: string, set: Set<string>): void {
+  try {
+    localStorage.setItem(key, JSON.stringify([...set]));
+  } catch {
+    // storage unavailable
+  }
+}
+
 type TabKey = "destinations" | "activities";
 
 export function SavedPage() {
   const [tab, setTab] = useState<TabKey>("destinations");
   const [savedDestinations, setSavedDestinations] = useState<Set<string>>(
-    () => new Set<string>(),
+    () => readJsonSet(SAVED_DEST_KEY),
   );
   const [savedActivities, setSavedActivities] = useState<Set<string>>(
-    () => new Set<string>(),
+    () => readJsonSet(SAVED_ACT_KEY),
   );
+
+  useEffect(() => {
+    writeJsonSet(SAVED_DEST_KEY, savedDestinations);
+  }, [savedDestinations]);
+
+  useEffect(() => {
+    writeJsonSet(SAVED_ACT_KEY, savedActivities);
+  }, [savedActivities]);
 
   const visibleDestinations = useMemo(
     () => destinations.filter((d) => savedDestinations.has(d.id)),

@@ -14,11 +14,11 @@ export const api = axios.create({
 });
 
 // Example: attach an auth token when present.
-// api.interceptors.request.use((config) => {
-//   const token = localStorage.getItem("auth-token");
-//   if (token) config.headers.Authorization = `Bearer ${token}`;
-//   return config;
-// });
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("auth-token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
 // Normalize backend errors into a friendly message for UI toasts.
 api.interceptors.response.use(

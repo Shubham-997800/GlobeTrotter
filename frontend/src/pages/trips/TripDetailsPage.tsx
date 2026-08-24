@@ -442,6 +442,147 @@ function ActivitiesTab({
   );
 }
 
+/* ── Itinerary Read-Only Tab ──────────────────────────────────── */
+
+function ItineraryReadOnlyTab({
+  trip,
+  itinerary,
+}: {
+  trip: TripRecord;
+  itinerary: ItineraryRecord;
+}) {
+  const navigate = useNavigate();
+
+  return (
+    <div className="space-y-6">
+      {itinerary.stops.length > 0 ? (
+        <div>
+          <h3 className="mb-3 text-sm font-semibold text-foreground">
+            Route ({itinerary.stops.length} {itinerary.stops.length === 1 ? "stop" : "stops"})
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {[...itinerary.stops]
+              .sort((a, b) => a.order - b.order)
+              .map((stop, i) => (
+                <div
+                  key={stop.id}
+                  className="flex items-center gap-2 rounded-full border border-subtle-border bg-background px-3 py-1.5 text-sm"
+                >
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                    {i + 1}
+                  </span>
+                  <span className="font-medium text-foreground">{stop.destinationName}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(stop.arrivalDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                    {" – "}
+                    {new Date(stop.departureDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                  </span>
+                </div>
+              ))}
+          </div>
+        </div>
+      ) : null}
+
+      <div>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-foreground">Day-by-Day Itinerary</h3>
+          <Button
+            variant="link"
+            className="h-auto p-0 text-sm"
+            onClick={() => navigate(`/trips/${trip.id}/itinerary`)}
+          >
+            Open Builder <ChevronRight className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+
+        {itinerary.days.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-subtle-border px-4 py-12 text-center">
+            <ClipboardList className="mx-auto h-8 w-8 text-muted-foreground" />
+            <p className="mt-3 text-sm font-medium text-foreground">No days yet</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Start adding activities in the itinerary builder.
+            </p>
+            <Button className="mt-4" onClick={() => navigate(`/trips/${trip.id}/itinerary`)}>
+              Open Itinerary Builder
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {itinerary.days.map((day, i) => {
+              const dayActivities = itinerary.activities
+                .filter((a) => a.dayId === day.id)
+                .sort((a, b) => a.startTime.localeCompare(b.startTime));
+              return (
+                <Card key={day.id} className="p-4">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                      {i + 1}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">
+                        Day {i + 1}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(day.date).toLocaleDateString(undefined, {
+                          weekday: "long",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {dayActivities.length === 0 ? (
+                    <p className="ml-10 mt-2 text-sm text-muted-foreground">Rest day</p>
+                  ) : (
+                    <div className="ml-10 mt-2 space-y-2">
+                      {dayActivities.map((a) => (
+                        <div
+                          key={a.id}
+                          className="flex items-center gap-3 rounded-lg border border-subtle-border bg-background px-3 py-2"
+                        >
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted">
+                            {a.image ? (
+                              <img src={a.image} alt={a.name} className="h-full w-full object-cover" />
+                            ) : (
+                              <Sparkles className="h-3.5 w-3.5 text-primary" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium text-foreground">{a.name}</p>
+                            <p className="truncate text-xs text-muted-foreground">
+                              {a.startTime} – {a.endTime} · {a.location}
+                            </p>
+                          </div>
+                          <span className="text-xs font-medium text-muted-foreground">
+                            {formatMoney(a.estimatedCostInr, trip.currency)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {day.notes ? (
+                    <p className="ml-10 mt-2 text-xs italic text-muted-foreground">
+                      {day.notes}
+                    </p>
+                  ) : null}
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className="flex gap-2">
+        <Button onClick={() => navigate(`/trips/${trip.id}/itinerary`)}>
+          <ClipboardList className="mr-1.5 h-4 w-4" /> Edit in Builder
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 /* ── Budget Tab ───────────────────────────────────────────────── */
 
 function BudgetTab({
@@ -615,10 +756,11 @@ export function TripDetailsPage() {
   const handleShare = async () => {
     if (!trip) return;
     try {
-      const result = await shareTripLink(trip);
-      if (result === "copied") {
-        toast.success("Trip link copied to clipboard");
-      }
+      const publicUrl = `${window.location.origin}/trip/${trip.id}/public`;
+      await navigator.clipboard.writeText(publicUrl);
+      toast.success("Public link copied to clipboard", {
+        description: "Anyone with this link can view the itinerary.",
+      });
     } catch {
       toast.error("Sharing failed. Please try again.");
     }
@@ -706,21 +848,7 @@ export function TripDetailsPage() {
                 <OverviewTab trip={trip} itinerary={itinerary} />
               </TabsContent>
               <TabsContent value="itinerary">
-                <div className="rounded-2xl border border-dashed border-subtle-border px-4 py-12 text-center">
-                  <ClipboardList className="mx-auto h-8 w-8 text-muted-foreground" />
-                  <p className="mt-3 text-sm font-medium text-foreground">
-                    Open the full itinerary builder
-                  </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Drag-and-drop planning lives in the dedicated builder.
-                  </p>
-                  <Button
-                    className="mt-4"
-                    onClick={() => navigate(`/trips/${trip.id}/itinerary`)}
-                  >
-                    Open Itinerary Builder <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
+                <ItineraryReadOnlyTab trip={trip} itinerary={itinerary} />
               </TabsContent>
               <TabsContent value="activities">
                 <ActivitiesTab trip={trip} itinerary={itinerary} />
