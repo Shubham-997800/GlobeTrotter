@@ -293,6 +293,7 @@
   html {
     scroll-behavior: smooth;
     overflow-x: hidden;
+    scrollbar-gutter: stable;
   }
   body {
     background-color: var(--color-background);
@@ -325,4 +326,17 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Prevent layout shift when body scroll is locked by Radix Dialog/Sheet */
+body[data-scroll-locked] {
+  overflow: hidden !important;
+  /* Compensate for hidden scrollbar to prevent left shift */
+  margin-right: var(--scrollbar-width, 0px);
+}
+
+/* Ensure dropdowns/popovers don't cause content shift */
+[data-radix-popper-content-wrapper] {
+  position: fixed !important;
+  z-index: 50 !important;
 }
