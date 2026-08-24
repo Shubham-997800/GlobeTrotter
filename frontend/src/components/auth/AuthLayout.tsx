@@ -96,26 +96,75 @@ export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
           </motion.ul>
         </div>
 
-        {/* Travel visual */}
+        {/* Product preview mockup */}
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 16 }}
           animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="relative w-full max-w-md overflow-clip rounded-2xl border border-border shadow-lg shadow-black/5"
+          className="relative w-full max-w-md overflow-clip rounded-2xl border border-border bg-card shadow-xl shadow-black/5 dark:shadow-black/30"
         >
-          <img
-            src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=800"
-            alt="Misty mountain valley bathed in golden sunlight"
-            className="h-48 w-full object-cover sm:h-56"
-            loading="lazy"
-          />
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"
-          />
-          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-md">
-            🌍 Explore 120+ destinations
-          </span>
+          {/* Window chrome */}
+          <div className="flex items-center gap-2 border-b border-border bg-muted/40 px-3 py-2">
+            <div className="flex gap-1">
+              <span className="h-2 w-2 rounded-full bg-destructive/80" />
+              <span className="h-2 w-2 rounded-full bg-warning/80" />
+              <span className="h-2 w-2 rounded-full bg-success/80" />
+            </div>
+            <div className="ml-1 flex-1 rounded border border-border bg-background px-2 py-0.5 text-[10px] text-muted-foreground">
+              app.globetrotter.io/trips/japan
+            </div>
+          </div>
+
+          <div className="p-4 space-y-3">
+            {/* Trip header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold text-foreground">Japan Spring Trip</p>
+                <p className="text-[10px] text-muted-foreground">Apr 12 – Apr 20 · 3 cities</p>
+              </div>
+              <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[9px] font-medium text-primary">Planning</span>
+            </div>
+
+            {/* KPI row */}
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: "Budget", value: "₹45K" },
+                { label: "Days", value: "9" },
+                { label: "Activities", value: "12" },
+              ].map((kpi) => (
+                <div key={kpi.label} className="rounded-lg border border-border bg-background p-2 text-center">
+                  <p className="text-[9px] text-muted-foreground">{kpi.label}</p>
+                  <p className="text-xs font-bold text-foreground">{kpi.value}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Mini itinerary */}
+            <div className="space-y-1.5">
+              {[
+                { day: "Day 1", activity: "Fushimi Inari Shrine", color: "bg-activity" },
+                { day: "Day 1", activity: "Ramen at Ichiran", color: "bg-food" },
+                { day: "Day 2", activity: "Shinkansen → Osaka", color: "bg-transport" },
+              ].map((row, i) => (
+                <div key={i} className="flex items-center gap-2 rounded-lg bg-muted/40 px-2.5 py-1.5">
+                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${row.color}`} />
+                  <span className="text-[9px] font-medium text-primary">{row.day}</span>
+                  <span className="text-[10px] text-muted-foreground truncate">{row.activity}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Budget bar */}
+            <div>
+              <div className="mb-1 flex items-center justify-between text-[9px]">
+                <span className="text-muted-foreground">63% used</span>
+                <span className="font-medium text-warning">On track</span>
+              </div>
+              <div className="h-1 w-full overflow-clip rounded-full bg-muted">
+                <div className="h-full w-[63%] rounded-full bg-gradient-to-r from-warning to-primary" />
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         <p className="relative text-xs text-muted-foreground">
