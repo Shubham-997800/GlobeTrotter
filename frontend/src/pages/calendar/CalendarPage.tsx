@@ -434,7 +434,7 @@ export function CalendarPage() {
         onDragEnd={handleDragEnd}
         onDragCancel={() => setActiveDrag(null)}
       >
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0 space-y-4">
           {/* Toolbar */}
           <div className="flex flex-wrap items-center gap-2">
@@ -616,7 +616,7 @@ export function CalendarPage() {
         </div>
 
         {/* Right rail */}
-        <aside className="hidden space-y-5 xl:block" aria-label="Calendar sidebar">
+        <aside className="hidden space-y-5 lg:block" aria-label="Calendar sidebar">
           <section className="rounded-2xl border bg-card p-4 shadow-sm">
             <h2 className="text-sm font-semibold text-card-foreground">Coming up</h2>
             {upcoming.length === 0 ? (

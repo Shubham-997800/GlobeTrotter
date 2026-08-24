@@ -78,7 +78,7 @@ export function CommunityPage() {
         </Button>
       }
     >
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0 space-y-5">
           <PostComposer viewer={viewer} onPosted={() => setTab("for-you")} />
 

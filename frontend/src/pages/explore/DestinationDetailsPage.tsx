@@ -148,14 +148,14 @@ export function DestinationDetailsPage() {
   return (
     <AppShell>
     <TooltipProvider>
-      <div className="space-y-8">
+      <div className="space-y-8 pb-24 lg:pb-0">
         {/* Hero */}
         <section aria-labelledby="destination-title" className="relative rounded-3xl overflow-hidden">
           <div className="absolute inset-0 z-0">
             <img
               src={destination.image}
               alt={destination.imageAlt}
-              className="h-[500px] w-full object-cover"
+              className="aspect-[16/9] w-full object-cover sm:aspect-[2/1] lg:aspect-auto lg:h-[500px]"
               loading="eager"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/10" />
@@ -352,7 +352,7 @@ export function DestinationDetailsPage() {
 
             <section aria-labelledby="budget-heading">
               <h2 id="budget-heading" className="text-xl font-bold text-foreground">Budget Guide</h2>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {budgetTiers.map((tier) => (
                   <BudgetTierCard key={tier.id} tier={tier} destination={destination} />
                 ))}

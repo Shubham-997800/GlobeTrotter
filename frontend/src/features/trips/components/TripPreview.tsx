@@ -44,7 +44,7 @@ export function TripPreview({
   return (
     <aside
       aria-label="Trip preview"
-      className="lg:sticky lg:top-20 lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto"
+      className="md:sticky md:top-20 md:max-h-[calc(100dvh-6rem)] md:overflow-y-auto"
     >
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         {/* Cover */}

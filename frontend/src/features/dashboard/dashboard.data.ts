@@ -37,7 +37,7 @@ export const featuredSlides: FeaturedSlide[] = [
     bestTime: "Apr – Jun · Sep – Oct",
     country: "Greece",
     category: "Islands & Beaches",
-    image: img("photo-1613395877344-13d4a8e0d49e", 1600),
+    image: img("photo-1570077188670-e3a8d69ac5ff", 1600),
     imageAlt: "Whitewashed houses of Santorini overlooking the sea",
   },
   {
@@ -49,7 +49,7 @@ export const featuredSlides: FeaturedSlide[] = [
     bestTime: "Jun – Aug · Dec – Mar",
     country: "Canada",
     category: "Mountains & Nature",
-    image: img("photo-1609825488888-3a766db05542", 1600),
+    image: img("photo-1503614472-8c93d56e92ce", 1600),
     imageAlt: "Turquoise mountain lake surrounded by pine forest in Banff",
   },
   {
@@ -61,7 +61,7 @@ export const featuredSlides: FeaturedSlide[] = [
     bestTime: "Apr – Oct",
     country: "Indonesia",
     category: "Beaches & Wellness",
-    image: img("photo-1537996194471-e657df975ab4", 1600),
+    image: img("photo-1573790387438-4b9af101e344", 1600),
     imageAlt: "Rice terraces and palm trees in Bali, Indonesia",
   },
 ];
@@ -71,14 +71,14 @@ export const featuredSlides: FeaturedSlide[] = [
 export const destinations: Destination[] = [
   { id: "kyoto", city: "Kyoto", country: "Japan", region: "asia", category: "cities", rating: 4.9, reviews: 12840, estimatedBudgetInr: 35000, description: "Temple gardens, geisha districts and kaiseki dining.", image: img("photo-1493976040374-85c8e12f0c0e"), imageAlt: "Kyoto pagoda with cherry blossoms" },
   { id: "tokyo", city: "Tokyo", country: "Japan", region: "asia", category: "cities", rating: 4.8, reviews: 22100, estimatedBudgetInr: 42000, description: "Neon nights, sushi counters and serene shrines.", image: img("photo-1540959733332-eab4deabeeaf"), imageAlt: "Tokyo skyline with Tokyo Tower" },
-  { id: "bali-d", city: "Bali", country: "Indonesia", region: "asia", category: "beaches", rating: 4.8, reviews: 19430, estimatedBudgetInr: 28000, description: "Beach clubs, rice terraces and volcano sunrises.", image: img("photo-1537996194471-e657df975ab4"), imageAlt: "Bali rice terraces" },
+  { id: "bali-d", city: "Bali", country: "Indonesia", region: "asia", category: "beaches", rating: 4.8, reviews: 19430, estimatedBudgetInr: 28000, description: "Beach clubs, rice terraces and volcano sunrises.", image: img("photo-1573790387438-4b9af101e344"), imageAlt: "Bali rice terraces" },
   { id: "paris", city: "Paris", country: "France", region: "europe", category: "cities", rating: 4.9, reviews: 25300, estimatedBudgetInr: 48000, description: "Museums, riverside walks and patisserie mornings.", image: img("photo-1502602898657-3e91760cbb34"), imageAlt: "Eiffel Tower over Paris rooftops" },
   { id: "swiss-alps", city: "Interlaken", country: "Switzerland", region: "europe", category: "mountains", rating: 4.9, reviews: 9860, estimatedBudgetInr: 65000, description: "Postcard villages between two lakes and the Jungfrau.", image: img("photo-1531366936337-7c912a4589a7"), imageAlt: "Swiss Alps peaks above a green valley" },
-  { id: "santorini-d", city: "Santorini", country: "Greece", region: "europe", category: "beaches", rating: 4.7, reviews: 11220, estimatedBudgetInr: 52000, description: "Caldera views, cliffside pools and golden hours.", image: img("photo-1613395877344-13d4a8e0d49e"), imageAlt: "Santorini caldera view" },
+  { id: "santorini-d", city: "Santorini", country: "Greece", region: "europe", category: "beaches", rating: 4.7, reviews: 11220, estimatedBudgetInr: 52000, description: "Caldera views, cliffside pools and golden hours.", image: img("photo-1570077188670-e3a8d69ac5ff"), imageAlt: "Santorini caldera view" },
   { id: "new-york", city: "New York", country: "United States", region: "north-america", category: "cities", rating: 4.8, reviews: 30150, estimatedBudgetInr: 85000, description: "Skyline walks, Broadway nights and bagel mornings.", image: img("photo-1496442226666-8d4d0e62e6e9"), imageAlt: "Manhattan Bridge framed between buildings" },
-  { id: "banff-d", city: "Banff", country: "Canada", region: "north-america", category: "mountains", rating: 4.9, reviews: 8730, estimatedBudgetInr: 78000, description: "Glacial lakes and wildlife along the Icefields Parkway.", image: img("photo-1609825488888-3a766db05542"), imageAlt: "Moraine Lake in Banff National Park" },
+  { id: "banff-d", city: "Banff", country: "Canada", region: "north-america", category: "mountains", rating: 4.9, reviews: 8730, estimatedBudgetInr: 78000, description: "Glacial lakes and wildlife along the Icefields Parkway.", image: img("photo-1503614472-8c93d56e92ce"), imageAlt: "Moraine Lake in Banff National Park" },
   { id: "cusco", city: "Cusco", country: "Peru", region: "south-america", category: "adventure", rating: 4.8, reviews: 7640, estimatedBudgetInr: 58000, description: "Inca trails, Sacred Valley markets and high-altitude charm.", image: img("photo-1526392060635-9d6019884377"), imageAlt: "Machu Picchu terraces in the Andes" },
-  { id: "patagonia", city: "Torres del Paine", country: "Chile", region: "south-america", category: "adventure", rating: 4.9, reviews: 4310, estimatedBudgetInr: 72000, description: "Granite towers, turquoise glaciers and epic treks.", image: img("photo-1531168556467-80aace0d0144"), imageAlt: "Towers of Paine in Patagonia" },
+  { id: "patagonia", city: "Torres del Paine", country: "Chile", region: "south-america", category: "adventure", rating: 4.9, reviews: 4310, estimatedBudgetInr: 72000, description: "Granite towers, turquoise glaciers and epic treks.", image: img("photo-1508193638397-1c4234db14d8"), imageAlt: "Towers of Paine in Patagonia" },
   { id: "cape-town", city: "Cape Town", country: "South Africa", region: "africa", category: "trending", rating: 4.9, reviews: 10480, estimatedBudgetInr: 55000, description: "Table Mountain hikes, penguin beaches and wine lands.", image: img("photo-1580060839134-75a5edca2e99"), imageAlt: "Cape Town coast below Table Mountain" },
   { id: "marrakech", city: "Marrakech", country: "Morocco", region: "africa", category: "trending", rating: 4.7, reviews: 8920, estimatedBudgetInr: 38000, description: "Souk labyrinths, riad courtyards and mint tea evenings.", image: img("photo-1597212618440-806262de4f6b"), imageAlt: "Marrakech medina alley with lanterns" },
   { id: "serengeti", city: "Serengeti", country: "Tanzania", region: "africa", category: "adventure", rating: 5.0, reviews: 5240, estimatedBudgetInr: 120000, description: "Front-row seats to the great wildebeest migration.", image: img("photo-1516426122078-c23e76319801"), imageAlt: "Elephants on the savanna at sunset" },
@@ -114,7 +114,7 @@ export const trips: Trip[] = [
     endDate: "Jun 22",
     progress: 65,
     budget: { spentInr: 0, totalInr: 32000 },
-    image: img("photo-1537996194471-e657df975ab4", 800),
+    image: img("photo-1573790387438-4b9af101e344", 800),
     imageAlt: "Bali temple gates",
   },
   {
@@ -139,7 +139,7 @@ export const recentActivity: ActivityEvent[] = [
   { id: "act-2", type: "activity-added", title: "Activity Added", description: "Fushimi Inari Shrine added to Day 4 · Kyoto", timestamp: "Yesterday" },
   { id: "act-3", type: "itinerary-updated", title: "Itinerary Updated", description: "Reordered Day 2 stops in Tokyo — Shibuya now first", timestamp: "Yesterday" },
   { id: "act-4", type: "budget-updated", title: "Budget Updated", description: "Japan Adventure budget raised to ₹45,000", timestamp: "2 days ago" },
-  { id: "act-5", type: "community-post", title: "Community Post Added", description: "You shared “Kyoto on a budget” with 12 tips", timestamp: "4 days ago" },
+  { id: "act-5", type: "community-post", title: "Community Post Added", description: "You shared 'Kyoto on a budget' with 12 tips", timestamp: "4 days ago" },
 ];
 
 /* ── Notifications ────────────────────────────────────────────── */

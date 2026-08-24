@@ -282,7 +282,7 @@ export function MyTripsPage() {
             onValueChange={(next) => setFilters((prev) => ({ ...prev, status: next }))}
             tabs={statusTabs}
           />
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0 flex-1">
               <TripFiltersBar
                 searchInput={filters.search}

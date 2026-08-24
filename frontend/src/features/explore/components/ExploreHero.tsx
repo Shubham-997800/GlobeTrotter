@@ -20,7 +20,7 @@ export function ExploreHero({ destination, stats }: ExploreHeroProps) {
   const tags = destination.tags.slice(0, 4);
 
   return (
-    <section aria-labelledby="explore-hero-heading" className="relative rounded-3xl overflow-hidden">
+    <section aria-labelledby="explore-hero-heading" className="relative min-h-[280px] rounded-3xl overflow-hidden">
       {/* Background image with gradient overlay */}
       <div className="absolute inset-0 z-0">
         <img

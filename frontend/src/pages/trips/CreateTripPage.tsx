@@ -291,7 +291,7 @@ export function CreateTripPage() {
       }
     >
       <form onSubmit={handleSubmit(onValid, onInvalid)} noValidate>
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_300px]">
           {/* ── Sections ─────────────────────────────────────── */}
           <div className="min-w-0 space-y-5">
             <SectionCard
