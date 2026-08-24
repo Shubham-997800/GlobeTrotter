@@ -1763,7 +1763,7 @@ export function SettingsPage() {
             })}
           </nav>
 
-          <main className="min-w-0 max-w-3xl flex-1 space-y-6">
+          <main className="min-w-0 flex-1 space-y-6">
             {settingsQuery.isLoading || !draft ? (
               <div className="space-y-4" aria-busy="true" aria-label="Loading settings">
                 {[0, 1].map((i) => (

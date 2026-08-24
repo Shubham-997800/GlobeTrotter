@@ -151,7 +151,7 @@ export function SearchResultsSkeleton() {
  */
 export function DestinationDetailSkeleton() {
   return (
-    <div className="max-w-6xl mx-auto space-y-8 px-4 py-6" aria-hidden="true">
+    <div className="space-y-8 px-4 py-6" aria-hidden="true">
       <section className="relative rounded-3xl overflow-hidden bg-muted">
         <div className="absolute inset-0 bg-gradient-to-r from-muted via-muted/50 to-muted/10" />
         <div className="relative z-10 p-6 md:p-10 lg:p-14 h-[500px]">

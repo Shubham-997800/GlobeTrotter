@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Camera, Loader2, Trash2 } from "lucide-react";
+import { Camera, Loader2, MapPin, Pencil, Trash2, User } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
@@ -126,7 +126,7 @@ function FieldError({ message }: { message?: string }) {
   return <p className="text-xs font-medium text-error-text">{message}</p>;
 }
 
-/** Public profile — identity, location and travel preferences. */
+/** Profile — identity, preferences and account. */
 export function ProfilePage() {
   const { user, updateProfile } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -293,7 +293,7 @@ export function ProfilePage() {
         preferences: { ...preferences, favoriteDestinations },
       });
       setAvatarDirty(false);
-      toast.success("Profile updated.");
+      toast.success("Profile updated successfully.");
     } catch {
       toast.error("Could not save your profile. Try again.");
     } finally {
@@ -304,64 +304,37 @@ export function ProfilePage() {
   return (
     <AppShell>
       <div className="space-y-6 pb-28">
-        {/* ── Header ─────────────────────────────────────────── */}
-        <Card>
-          <CardContent className="flex flex-col gap-5 pt-6 sm:flex-row sm:items-center">
-            <div className="relative w-fit">
-              <UserAvatar
-                name={name || user?.name || "Traveler"}
-                src={avatarUrl}
-                className="size-24 text-2xl"
-              />
-              {readingImage ? (
-                <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
-                  <Loader2
-                    className="size-5 animate-spin text-white"
-                    aria-hidden="true"
-                  />
-                </span>
-              ) : null}
-            </div>
-            <div className="min-w-0 flex-1 space-y-3">
-              <div>
-                <h1 className="truncate text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-                  {name || user?.name || "Traveler"}
-                </h1>
-                <p className="truncate text-sm text-muted-foreground">
-                  {user?.email}
-                </p>
-              </div>
-              <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-success-bg px-2.5 py-1 text-xs font-semibold text-success-text">
-                <span
-                  className="size-1.5 rounded-full bg-success"
-                  aria-hidden="true"
-                />
-                Active account
+        {/* ── Profile Header ──────────────────────────────────── */}
+        <div className="flex flex-col items-center gap-5 rounded-2xl border border-border bg-card p-6 text-center shadow-sm sm:flex-row sm:text-left">
+          <div className="relative shrink-0">
+            <UserAvatar
+              name={name || user?.name || "Traveler"}
+              src={avatarUrl}
+              className="size-20 text-2xl"
+            />
+            {readingImage ? (
+              <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
+                <Loader2 className="size-5 animate-spin text-white" aria-hidden="true" />
               </span>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Camera className="size-4" aria-hidden="true" />
-                  {avatarUrl ? "Change avatar" : "Upload avatar"}
-                </Button>
-                {avatarUrl ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setAvatarUrl(undefined);
-                      setAvatarDirty(true);
-                    }}
-                  >
-                    <Trash2 className="size-4" aria-hidden="true" />
-                    Remove
-                  </Button>
-                ) : null}
-              </div>
+            ) : null}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+              {name || user?.name || "Traveler"}
+            </h1>
+            <p className="mt-0.5 text-sm text-muted-foreground">Travel Planner</p>
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground sm:justify-start">
+              <span className="flex items-center gap-1">
+                <MapPin className="size-3" aria-hidden="true" />
+                {city || "Add location"}
+              </span>
+              <span className="flex items-center gap-1">
+                <User className="size-3" aria-hidden="true" />
+                Member
+              </span>
             </div>
+          </div>
+          <div className="flex items-center gap-2">
             <input
               ref={fileInputRef}
               type="file"
@@ -372,240 +345,272 @@ export function ProfilePage() {
                 event.target.value = "";
               }}
             />
-          </CardContent>
-        </Card>
-
-        {/* ── Personal information ───────────────────────────── */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Personal information</CardTitle>
-            <CardDescription>
-              This is how you appear across trips and the community.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="profile-name">Full name *</Label>
-                <Input
-                  id="profile-name"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="Alex Traveler"
-                />
-                <FieldError message={errors.name} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="profile-email">Email</Label>
-                <Input id="profile-email" value={user?.email ?? ""} readOnly />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="profile-phone">Phone number</Label>
-                <Input
-                  id="profile-phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                  placeholder="+91 98765 43210"
-                />
-                <FieldError message={errors.phone} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="profile-dob">Date of birth</Label>
-                <Input
-                  id="profile-dob"
-                  type="date"
-                  value={dateOfBirth}
-                  max={new Date().toISOString().slice(0, 10)}
-                  onChange={(event) => setDateOfBirth(event.target.value)}
-                />
-              </div>
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="profile-gender">Gender</Label>
-                <Select value={gender} onValueChange={setGender}>
-                  <SelectTrigger id="profile-gender" className="w-full sm:max-w-xs">
-                    <SelectValue placeholder="Prefer not to say" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[
-                      "Female",
-                      "Male",
-                      "Non-binary",
-                      "Prefer not to say",
-                    ].map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="profile-bio">Bio</Label>
-              <Textarea
-                id="profile-bio"
-                rows={3}
-                value={bio}
-                maxLength={BIO_MAX}
-                onChange={(event) => setBio(event.target.value)}
-                placeholder="Weekend wanderer collecting coastlines and street food…"
-              />
-              <p className="text-right text-xs text-disabled-text">
-                {bio.length}/{BIO_MAX}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* ── Location ───────────────────────────────────────── */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Location</CardTitle>
-            <CardDescription>
-              Helps us tailor destination ideas to where you start.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="profile-city">City</Label>
-              <Input
-                id="profile-city"
-                value={city}
-                onChange={(event) => setCity(event.target.value)}
-                placeholder="Mumbai"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="profile-state">State / Region</Label>
-              <Input
-                id="profile-state"
-                value={stateRegion}
-                onChange={(event) => setStateRegion(event.target.value)}
-                placeholder="Maharashtra"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="profile-country">Country</Label>
-              <Input
-                id="profile-country"
-                value={country}
-                onChange={(event) => setCountry(event.target.value)}
-                placeholder="India"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="profile-timezone">Timezone</Label>
-              <Select value={timezone} onValueChange={setTimezone}>
-                <SelectTrigger id="profile-timezone" className="w-full">
-                  <SelectValue placeholder="Choose timezone" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIMEZONE_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* ── Travel preferences ─────────────────────────────── */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Travel preferences</CardTitle>
-            <CardDescription>
-              We use these to suggest destinations and activities.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <ChipGroup
-              legend="Travel style"
-              options={TRAVEL_STYLE_OPTIONS}
-              selected={preferences.travelStyle}
-              onToggle={(value) => toggleChip("travelStyle", value)}
-            />
-            <div className="space-y-1.5">
-              <Label htmlFor="profile-favorites">Favorite destinations</Label>
-              <Input
-                id="profile-favorites"
-                value={favoritesText}
-                onChange={(event) => setFavoritesText(event.target.value)}
-                placeholder="Kyoto, Lisbon, Patagonia"
-              />
-              <p className="text-xs text-muted-foreground">
-                Separate places with commas.
-              </p>
-            </div>
-            <ChipGroup
-              legend="Interests"
-              options={INTEREST_OPTIONS}
-              selected={preferences.interests}
-              onToggle={(value) => toggleChip("interests", value)}
-            />
-            <ChipGroup
-              legend="Preferred activities"
-              options={ACTIVITY_OPTIONS}
-              selected={preferences.activities}
-              onToggle={(value) => toggleChip("activities", value)}
-            />
-            <fieldset className="space-y-2">
-              <legend className="text-sm font-medium text-foreground">
-                Budget preference
-              </legend>
-              <div className="flex flex-wrap gap-2">
-                {BUDGET_OPTIONS.map((option) => {
-                  const active = preferences.budget === option.value;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      aria-pressed={active}
-                      onClick={() =>
-                        setPreferences((prev) => ({ ...prev, budget: option.value }))
-                      }
-                      className={cn(
-                        "rounded-full border px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                        active
-                          ? "border-primary bg-primary text-white shadow-xs dark:text-primary-foreground"
-                          : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground",
-                      )}
-                    >
-                      {option.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </fieldset>
-            <div className="space-y-1.5">
-              <Label>Preferred trip duration</Label>
-              <Select
-                value={preferences.tripDuration}
-                onValueChange={(value) =>
-                  setPreferences((prev) => ({
-                    ...prev,
-                    tripDuration: value as TravelPreferences["tripDuration"],
-                  }))
-                }
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Camera className="size-4" aria-hidden="true" />
+              Avatar
+            </Button>
+            {avatarUrl ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setAvatarUrl(undefined);
+                  setAvatarDirty(true);
+                }}
               >
-                <SelectTrigger className="w-full sm:max-w-xs">
-                  <SelectValue placeholder="Any length" />
-                </SelectTrigger>
-                <SelectContent>
-                  {DURATION_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
+                <Trash2 className="size-4" aria-hidden="true" />
+                Remove
+              </Button>
+            ) : null}
+          </div>
+        </div>
 
-        {/* ── Actions ────────────────────────────────────────── */}
+        {/* ── Two Column Layout ────────────────────────────────── */}
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          {/* ── Left: Personal Information ────────────────────── */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="size-4 text-primary" aria-hidden="true" />
+                  Personal Information
+                </CardTitle>
+                <CardDescription>
+                  This is how you appear across trips and the community.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="profile-name">Full name *</Label>
+                    <Input
+                      id="profile-name"
+                      value={name}
+                      onChange={(event) => setName(event.target.value)}
+                      placeholder="Alex Traveler"
+                    />
+                    <FieldError message={errors.name} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="profile-email">Email</Label>
+                    <Input id="profile-email" value={user?.email ?? ""} readOnly />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="profile-phone">Phone number</Label>
+                    <Input
+                      id="profile-phone"
+                      type="tel"
+                      value={phone}
+                      onChange={(event) => setPhone(event.target.value)}
+                      placeholder="+91 98765 43210"
+                    />
+                    <FieldError message={errors.phone} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="profile-dob">Date of birth</Label>
+                    <Input
+                      id="profile-dob"
+                      type="date"
+                      value={dateOfBirth}
+                      max={new Date().toISOString().slice(0, 10)}
+                      onChange={(event) => setDateOfBirth(event.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label htmlFor="profile-gender">Gender</Label>
+                    <Select value={gender} onValueChange={setGender}>
+                      <SelectTrigger id="profile-gender" className="w-full sm:max-w-xs">
+                        <SelectValue placeholder="Prefer not to say" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["Female", "Male", "Non-binary", "Prefer not to say"].map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="profile-bio">Bio</Label>
+                  <Textarea
+                    id="profile-bio"
+                    rows={3}
+                    value={bio}
+                    maxLength={BIO_MAX}
+                    onChange={(event) => setBio(event.target.value)}
+                    placeholder="Weekend wanderer collecting coastlines and street food…"
+                  />
+                  <p className="text-right text-xs text-disabled-text">
+                    {bio.length}/{BIO_MAX}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* ── Location ───────────────────────────────────── */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="size-4 text-travel-blue" aria-hidden="true" />
+                  Location
+                </CardTitle>
+                <CardDescription>
+                  Helps us tailor destination ideas to where you start.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="profile-city">City</Label>
+                  <Input
+                    id="profile-city"
+                    value={city}
+                    onChange={(event) => setCity(event.target.value)}
+                    placeholder="Mumbai"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="profile-state">State / Region</Label>
+                  <Input
+                    id="profile-state"
+                    value={stateRegion}
+                    onChange={(event) => setStateRegion(event.target.value)}
+                    placeholder="Maharashtra"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="profile-country">Country</Label>
+                  <Input
+                    id="profile-country"
+                    value={country}
+                    onChange={(event) => setCountry(event.target.value)}
+                    placeholder="India"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="profile-timezone">Timezone</Label>
+                  <Select value={timezone} onValueChange={setTimezone}>
+                    <SelectTrigger id="profile-timezone" className="w-full">
+                      <SelectValue placeholder="Choose timezone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIMEZONE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* ── Right: Travel Preferences ────────────────────── */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Pencil className="size-4 text-primary" aria-hidden="true" />
+                  Travel Preferences
+                </CardTitle>
+                <CardDescription>
+                  We use these to suggest destinations and activities.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <ChipGroup
+                  legend="Travel style"
+                  options={TRAVEL_STYLE_OPTIONS}
+                  selected={preferences.travelStyle}
+                  onToggle={(value) => toggleChip("travelStyle", value)}
+                />
+                <div className="space-y-1.5">
+                  <Label htmlFor="profile-favorites">Favorite destinations</Label>
+                  <Input
+                    id="profile-favorites"
+                    value={favoritesText}
+                    onChange={(event) => setFavoritesText(event.target.value)}
+                    placeholder="Kyoto, Lisbon, Patagonia"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Separate places with commas.
+                  </p>
+                </div>
+                <ChipGroup
+                  legend="Interests"
+                  options={INTEREST_OPTIONS}
+                  selected={preferences.interests}
+                  onToggle={(value) => toggleChip("interests", value)}
+                />
+                <ChipGroup
+                  legend="Preferred activities"
+                  options={ACTIVITY_OPTIONS}
+                  selected={preferences.activities}
+                  onToggle={(value) => toggleChip("activities", value)}
+                />
+                <fieldset className="space-y-2">
+                  <legend className="text-sm font-medium text-foreground">
+                    Budget preference
+                  </legend>
+                  <div className="flex flex-wrap gap-2">
+                    {BUDGET_OPTIONS.map((option) => {
+                      const active = preferences.budget === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          aria-pressed={active}
+                          onClick={() =>
+                            setPreferences((prev) => ({ ...prev, budget: option.value }))
+                          }
+                          className={cn(
+                            "rounded-full border px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                            active
+                              ? "border-primary bg-primary text-white shadow-xs dark:text-primary-foreground"
+                              : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                          )}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+                <div className="space-y-1.5">
+                  <Label>Preferred trip duration</Label>
+                  <Select
+                    value={preferences.tripDuration}
+                    onValueChange={(value) =>
+                      setPreferences((prev) => ({
+                        ...prev,
+                        tripDuration: value as TravelPreferences["tripDuration"],
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="w-full sm:max-w-xs">
+                      <SelectValue placeholder="Any length" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DURATION_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* ── Save Actions ──────────────────────────────────── */}
         <div className="hidden justify-end gap-2 sm:flex">
           <Button variant="ghost" onClick={reset} disabled={!dirty || saving}>
             Cancel

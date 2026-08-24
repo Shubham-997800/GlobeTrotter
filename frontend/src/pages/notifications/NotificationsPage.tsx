@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import {
   AlarmClock,
   AlertTriangle,
-  BellOff,
+  Bell,
   CalendarCheck,
   CheckCheck,
+  Filter,
   Heart,
+  Inbox,
   Loader2,
   MessageCircle,
   MoreHorizontal,
@@ -37,10 +39,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserAvatar } from "@/components/ui/avatar";
-import { EmptyState, ErrorState } from "@/features/dashboard/components/States";
+import { ErrorState } from "@/features/dashboard/components/States";
 import { formatRelativeTime } from "@/features/community/community-format";
 import type {
   AppNotificationItem,
+  NotificationCategory,
   NotificationFilter,
   NotificationType,
 } from "@/features/notifications/notifications.types";
@@ -58,32 +61,46 @@ import { cn } from "@/lib/utils";
 interface TypeStyle {
   icon: LucideIcon;
   iconClass: string;
+  action?: string;
+  actionHref?: string;
 }
 
 const TYPE_STYLES: Record<NotificationType, TypeStyle> = {
   "trip-reminder": {
     icon: CalendarCheck,
     iconClass: "bg-primary/10 text-primary",
+    action: "View Trip",
+    actionHref: "/trips",
   },
   "activity-reminder": {
     icon: AlarmClock,
     iconClass: "bg-activity/10 text-activity",
+    action: "View Activity",
+    actionHref: "/explore",
   },
   "trip-shared": {
     icon: Share2,
     iconClass: "bg-travel-blue/10 text-travel-blue",
+    action: "View Trip",
+    actionHref: "/trips",
   },
   "community-like": {
     icon: Heart,
     iconClass: "bg-travel-blue/10 text-travel-blue",
+    action: "Open Community",
+    actionHref: "/community",
   },
   "community-comment": {
     icon: MessageCircle,
     iconClass: "bg-travel-blue/10 text-travel-blue",
+    action: "Open Community",
+    actionHref: "/community",
   },
   system: {
     icon: Settings,
     iconClass: "bg-muted text-muted-foreground",
+    action: "Open Settings",
+    actionHref: "/settings",
   },
   "important-alert": {
     icon: AlertTriangle,
@@ -109,7 +126,41 @@ function matchesFilter(
   return item.category === filter;
 }
 
-/** Full notifications page — filters, per-item actions and bulk clearing. */
+function groupByTime(items: AppNotificationItem[]): { label: string; items: AppNotificationItem[] }[] {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterdayStart = new Date(todayStart);
+  yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+
+  const today: AppNotificationItem[] = [];
+  const yesterday: AppNotificationItem[] = [];
+  const earlier: AppNotificationItem[] = [];
+
+  for (const item of items) {
+    const d = new Date(item.timestamp);
+    if (d >= todayStart) today.push(item);
+    else if (d >= yesterdayStart) yesterday.push(item);
+    else earlier.push(item);
+  }
+
+  const groups: { label: string; items: AppNotificationItem[] }[] = [];
+  if (today.length > 0) groups.push({ label: "Today", items: today });
+  if (yesterday.length > 0) groups.push({ label: "Yesterday", items: yesterday });
+  if (earlier.length > 0) groups.push({ label: "Earlier", items: earlier });
+  return groups;
+}
+
+function getCategoryCounts(items: AppNotificationItem[]) {
+  const counts: Record<string, number> = { all: items.length, unread: 0 };
+  for (const item of items) {
+    if (!item.read) counts.unread++;
+    const cat = item.category as NotificationCategory;
+    counts[cat] = (counts[cat] ?? 0) + 1;
+  }
+  return counts;
+}
+
+/** Notifications — grouped feed, unread states, contextual actions. */
 export function NotificationsPage() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<NotificationFilter>("all");
@@ -124,48 +175,33 @@ export function NotificationsPage() {
 
   const items = query.data ?? [];
   const unreadCount = items.filter((n) => !n.read).length;
+  const counts = useMemo(() => getCategoryCounts(items), [items]);
 
   const visible = useMemo(
     () => items.filter((item) => matchesFilter(item, filter)),
     [items, filter],
   );
 
+  const groups = useMemo(() => groupByTime(visible), [visible]);
+
   const openItem = (item: AppNotificationItem) => {
     if (!item.read) markRead.mutate(item.id);
     if (item.href) navigate(item.href);
   };
 
+  const hasAny = items.length > 0;
+
   return (
-      <AppShell>
+    <AppShell>
       <div className="space-y-6">
-        {/* ── Header ─────────────────────────────────────────── */}
+        {/* Header */}
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                Notifications
-              </h1>
-              <span
-                aria-live="polite"
-                aria-label={`${unreadCount} unread notifications`}
-                className={cn(
-                  "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold",
-                  unreadCount > 0
-                    ? "bg-primary/10 text-primary"
-                    : "bg-muted text-muted-foreground",
-                )}
-              >
-                {query.isFetching ? (
-                  <Loader2
-                    className="size-3 animate-spin"
-                    aria-hidden="true"
-                  />
-                ) : null}
-                {unreadCount} unread
-              </span>
-            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              Notifications
+            </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Trip reminders, community activity and product updates
+              Stay updated with your trips and GlobeTrotter activity.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -186,7 +222,7 @@ export function NotificationsPage() {
               variant="ghost"
               size="sm"
               onClick={() => setClearOpen(true)}
-              disabled={items.length === 0}
+              disabled={!hasAny}
             >
               <Trash2 className="size-4" aria-hidden="true" />
               Clear all
@@ -194,35 +230,42 @@ export function NotificationsPage() {
           </div>
         </div>
 
-        {/* ── Filters ────────────────────────────────────────── */}
-        <div
-          role="tablist"
-          aria-label="Filter notifications"
-          className="flex flex-wrap gap-2"
-        >
+        {/* Filters */}
+        <div className="flex flex-wrap gap-2">
           {NOTIFICATION_FILTERS.map((id) => {
             const active = filter === id;
+            const c = counts[id] ?? 0;
             return (
               <button
                 key={id}
                 type="button"
-                role="tab"
-                aria-selected={active}
                 onClick={() => setFilter(id)}
                 className={cn(
-                  "rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   active
                     ? "bg-primary text-white dark:text-primary-foreground shadow-xs"
                     : "border border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground",
                 )}
               >
                 {FILTER_LABELS[id]}
+                {c > 0 ? (
+                  <span
+                    className={cn(
+                      "inline-flex min-w-[1.25rem] items-center justify-center rounded-full px-1 text-[10px] font-bold leading-none",
+                      active
+                        ? "bg-white/25 text-white dark:text-primary-foreground"
+                        : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {c}
+                  </span>
+                ) : null}
               </button>
             );
           })}
         </div>
 
-        {/* ── List / states ──────────────────────────────────── */}
+        {/* List / states */}
         {query.isLoading ? (
           <div className="space-y-3" aria-busy="true" aria-label="Loading notifications">
             {[0, 1, 2, 3].map((i) => (
@@ -241,35 +284,69 @@ export function NotificationsPage() {
           </div>
         ) : query.isError ? (
           <ErrorState onRetry={() => void query.refetch()} />
+        ) : !hasAny ? (
+          /* No notifications at all */
+          <div className="flex flex-col items-center py-20 text-center">
+            <div className="flex size-16 items-center justify-center rounded-full bg-primary/10">
+              <Bell className="size-7 text-primary" aria-hidden="true" />
+            </div>
+            <h2 className="mt-5 text-xl font-semibold text-foreground">No notifications yet</h2>
+            <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+              Trip reminders, community updates and product announcements will
+              appear here as they arrive.
+            </p>
+          </div>
         ) : visible.length === 0 ? (
-          <EmptyState
-            icon={BellOff}
-            title={
-              filter === "unread" ? "No unread notifications" : "You're all caught up"
-            }
-            description="New trip reminders, likes and comments will show up here."
-          />
+          /* No results for current filter */
+          <div className="flex flex-col items-center py-20 text-center">
+            <div className="flex size-16 items-center justify-center rounded-full bg-muted">
+              <Inbox className="size-7 text-muted-foreground" aria-hidden="true" />
+            </div>
+            <h2 className="mt-5 text-xl font-semibold text-foreground">No results</h2>
+            <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+              Nothing matches the "{FILTER_LABELS[filter]}" filter. Try a
+              different one.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-5"
+              onClick={() => setFilter("all")}
+            >
+              <Filter className="size-4" aria-hidden="true" />
+              Show all notifications
+            </Button>
+          </div>
         ) : (
-          <ul className="space-y-2.5">
-            {visible.map((item) => (
-              <NotificationRow
-                key={item.id}
-                item={item}
-                onOpen={() => openItem(item)}
-                onToggleRead={() =>
-                  item.read
-                    ? markUnread.mutate(item.id)
-                    : markRead.mutate(item.id)
-                }
-                onDelete={() => removeOne.mutate(item.id)}
-                busy={markRead.isPending && markRead.variables === item.id}
-              />
+          <div className="space-y-6">
+            {groups.map((group) => (
+              <section key={group.label}>
+                <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {group.label}
+                </h2>
+                <ul className="space-y-2">
+                  {group.items.map((item) => (
+                    <NotificationRow
+                      key={item.id}
+                      item={item}
+                      onOpen={() => openItem(item)}
+                      onToggleRead={() =>
+                        item.read
+                          ? markUnread.mutate(item.id)
+                          : markRead.mutate(item.id)
+                      }
+                      onDelete={() => removeOne.mutate(item.id)}
+                      busy={markRead.isPending && markRead.variables === item.id}
+                    />
+                  ))}
+                </ul>
+              </section>
             ))}
-          </ul>
+          </div>
         )}
       </div>
 
-      {/* ── Clear-all confirmation ───────────────────────────── */}
+      {/* Clear-all confirmation */}
       <AlertDialog open={clearOpen} onOpenChange={setClearOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -317,6 +394,7 @@ function NotificationRow({
 }: NotificationRowProps) {
   const style = TYPE_STYLES[item.type];
   const Icon = style.icon;
+  const navigate = useNavigate();
 
   return (
     <li
@@ -324,17 +402,9 @@ function NotificationRow({
         "group relative flex items-start gap-3 rounded-xl border p-4 transition-colors",
         item.read
           ? "border-border bg-card hover:border-primary/30 hover:bg-surface-hover"
-          : "border-primary/30 bg-primary-subtle dark:bg-primary/5 hover:border-primary/50",
+          : "border-primary/20 bg-primary/[0.03] dark:bg-primary/5 hover:border-primary/40",
       )}
     >
-      <span
-        aria-hidden="true"
-        className={cn(
-          "absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-primary transition-opacity",
-          item.read ? "opacity-0" : "opacity-100",
-        )}
-      />
-
       {item.actor ? (
         <UserAvatar
           name={item.actor.name}
@@ -352,36 +422,48 @@ function NotificationRow({
         </span>
       )}
 
-      <button
-        type="button"
-        onClick={onOpen}
-        className="min-w-0 flex-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
-      >
-        <span className="flex items-center gap-2">
-          <span
-            className={cn(
-              "truncate text-sm",
-              item.read
-                ? "font-medium text-foreground"
-                : "font-semibold text-foreground",
-            )}
-          >
-            {item.title}
-          </span>
-          {!item.read ? (
+      <div className="min-w-0 flex-1">
+        <button
+          type="button"
+          onClick={onOpen}
+          className="text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+        >
+          <span className="flex items-center gap-2">
             <span
-              aria-label="Unread"
-              className="size-2 shrink-0 rounded-full bg-primary"
-            />
+              className={cn(
+                "truncate text-sm",
+                item.read ? "font-medium text-foreground" : "font-semibold text-foreground",
+              )}
+            >
+              {item.title}
+            </span>
+            {!item.read ? (
+              <span aria-label="Unread" className="size-2 shrink-0 rounded-full bg-primary" />
+            ) : null}
+          </span>
+          <span className="mt-0.5 block text-sm text-muted-foreground">
+            {item.description}
+          </span>
+        </button>
+
+        <div className="mt-2 flex items-center gap-3">
+          <span className="text-xs text-disabled-text">
+            {formatRelativeTime(item.timestamp)}
+          </span>
+          {style.action ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (style.actionHref) navigate(style.actionHref);
+              }}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              {style.action}
+            </button>
           ) : null}
-        </span>
-        <span className="mt-0.5 block truncate text-sm text-muted-foreground">
-          {item.description}
-        </span>
-        <span className="mt-1 block text-xs text-disabled-text">
-          {formatRelativeTime(item.timestamp)}
-        </span>
-      </button>
+        </div>
+      </div>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

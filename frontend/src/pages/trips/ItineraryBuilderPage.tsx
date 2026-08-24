@@ -432,7 +432,7 @@ export default function ItineraryBuilderPage() {
         ) : null}
 
         {view === "map" ? (
-          <section aria-label="Route planner" className="mx-auto max-w-2xl">
+          <section aria-label="Route planner">
             <StopsPanel
               stops={sortedStops}
               tripDates={dates}

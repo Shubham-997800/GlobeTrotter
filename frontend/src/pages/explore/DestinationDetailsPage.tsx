@@ -119,7 +119,7 @@ export function DestinationDetailsPage() {
 
   if (isError || !detail) {
     return (
-      <div className="max-w-4xl mx-auto py-16 px-4 text-center">
+      <div className="py-16 px-4 text-center">
         <div className="mx-auto flex max-w-sm flex-col items-center gap-4">
           <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-destructive/10">
             <MapPin className="size-10 text-destructive" aria-hidden="true" />
