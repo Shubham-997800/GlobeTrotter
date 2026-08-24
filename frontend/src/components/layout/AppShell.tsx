@@ -43,6 +43,26 @@ export function AppShell({
     }
   }, [sidebarCollapsed]);
 
+  // Fix: Force vertical scrollbar always visible to prevent layout shift
+  // when Radix DropdownMenu portals render/close (scrollbar toggle on Windows).
+  // CSS overflow-y: scroll is unreliable because Radix overrides it via inline styles.
+  useEffect(() => {
+    const html = document.documentElement;
+    html.style.setProperty("overflow-y", "scroll", "important");
+
+    const observer = new MutationObserver(() => {
+      const current = html.style.getPropertyValue("overflow-y");
+      if (current !== "scroll") {
+        html.style.setProperty("overflow-y", "scroll", "important");
+      }
+    });
+    observer.observe(html, {
+      attributes: true,
+      attributeFilter: ["style"],
+    });
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="min-h-dvh bg-background">
       {/* Skip navigation — keyboard users land here */}

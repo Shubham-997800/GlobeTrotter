@@ -292,8 +292,9 @@
   }
   html {
     scroll-behavior: smooth;
-    overflow-x: clip;
-    /* Always show vertical scrollbar — prevents left-shift when dropdowns open/close */
+    /* overflow-x: hidden (not clip — clip gets silently upgraded to auto when
+       paired with overflow-y: scroll per CSS spec, causing horizontal scrollbar) */
+    overflow-x: hidden;
     overflow-y: scroll;
   }
   body {
@@ -302,7 +303,7 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    overflow-x: clip;
+    overflow-x: hidden;
   }
 }
 
