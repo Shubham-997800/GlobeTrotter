@@ -62,11 +62,8 @@ export function AppDashboardPage() {
             <TripOverview trips={data.myTrips} />
             <QuickActions />
 
-            {/* Activity feed beside insights on wide screens */}
-            <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr] lg:items-start">
-              <RecentActivity />
-              <TravelInsights />
-            </div>
+            <RecentActivity />
+            <TravelInsights />
           </>
         )}
       </div>
