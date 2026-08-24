@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { toast } from "sonner";
 import {
   MapPin,
   Search,
@@ -15,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DestinationCard } from "@/features/explore/components/DestinationCard";
+import { AddToTripDialog } from "@/features/explore/components/AddToTripDialog";
 import { SearchResultsSkeleton } from "@/features/explore/components/ExploreSkeletons";
 import { NoResultsState, ErrorState } from "@/features/explore/components/ExploreEmptyStates";
 import { useSearchResults, useSavedDestinationIds } from "@/features/explore/useExplore";
@@ -46,10 +46,19 @@ export function SearchResultsPage() {
   const { data: results, isLoading, isError, refetch } = useSearchResults(debouncedQuery, debouncedQuery.trim().length > 0);
   const { data: savedIds = [] } = useSavedDestinationIds();
 
+  // Add to trip dialog state
+  const [addToTripOpen, setAddToTripOpen] = useState(false);
+  const [addToTripDestinationId, setAddToTripDestinationId] = useState("");
+  const [addToTripDestinationName, setAddToTripDestinationName] = useState("");
+
   const handleAddToTrip = useCallback((id: string) => {
-    const dest = results?.destinations.find((d) => d.id === id);
-    if (dest) toast.info(`Add ${dest.city} to a trip — coming soon!`);
-  }, [results]);
+    const dest = (results?.destinations ?? []).find((d) => d.id === id);
+    if (dest) {
+      setAddToTripDestinationId(dest.id);
+      setAddToTripDestinationName(dest.city);
+      setAddToTripOpen(true);
+    }
+  }, [results?.destinations]);
 
   // Group results
   const destinations = results?.destinations ?? [];
@@ -105,9 +114,9 @@ export function SearchResultsPage() {
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {totalCount} result{totalCount !== 1 ? "s" : ""} found
-            {destinations.length && <span> · {destinations.length} destination{destinations.length !== 1 ? "s" : ""}</span>}
-            {activities.length && <span> · {activities.length} activit{activities.length !== 1 ? "ies" : "y"}</span>}
-            {places.length && <span> · {places.length} place{places.length !== 1 ? "s" : ""}</span>}
+            {destinations.length > 0 && <span> · {destinations.length} destination{destinations.length !== 1 ? "s" : ""}</span>}
+            {activities.length > 0 && <span> · {activities.length} activit{activities.length !== 1 ? "ies" : "y"}</span>}
+            {places.length > 0 && <span> · {places.length} place{places.length !== 1 ? "s" : ""}</span>}
           </p>
         </div>
         {debouncedQuery && (
@@ -187,6 +196,14 @@ export function SearchResultsPage() {
           )}
         </>
       )}
+
+      {/* ── Add to Trip Dialog ── */}
+      <AddToTripDialog
+        open={addToTripOpen}
+        onOpenChange={setAddToTripOpen}
+        destinationId={addToTripDestinationId}
+        destinationName={addToTripDestinationName}
+      />
     </div>
   );
 }

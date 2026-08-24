@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
 import type { CategoryFilter } from "../explore.types";
@@ -35,30 +34,17 @@ export function ExploreCategories({
   variant = "tabs",
   className,
 }: ExploreCategoriesProps) {
-  const [searchParams, setSearchParams] = useSearchParams();
-
   const handleCategoryClick = useCallback(
     (category: CategoryFilter) => {
       onCategoryChange(category);
-
-      // Update URL
-      const params = new URLSearchParams(searchParams);
-      if (category === "all") {
-        params.delete("category");
-      } else {
-        params.set("category", category);
-      }
-      // Reset page when category changes
-      params.delete("page");
-      setSearchParams(params, { replace: true });
     },
-    [onCategoryChange, searchParams, setSearchParams]
+    [onCategoryChange]
   );
 
   if (variant === "chips") {
     return (
       <div
-        role="tablist"
+        role="radiogroup"
         aria-label="Filter by category"
         className={cn("flex flex-wrap gap-2", className)}
       >
@@ -68,8 +54,8 @@ export function ExploreCategories({
             <button
               key={cat.id}
               type="button"
-              role="tab"
-              aria-selected={selected}
+              role="radio"
+              aria-checked={selected}
               onClick={() => handleCategoryClick(cat.id)}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-all",
@@ -89,19 +75,19 @@ export function ExploreCategories({
   }
 
   return (
-    <div
-      role="tablist"
-      aria-label="Filter by category"
-      className={cn("flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", className)}
-    >
-      {CATEGORIES.map((cat) => {
-        const selected = cat.id === activeCategory;
-        return (
-          <button
-            key={cat.id}
-            type="button"
-            role="tab"
-            aria-selected={selected}
+      <div
+        role="radiogroup"
+        aria-label="Filter by category"
+        className={cn("flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", className)}
+      >
+        {CATEGORIES.map((cat) => {
+          const selected = cat.id === activeCategory;
+          return (
+            <button
+              key={cat.id}
+              type="button"
+              role="radio"
+              aria-checked={selected}
             onClick={() => handleCategoryClick(cat.id)}
             className={cn(
               "shrink-0 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
@@ -130,7 +116,7 @@ export function MobileCategoryPills({
 }: Pick<ExploreCategoriesProps, "activeCategory" | "onCategoryChange" | "className">) {
   return (
     <div
-      role="tablist"
+      role="radiogroup"
       aria-label="Filter by category"
       className={cn("flex gap-2 overflow-x-auto pb-1 px-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x", className)}
     >
@@ -140,8 +126,8 @@ export function MobileCategoryPills({
           <button
             key={cat.id}
             type="button"
-            role="tab"
-            aria-selected={selected}
+            role="radio"
+            aria-checked={selected}
             onClick={() => onCategoryChange(cat.id)}
             className={cn(
               "shrink-0 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-all snap-center",

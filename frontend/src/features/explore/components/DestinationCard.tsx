@@ -88,7 +88,6 @@ export function DestinationCard({
   );
 
   return (
-    <TooltipProvider>
       <article
         className={cardClasses}
         aria-label={`${destination.city}, ${destination.country}`}
@@ -365,7 +364,6 @@ export function DestinationCard({
           </div>
         )}
       </article>
-    </TooltipProvider>
   );
 }
 

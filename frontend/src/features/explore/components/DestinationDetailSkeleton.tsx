@@ -1,7 +1,8 @@
 /**
  * Destination detail page skeleton for loading state
+ * (Alternate standalone version — the canonical export lives in ExploreSkeletons.tsx)
  */
-export function DestinationDetailSkeleton() {
+export function DestinationDetailSkeletonPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-8 px-4 py-6" aria-hidden="true">
       {/* Hero skeleton */}

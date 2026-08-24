@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/sheet";
 import type { ExploreFilters, RegionId, BudgetTierFilter, DurationFilter, SortOption } from "../explore.types";
 import { regions, budgetFilters, durationFilters, sortOptions } from "../explore.data";
+import { activeFilterCount as computeActiveFilterCount } from "../explore.service";
 
 interface DestinationFiltersBarProps {
   filters: ExploreFilters;
@@ -78,12 +79,7 @@ export function DestinationFiltersBar({
     setSheetOpen(false);
   }, [onClearAll, searchParams, setSearchParams]);
 
-  const activeFilterCount =
-    (filters.category !== "all" ? 1 : 0) +
-    (filters.region !== "all" ? 1 : 0) +
-    (filters.budget !== "all" ? 1 : 0) +
-    (filters.duration !== "all" ? 1 : 0) +
-    (filters.sort !== "popular" ? 1 : 0);
+  const activeFilterCount = computeActiveFilterCount(filters);
 
   // Desktop inline bar
   const desktopBar = (

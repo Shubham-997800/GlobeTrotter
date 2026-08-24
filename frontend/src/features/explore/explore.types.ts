@@ -35,6 +35,7 @@ export interface ExploreFilters {
   budget: BudgetTierFilter | "all";
   duration: DurationFilter | "all";
   sort: SortOption;
+  query?: string;
 }
 
 export interface SearchSuggestion {

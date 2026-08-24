@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import {
   ArrowRight,
@@ -21,6 +21,7 @@ import {
   Music,
   Coffee,
   Loader,
+  Leaf,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ import { AddToTripDialog } from "@/features/explore/components/AddToTripDialog";
 import { DestinationDetailSkeleton } from "@/features/explore/components/ExploreSkeletons";
 import { useDestinationDetail, useToggleSavedDestination } from "@/features/explore/useExplore";
 import type { PlaceCard, ExploreActivity, ExploreDestination } from "@/features/explore/explore.types";
+import { exploreDestinations } from "@/features/explore/explore.data";
 import { formatMoneyRaw } from "@/features/trips/trips.utils";
 
 interface LocalBudgetTier {
@@ -56,7 +58,7 @@ const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>
 const MONTH_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   spring: Sun,
   summer: Sun,
-  autumn: Loader,
+  autumn: Leaf,
   winter: Snowflake,
 };
 
@@ -68,10 +70,15 @@ interface BestTimeData {
 
 export function DestinationDetailsPage() {
   const { destinationId } = useParams<{ destinationId: string }>();
+  const [searchParams] = useSearchParams();
 
   const { data: detail, isLoading, isError } = useDestinationDetail(destinationId ?? "");
 
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState(() => {
+    if (searchParams.has("activity")) return "activities";
+    if (searchParams.has("place")) return "places";
+    return "overview";
+  });
   const [addToTripOpen, setAddToTripOpen] = useState(false);
 
   const toggleSaved = useToggleSavedDestination();
@@ -404,7 +411,7 @@ export function DestinationDetailsPage() {
                 </Button>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={handleSaveToggle} className="size-10">
+                    <Button variant="ghost" size="icon" onClick={handleSaveToggle} className="size-10" aria-label={saved ? "Remove from saved" : "Save destination"}>
                       <Bookmark className="size-5" aria-hidden="true" />
                     </Button>
                   </TooltipTrigger>
@@ -602,7 +609,5 @@ const budgetTiers: LocalBudgetTier[] = [
   { id: "moderate", label: "Moderate", description: "Comfortable stays, some splurges", costMultiplier: 1.0 },
   { id: "premium", label: "Premium", description: "Boutique hotels, fine dining, private tours", costMultiplier: 1.8 },
 ];
-
-import { exploreDestinations } from "@/features/explore/explore.data";
 
 export default DestinationDetailsPage;

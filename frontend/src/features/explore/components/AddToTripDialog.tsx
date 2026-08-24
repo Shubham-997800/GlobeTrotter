@@ -128,8 +128,12 @@ export function AddToTripDialog({
                 Create one
               </Button>
             </>
-          )}
-        </div>
+              )}
+              </div>
+              {availableDays.length > 4 && (
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent" />
+              )}
+            </div>
       );
     }
 
@@ -240,7 +244,8 @@ export function AddToTripDialog({
         {selectedTripId && !createNewTrip && (
           <div className="space-y-4 border-t border-subtle-border pt-4">
             <Label className="text-sm font-medium">Select Day</Label>
-            <div className="max-h-48 overflow-y-auto grid gap-2 sm:grid-cols-2">
+            <div className="relative max-h-48">
+              <div className="max-h-48 overflow-y-auto grid gap-2 sm:grid-cols-2">
               {availableDays.map((day) => (
                 <button
                   key={day.id}

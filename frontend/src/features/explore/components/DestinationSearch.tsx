@@ -12,8 +12,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { useSearchSuggestions } from "../useExplore";
-import { readRecentSearches, addRecentSearch, removeRecentSearch, clearRecentSearches } from "../explore.data";
+import { useSearchSuggestions, useRecentSearches, useAddRecentSearch, useRemoveRecentSearch, useClearRecentSearches } from "../useExplore";
 import type { SearchSuggestion } from "../explore.types";
 
 interface DestinationSearchProps {
@@ -23,7 +22,7 @@ interface DestinationSearchProps {
   onSearch?: (query: string) => void;
   /** Placeholder text */
   placeholder?: string;
-  /** Whether to show the search as full-width on mobile */
+  /** Whether to constrain width on larger screens (full-width on mobile by default) */
   fullWidthMobile?: boolean;
 }
 
@@ -50,8 +49,11 @@ export function DestinationSearch({
   // Fetch suggestions
   const { data: suggestions } = useSearchSuggestions(query, open && query.trim().length > 0);
 
-  // Get recent searches from localStorage
-  const recentSearches = useMemo(() => readRecentSearches(), [query]);
+  // Get recent searches via React Query hook
+  const { data: recentSearches = [] } = useRecentSearches();
+  const addRecentSearchMutation = useAddRecentSearch();
+  const removeRecentSearchMutation = useRemoveRecentSearch();
+  const clearRecentSearchesMutation = useClearRecentSearches();
 
   // Build flat results array for keyboard navigation
   const flatResults = useMemo(() => {
@@ -155,7 +157,7 @@ export function DestinationSearch({
   const selectResult = (result: SearchSuggestion) => {
     setOpen(false);
     setActiveIndex(-1);
-    addRecentSearch(result.label);
+    addRecentSearchMutation.mutate(result.label);
     if (result.href) {
       navigate(result.href);
     } else if (onSearch) {
@@ -175,7 +177,7 @@ export function DestinationSearch({
   const handleSearch = (searchQuery: string) => {
     setOpen(false);
     setActiveIndex(-1);
-    addRecentSearch(searchQuery);
+    addRecentSearchMutation.mutate(searchQuery);
     if (onSearch) {
       onSearch(searchQuery);
     }
@@ -190,18 +192,18 @@ export function DestinationSearch({
   const handleRemoveRecent = (event: React.MouseEvent, recentQuery: string) => {
     event.preventDefault();
     event.stopPropagation();
-    removeRecentSearch(recentQuery);
+    removeRecentSearchMutation.mutate(recentQuery);
   };
 
   const handleClearRecent = () => {
-    clearRecentSearches();
+    clearRecentSearchesMutation.mutate();
   };
 
   const hasQuery = query.trim().length > 0;
   const showDropdown = open && (hasQuery || showRecent);
 
   return (
-    <div ref={containerRef} className={cn("relative w-full", fullWidthMobile && "max-w-xl sm:max-w-md lg:max-w-lg")}>
+    <div ref={containerRef} className={cn("relative w-full", fullWidthMobile && "sm:max-w-md lg:max-w-lg")}>
       <label htmlFor="destination-search" className="sr-only">
         {placeholder}
       </label>
@@ -438,7 +440,7 @@ export function DestinationSearch({
                     role="option"
                     aria-selected={isActive}
                     className={cn(
-                      "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors",
+                      "group/item flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors",
                       isActive ? "bg-active-nav text-primary" : "hover:bg-subtle-bg-hover",
                     )}
                     onMouseEnter={() => setActiveIndex(itemIndex)}
@@ -455,9 +457,8 @@ export function DestinationSearch({
                       type="button"
                       tabIndex={-1}
                       aria-label={`Remove ${recent.query} from recent searches`}
-                      className="shrink-0 rounded-sm p-0.5 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive transition-colors"
+                      className="shrink-0 rounded-sm p-0.5 text-muted-foreground opacity-0 group-hover/item:opacity-100 hover:text-destructive transition-colors"
                       onMouseDown={(e) => handleRemoveRecent(e, recent.query)}
-                      onClick={(e) => handleRemoveRecent(e, recent.query)}
                     >
                       <Trash2 className="size-3.5" aria-hidden="true" />
                     </button>

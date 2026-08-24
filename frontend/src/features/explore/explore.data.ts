@@ -93,10 +93,10 @@ export const exploreDestinations: ExploreDestination[] = baseDestinations.map((d
 /**
  * Extended activities for explore
  */
-export const exploreActivities: ExploreActivity[] = baseActivities.map((a) => ({
+export const exploreActivities: ExploreActivity[] = baseActivities.map((a, index) => ({
   ...a,
   location: a.city,
-  rating: 4.5 + Math.random() * 0.4,
+  rating: 4.5 + (index % 5) * 0.1,
 }));
 
 /**

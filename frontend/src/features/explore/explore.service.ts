@@ -305,14 +305,14 @@ export function applyExploreFilters(
     if (filters.budget !== "all") {
       const tier = budgetFilters.find((b) => b.id === filters.budget);
       if (tier) {
-        if (tier.id === "budget" && d.estimatedDailyCostInr > 8000) return false;
-        if (tier.id === "moderate" && (d.estimatedDailyCostInr < 5000 || d.estimatedDailyCostInr > 12000)) return false;
-        if (tier.id === "premium" && d.estimatedDailyCostInr < 10000) return false;
+        if (tier.id === "budget" && d.estimatedDailyCostInr > 5000) return false;
+        if (tier.id === "moderate" && (d.estimatedDailyCostInr <= 5000 || d.estimatedDailyCostInr > 12000)) return false;
+        if (tier.id === "premium" && d.estimatedDailyCostInr <= 12000) return false;
       }
     }
     if (filters.duration !== "all") {
       const durationDays = parseInt(d.recommendedDuration.split("–")[0]);
-      if (filters.duration === "weekend" && durationDays > 3) return false;
+      if (filters.duration === "weekend" && durationDays > 2) return false;
       if (filters.duration === "3-5" && (durationDays < 3 || durationDays > 5)) return false;
       if (filters.duration === "week" && (durationDays < 6 || durationDays > 8)) return false;
       if (filters.duration === "2weeks" && durationDays < 10) return false;
@@ -348,4 +348,28 @@ export function sortExploreDestinations(
  */
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Count active filters (non-default values)
+ */
+export function activeFilterCount(filters: ExploreFilters): number {
+  return (
+    (filters.category !== "all" ? 1 : 0) +
+    (filters.region !== "all" ? 1 : 0) +
+    (filters.budget !== "all" ? 1 : 0) +
+    (filters.duration !== "all" ? 1 : 0) +
+    (filters.sort !== "popular" ? 1 : 0)
+  );
+}
+
+/**
+ * Estimate total trip cost for a destination based on recommended duration
+ */
+export function estimateTripCost(destination: ExploreDestination): number {
+  const durationStr = destination.recommendedDuration;
+  const days = durationStr.includes("–")
+    ? parseInt(durationStr.split("–")[1])
+    : parseInt(durationStr);
+  return destination.estimatedDailyCostInr * (days || 1);
 }
