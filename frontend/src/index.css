@@ -293,7 +293,6 @@
   html {
     scroll-behavior: smooth;
     overflow-x: hidden;
-    scrollbar-gutter: stable;
   }
   body {
     background-color: var(--color-background);
@@ -328,15 +327,24 @@
   }
 }
 
-/* Prevent layout shift when body scroll is locked by Radix Dialog/Sheet */
+/* Prevent layout shift when body scroll is locked by Radix Dialog/Sheet/Dropdown */
 body[data-scroll-locked] {
-  overflow: hidden !important;
-  /* Compensate for hidden scrollbar to prevent left shift */
-  margin-right: var(--scrollbar-width, 0px);
+  /* Use clip instead of hidden — clip doesn't affect layout or scrollbar */
+  overflow: clip !important;
+  overflow-block: clip !important;
 }
 
 /* Ensure dropdowns/popovers don't cause content shift */
 [data-radix-popper-content-wrapper] {
   position: fixed !important;
   z-index: 50 !important;
+}
+
+/* Prevent content shift when Radix portals mount/unmount */
+html:has([data-radix-popper-content-wrapper]) {
+  overflow-x: clip !important;
+}
+
+html:has([data-radix-portal]) {
+  overflow-x: clip !important;
 }
