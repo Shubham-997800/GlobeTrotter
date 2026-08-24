@@ -193,7 +193,7 @@ export function ExplorePage() {
     <AppShell>
       <div className="space-y-8">
         {/* ── Hero + Search ── */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/5 via-travel-blue/5 to-background p-6 sm:p-8 lg:p-10">
+        <div className="relative z-10 rounded-3xl bg-gradient-to-br from-primary/5 via-travel-blue/5 to-background p-6 sm:p-8 lg:p-10">
           <div className="mx-auto max-w-2xl text-center">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
               <Globe className="size-3.5" aria-hidden="true" />
