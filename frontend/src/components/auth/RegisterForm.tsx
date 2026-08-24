@@ -11,6 +11,7 @@ import { PasswordInput } from "@/components/auth/PasswordInput";
 import { PasswordStrength } from "@/components/auth/PasswordStrength";
 import { ProfileImageUpload } from "@/components/auth/ProfileImageUpload";
 import { SubmitButton } from "@/components/auth/SubmitButton";
+import { LegalDialog } from "@/components/legal/LegalDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,7 +58,6 @@ export function RegisterForm() {
     },
   });
 
-  // oxlint-disable-next-line react/incompatible-library -- RHF watch() intentionally returns a fresh function per render.
   const password = watch("password");
   const isBusy = status !== "idle";
 
@@ -350,13 +350,23 @@ export function RegisterForm() {
               className="cursor-pointer font-normal leading-relaxed text-secondary-text"
             >
               I agree to the{" "}
-              <span className="font-medium text-primary underline-offset-4 hover:underline">
-                Terms of Service
-              </span>{" "}
+              <LegalDialog
+                type="terms"
+                trigger={
+                  <button type="button" className="font-medium text-primary underline-offset-4 hover:underline">
+                    Terms of Service
+                  </button>
+                }
+              />{" "}
               and{" "}
-              <span className="font-medium text-primary underline-offset-4 hover:underline">
-                Privacy Policy
-              </span>
+              <LegalDialog
+                type="privacy"
+                trigger={
+                  <button type="button" className="font-medium text-primary underline-offset-4 hover:underline">
+                    Privacy Policy
+                  </button>
+                }
+              />
               .
             </Label>
           </div>

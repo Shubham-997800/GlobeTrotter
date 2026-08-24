@@ -51,7 +51,6 @@ export function LoginForm() {
     defaultValues: { identifier: "", password: "", remember: true },
   });
 
-  // oxlint-disable-next-line react/incompatible-library -- RHF watch() intentionally returns a fresh function per render.
   const remember = watch("remember");
 
   const onSubmit = async (values: LoginValues) => {
@@ -200,10 +199,10 @@ export function LoginForm() {
       <p className="rounded-lg border border-dashed border-border bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
         Demo account —{" "}
         <span className="font-medium text-secondary-text">
-          demo@globetrotter.app
+          {DEMO_CREDENTIALS.identifier}
         </span>{" "}
         ·{" "}
-        <span className="font-medium text-secondary-text">Demo@1234</span>
+        <span className="font-medium text-secondary-text">{DEMO_CREDENTIALS.password}</span>
       </p>
     </form>
   );

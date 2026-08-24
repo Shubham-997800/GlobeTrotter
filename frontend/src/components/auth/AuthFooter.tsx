@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 
+import { LegalDialog } from "@/components/legal/LegalDialog";
 import { landingConfig } from "@/config/landing.config";
 
 type AuthFooterVariant = "login" | "signup";
@@ -42,10 +43,24 @@ export function AuthFooter({ variant }: AuthFooterProps) {
       </p>
       <p className="text-xs text-muted-foreground">
         By continuing you agree to our{" "}
-        <span className="font-medium text-secondary-text">Terms of Service</span>{" "}
+        <LegalDialog
+          type="terms"
+          trigger={
+            <button className="rounded-sm font-medium text-secondary-text underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none">
+              Terms of Service
+            </button>
+          }
+        />{" "}
         and{" "}
-        <span className="font-medium text-secondary-text">Privacy Policy</span>.
-        © {new Date().getFullYear()} {landingConfig.appName}.
+        <LegalDialog
+          type="privacy"
+          trigger={
+            <button className="rounded-sm font-medium text-secondary-text underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none">
+              Privacy Policy
+            </button>
+          }
+        />
+        . © {new Date().getFullYear()} {landingConfig.appName}.
       </p>
     </div>
   );
