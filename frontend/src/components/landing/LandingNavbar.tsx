@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { motion } from "framer-motion";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, LogIn, ArrowRight } from "lucide-react";
 
@@ -117,13 +118,20 @@ export function LandingNavbar({
                   }}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
+                    "relative rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
                     isActive
-                      ? "bg-active-nav text-primary"
-                      : "text-secondary-text hover:bg-hover hover:text-foreground",
+                      ? "text-primary"
+                      : "text-secondary-text hover:text-foreground",
                   )}
                 >
-                  {link.label}
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-active"
+                      className="absolute inset-0 rounded-md bg-active-nav"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10">{link.label}</span>
                 </a>
               );
             })}

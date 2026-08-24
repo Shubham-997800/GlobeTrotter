@@ -1,3 +1,5 @@
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import type { Step } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -8,22 +10,41 @@ interface StepCardProps {
 
 export function StepCard({ step, className }: StepCardProps) {
   const Icon = step.icon;
+  const ref = useRef<HTMLLIElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
 
   return (
     <li
+      ref={ref}
       className={cn(
         "relative flex flex-col items-center text-center",
         className,
       )}
     >
       {/* Step number node */}
-      <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-full border border-border bg-card text-lg font-semibold text-foreground shadow-sm">
-        {step.number}
-      </div>
+      <motion.div
+        className="relative z-10 flex h-16 w-16 items-center justify-center rounded-full border border-border bg-card text-lg font-semibold text-foreground shadow-sm"
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={isInView ? { scale: 1, opacity: 1 } : {}}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      >
+        <motion.span
+          initial={{ scale: 1 }}
+          animate={isInView ? { scale: [1, 1.2, 1] } : {}}
+          transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
+        >
+          {step.number}
+        </motion.span>
+      </motion.div>
 
-      <div className="mt-5 flex h-11 w-11 items-center justify-center rounded-lg bg-accent text-primary">
+      <motion.div
+        className="mt-5 flex h-11 w-11 items-center justify-center rounded-lg bg-accent text-primary"
+        initial={{ opacity: 0, y: 10 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ delay: 0.15, duration: 0.4 }}
+      >
         <Icon className="h-5 w-5" aria-hidden="true" />
-      </div>
+      </motion.div>
 
       <h3 className="mt-4 text-lg font-semibold tracking-tight text-foreground">
         {step.title}

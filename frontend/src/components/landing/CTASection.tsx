@@ -1,3 +1,5 @@
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, MapPin } from "lucide-react";
 
@@ -8,6 +10,50 @@ import type { FinalCTA } from "@/lib/types";
 
 interface CTASectionProps {
   cta: FinalCTA;
+}
+
+function AnimatedRoute() {
+  const ref = useRef<SVGSVGElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
+
+  return (
+    <svg
+      ref={ref}
+      aria-hidden="true"
+      viewBox="0 0 200 60"
+      className="pointer-events-none absolute inset-x-0 top-8 mx-auto h-16 w-64 text-primary/20 sm:w-80"
+      fill="none"
+    >
+      <motion.path
+        d="M10 46 C 60 10, 130 55, 190 18"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeDasharray="5 6"
+        strokeLinecap="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={isInView ? { pathLength: 1, opacity: 1 } : {}}
+        transition={{ duration: 1.8, ease: "easeInOut" }}
+      />
+      <motion.circle
+        cx="10"
+        cy="46"
+        r="4"
+        fill="currentColor"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={isInView ? { scale: 1, opacity: 1 } : {}}
+        transition={{ delay: 0.2, duration: 0.4, type: "spring" }}
+      />
+      <motion.circle
+        cx="190"
+        cy="18"
+        r="4"
+        fill="currentColor"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={isInView ? { scale: 1, opacity: 1 } : {}}
+        transition={{ delay: 1.4, duration: 0.4, type: "spring" }}
+      />
+    </svg>
+  );
 }
 
 export function CTASection({ cta }: CTASectionProps) {
@@ -35,23 +81,14 @@ export function CTASection({ cta }: CTASectionProps) {
               aria-hidden="true"
               className="pointer-events-none absolute left-1/2 top-0 -z-0 h-64 w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.10] blur-3xl"
             />
-            {/* Dashed route line with pins */}
-            <svg
+            <motion.div
               aria-hidden="true"
-              viewBox="0 0 200 60"
-              className="pointer-events-none absolute inset-x-0 top-8 mx-auto h-16 w-64 text-primary/20 sm:w-80"
-              fill="none"
-            >
-              <path
-                d="M10 46 C 60 10, 130 55, 190 18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeDasharray="5 6"
-                strokeLinecap="round"
-              />
-              <circle cx="10" cy="46" r="4" fill="currentColor" />
-              <circle cx="190" cy="18" r="4" fill="currentColor" />
-            </svg>
+              className="pointer-events-none absolute right-10 bottom-10 -z-0 h-48 w-48 rounded-full bg-travel-blue/[0.08] blur-3xl"
+              animate={{ y: [0, -12, 0], x: [0, 6, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            />
+            {/* Dashed route line with pins */}
+            <AnimatedRoute />
 
             <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center">
               <span className="inline-flex items-center rounded-full bg-primary-light px-3.5 py-1.5 text-sm font-medium text-primary dark:bg-primary/15">

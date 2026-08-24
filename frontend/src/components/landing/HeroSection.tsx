@@ -208,9 +208,18 @@ export function HeroSection({ hero, trustStats }: HeroSectionProps) {
           {/* Floating budget card */}
               <motion.div
                 initial={reduceMotion ? false : { opacity: 0, y: 16 }}
-                animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+                animate={
+                  reduceMotion
+                    ? undefined
+                    : { opacity: 1, y: [0, -6, 0] }
+                }
                 transition={
-                  reduceMotion ? undefined : { delay: 0.55, duration: 0.5 }
+                  reduceMotion
+                    ? undefined
+                    : {
+                        opacity: { delay: 0.55, duration: 0.5 },
+                        y: { delay: 1.2, duration: 3, repeat: Infinity, ease: "easeInOut" },
+                      }
                 }
                 className="absolute -bottom-6 -right-2 hidden w-52 rounded-2xl border border-border bg-card p-4 shadow-lg shadow-black/10 sm:block"
               >
@@ -242,9 +251,18 @@ export function HeroSection({ hero, trustStats }: HeroSectionProps) {
               {/* Floating trip card */}
               <motion.div
                 initial={reduceMotion ? false : { opacity: 0, y: 16 }}
-                animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+                animate={
+                  reduceMotion
+                    ? undefined
+                    : { opacity: 1, y: [0, -5, 0] }
+                }
                 transition={
-                  reduceMotion ? undefined : { delay: 0.65, duration: 0.5 }
+                  reduceMotion
+                    ? undefined
+                    : {
+                        opacity: { delay: 0.65, duration: 0.5 },
+                        y: { delay: 1.5, duration: 3.5, repeat: Infinity, ease: "easeInOut" },
+                      }
                 }
                 className="absolute -left-5 -top-7 hidden w-44 rounded-2xl border border-border bg-card p-3.5 shadow-lg shadow-black/10 sm:block"
               >

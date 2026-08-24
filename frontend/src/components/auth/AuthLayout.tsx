@@ -23,6 +23,16 @@ const HIGHLIGHTS = [
   },
 ];
 
+const container = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+};
+
+const item = {
+  hidden: { opacity: 0, x: -16 },
+  visible: { opacity: 1, x: 0 },
+};
+
 interface AuthLayoutProps {
   children: React.ReactNode;
   /** Widen the form column for content-heavy pages like registration. */
@@ -49,27 +59,41 @@ export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
         <Logo name={appName} />
 
         <div className="relative max-w-md space-y-8">
-          <h2 className="text-balance text-3xl font-bold tracking-tight text-foreground xl:text-4xl">
+          <motion.h2
+            initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="text-balance text-3xl font-bold tracking-tight text-foreground xl:text-4xl"
+          >
             Every journey, planned to perfection.
-          </h2>
-          <ul className="space-y-5">
-            {HIGHLIGHTS.map((item) => (
-              <li key={item.title} className="flex gap-3">
+          </motion.h2>
+          <motion.ul
+            className="space-y-5"
+            variants={reduceMotion ? undefined : container}
+            initial={reduceMotion ? false : "hidden"}
+            animate={reduceMotion ? undefined : "visible"}
+          >
+            {HIGHLIGHTS.map((h) => (
+              <motion.li
+                key={h.title}
+                variants={item}
+                className="flex gap-3"
+              >
                 <CheckCircle2
                   className="mt-0.5 h-5 w-5 shrink-0 text-primary"
                   aria-hidden="true"
                 />
                 <div>
                   <p className="text-sm font-semibold text-foreground">
-                    {item.title}
+                    {h.title}
                   </p>
                   <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
-                    {item.description}
+                    {h.description}
                   </p>
                 </div>
-              </li>
+              </motion.li>
             ))}
-          </ul>
+          </motion.ul>
         </div>
 
         <p className="relative text-xs text-muted-foreground">

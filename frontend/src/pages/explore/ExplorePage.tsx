@@ -24,7 +24,8 @@ import {
   useSavedDestinationIds,
 } from "@/features/explore/useExplore";
 import { exploreDestinations } from "@/features/explore/explore.data";
-import type { ExploreFilters, ExploreDestination } from "@/features/explore/explore.types";
+import type { ExploreFilters, ExploreDestination, CategoryFilter, RegionId, BudgetTierFilter, DurationFilter, SortOption } from "@/features/explore/explore.types";
+import { useAuth } from "@/features/auth/useAuth";
 
 const PAGE_SIZE = 12;
 
@@ -36,11 +37,11 @@ export function ExplorePage() {
     const pageNum = Number.parseInt(searchParams.get("page") ?? "1", 10);
     return {
       query: searchParams.get("q") ?? "",
-      category: (searchParams.get("category") as any) ?? "all",
-      region: (searchParams.get("region") as any) ?? "all",
-      budget: (searchParams.get("budget") as any) ?? "all",
-      duration: (searchParams.get("duration") as any) ?? "all",
-      sort: (searchParams.get("sort") as any) ?? "popular",
+      category: (searchParams.get("category") as CategoryFilter | "all") ?? "all",
+      region: (searchParams.get("region") as RegionId | "all") ?? "all",
+      budget: (searchParams.get("budget") as BudgetTierFilter | "all") ?? "all",
+      duration: (searchParams.get("duration") as DurationFilter | "all") ?? "all",
+      sort: (searchParams.get("sort") as SortOption) ?? "popular",
       page: Number.isFinite(pageNum) && pageNum > 0 ? pageNum : 1,
     };
   }, [searchParams]);
@@ -98,8 +99,9 @@ export function ExplorePage() {
   }, [searchParams, setSearchParams]);
 
   // Data fetching
+  const { user } = useAuth();
   const { data: savedIds = [] } = useSavedDestinationIds();
-  const userInterests: string[] = []; // Would come from user profile in real app
+  const userInterests = user?.preferences?.interests ?? [];
 
   // Fetch data based on active filters
   const trendingQuery = useTrendingDestinations(6);

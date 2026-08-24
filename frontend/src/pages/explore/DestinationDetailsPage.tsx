@@ -30,8 +30,15 @@ import { cn } from "@/lib/utils";
 import { AddToTripDialog } from "@/features/explore/components/AddToTripDialog";
 import { DestinationDetailSkeleton } from "@/features/explore/components/ExploreSkeletons";
 import { useDestinationDetail, useToggleSavedDestination } from "@/features/explore/useExplore";
-import type { PlaceCard, ExploreActivity } from "@/features/explore/explore.types";
+import type { PlaceCard, ExploreActivity, ExploreDestination } from "@/features/explore/explore.types";
 import { formatMoneyRaw } from "@/features/trips/trips.utils";
+
+interface LocalBudgetTier {
+  id: string;
+  label: string;
+  description: string;
+  costMultiplier: number;
+}
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   adventure: Zap,
@@ -447,7 +454,7 @@ function SeasonCard({ season, months, description }: BestTimeData) {
   );
 }
 
-function BudgetTierCard({ tier, destination }: { tier: any; destination: any }) {
+function BudgetTierCard({ tier, destination }: { tier: LocalBudgetTier; destination: ExploreDestination }) {
   const dailyCost = destination.estimatedDailyCostInr * tier.costMultiplier!;
   const duration = parseInt(destination.recommendedDuration.split("–")[1] || destination.recommendedDuration);
   const total = dailyCost * duration;
@@ -549,7 +556,7 @@ function ActivityCard({ activity, destinationId }: { activity: ExploreActivity; 
   );
 }
 
-function DestinationCardCompact({ destination }: { destination: any }) {
+function DestinationCardCompact({ destination }: { destination: ExploreDestination }) {
   return (
     <Link
       to={`/explore/destinations/${destination.id}`}
@@ -575,7 +582,7 @@ function DestinationCardCompact({ destination }: { destination: any }) {
   );
 }
 
-function getNearbyDestinations(_destination: any): any[] {
+function getNearbyDestinations(_destination: ExploreDestination): ExploreDestination[] {
   return exploreDestinations
     .filter((d) => d.country === _destination.country && d.id !== _destination.id)
     .slice(0, 3);
@@ -590,7 +597,7 @@ function getSeasonalInfo(): BestTimeData[] {
   ];
 }
 
-const budgetTiers = [
+const budgetTiers: LocalBudgetTier[] = [
   { id: "budget", label: "Budget", description: "Hostels, street food, public transport", costMultiplier: 0.6 },
   { id: "moderate", label: "Moderate", description: "Comfortable stays, some splurges", costMultiplier: 1.0 },
   { id: "premium", label: "Premium", description: "Boutique hotels, fine dining, private tours", costMultiplier: 1.8 },

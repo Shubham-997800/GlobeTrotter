@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { MapPin, Sparkles, Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout/AppShell";
@@ -15,10 +16,10 @@ type TabKey = "destinations" | "activities";
 export function SavedPage() {
   const [tab, setTab] = useState<TabKey>("destinations");
   const [savedDestinations, setSavedDestinations] = useState<Set<string>>(
-    () => new Set(destinations.slice(0, 4).map((d) => d.id)),
+    () => new Set<string>(),
   );
   const [savedActivities, setSavedActivities] = useState<Set<string>>(
-    () => new Set(activities.slice(0, 3).map((a) => a.id)),
+    () => new Set<string>(),
   );
 
   const visibleDestinations = useMemo(
@@ -55,7 +56,7 @@ export function SavedPage() {
       description="Your saved destinations and activities, all in one place."
       actions={
         <Button variant="outline" asChild>
-          <a href="/explore">Explore more</a>
+          <Link to="/explore">Explore more</Link>
         </Button>
       }
     >
@@ -81,7 +82,7 @@ export function SavedPage() {
               {visibleDestinations.map((d: Destination) => (
                 <Card key={d.id} className="group overflow-hidden">
                   <div className="relative aspect-[16/10] bg-muted">
-                    <img src={d.image} alt={d.imageAlt} className="h-full w-full object-cover" />
+                    <img src={d.image} alt={d.imageAlt} loading="lazy" className="h-full w-full object-cover" />
                     <button
                       type="button"
                       onClick={() => removeDestination(d.id)}
@@ -116,7 +117,7 @@ export function SavedPage() {
               {visibleActivities.map((a: ActivitySuggestion) => (
                 <Card key={a.id} className="group overflow-hidden">
                   <div className="relative aspect-[16/10] bg-muted">
-                    <img src={a.image} alt={a.imageAlt} className="h-full w-full object-cover" />
+                    <img src={a.image} alt={a.imageAlt} loading="lazy" className="h-full w-full object-cover" />
                     <button
                       type="button"
                       onClick={() => removeActivity(a.id)}

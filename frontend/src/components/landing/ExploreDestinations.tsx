@@ -1,4 +1,5 @@
 import * as React from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   Star,
@@ -67,14 +68,23 @@ export function ExploreDestinations({ discover }: { discover: DiscoverContent })
                   aria-selected={isActive}
                   onClick={() => setActive(cat.id)}
                   className={cn(
-                    "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "relative inline-flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     isActive
-                      ? "border-transparent bg-primary text-primary-foreground shadow-sm"
+                      ? "border-transparent text-primary-foreground"
                       : "border-border bg-card text-secondary-text hover:bg-hover hover:text-foreground",
                   )}
                 >
-                  <Icon className="h-4 w-4" aria-hidden="true" />
-                  {cat.label}
+                  {isActive && (
+                    <motion.span
+                      layoutId="category-active"
+                      className="absolute inset-0 rounded-full bg-primary shadow-sm"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-1.5">
+                    <Icon className="h-4 w-4" aria-hidden="true" />
+                    {cat.label}
+                  </span>
                 </button>
               );
             })}
@@ -82,13 +92,25 @@ export function ExploreDestinations({ discover }: { discover: DiscoverContent })
         </Reveal>
 
         {/* Grid */}
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {destinations.map((dest, index) => (
-            <Reveal key={dest.id} delay={index * 0.06}>
-              <DestinationCard destination={dest} className="h-full" />
-            </Reveal>
-          ))}
-        </div>
+        <motion.div
+          layout
+          className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          <AnimatePresence mode="popLayout">
+            {destinations.map((dest) => (
+              <motion.div
+                key={dest.id}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+              >
+                <DestinationCard destination={dest} className="h-full" />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       </Container>
     </section>
   );
