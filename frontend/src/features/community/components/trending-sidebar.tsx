@@ -28,7 +28,7 @@ export function TrendingSidebar({
   const bundle = trending.data;
 
   return (
-    <aside className="space-y-6 max-h-[calc(100dvh-10rem)] overflow-y-auto" aria-label="Trending in the community">
+    <aside className="space-y-6" aria-label="Trending in the community">
       {/* Destinations */}
       <section className="rounded-2xl border bg-card p-4 shadow-sm">
         <h2 className="text-sm font-semibold text-card-foreground">Trending destinations</h2>
