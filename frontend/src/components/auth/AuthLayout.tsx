@@ -46,24 +46,31 @@ export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
   return (
     <div className="grid min-h-dvh bg-background lg:grid-cols-2">
       {/* Brand panel — desktop only */}
-      <aside className="relative hidden overflow-hidden border-r border-border bg-main lg:flex lg:flex-col lg:justify-between lg:p-10 xl:p-14">
-        {/* Subtle brand gradients — theme tokens only */}
+      <aside className="relative hidden overflow-hidden border-r border-border lg:flex lg:flex-col lg:justify-between lg:p-10 xl:p-14">
+        {/* Full background image */}
+        <img
+          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1200"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+          loading="lazy"
+        />
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-black/60" />
+        {/* Gradient accent */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -top-24 -left-24 h-96 w-96 rounded-full bg-primary/5 blur-3xl"
+          className="pointer-events-none absolute -top-24 -left-24 h-96 w-96 rounded-full bg-primary/10 blur-3xl"
         />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-32 -bottom-32 h-80 w-80 rounded-full bg-travel-blue/5 blur-3xl"
-        />
-        <Logo name={appName} />
 
-        <div className="relative max-w-md space-y-8">
+        <Logo name={appName} className="relative z-10 [&_span:first-child]:text-white [&_span:last-child]:text-white/70" />
+
+        <div className="relative z-10 max-w-md space-y-8">
           <motion.h2
             initial={reduceMotion ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="font-heading text-balance text-3xl font-bold tracking-tight text-foreground xl:text-4xl"
+            className="font-heading text-balance text-3xl font-bold tracking-tight text-white xl:text-4xl"
           >
             Every journey, planned to perfection.
           </motion.h2>
@@ -84,10 +91,10 @@ export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
                   aria-hidden="true"
                 />
                 <div>
-                  <p className="text-sm font-semibold text-foreground">
+                  <p className="text-sm font-semibold text-white">
                     {h.title}
                   </p>
-                  <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
+                  <p className="mt-0.5 text-sm leading-relaxed text-white/70">
                     {h.description}
                   </p>
                 </div>
@@ -96,78 +103,7 @@ export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
           </motion.ul>
         </div>
 
-        {/* Product preview mockup */}
-        <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 16 }}
-          animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="relative w-full max-w-md overflow-clip rounded-2xl border border-border bg-card shadow-xl shadow-black/5 dark:shadow-black/30"
-        >
-          {/* Window chrome */}
-          <div className="flex items-center gap-2 border-b border-border bg-muted/40 px-3 py-2">
-            <div className="flex gap-1">
-              <span className="h-2 w-2 rounded-full bg-destructive/80" />
-              <span className="h-2 w-2 rounded-full bg-warning/80" />
-              <span className="h-2 w-2 rounded-full bg-success/80" />
-            </div>
-            <div className="ml-1 flex-1 rounded border border-border bg-background px-2 py-0.5 text-[10px] text-muted-foreground">
-              app.globetrotter.io/trips/japan
-            </div>
-          </div>
-
-          <div className="p-4 space-y-3">
-            {/* Trip header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold text-foreground">Japan Spring Trip</p>
-                <p className="text-[10px] text-muted-foreground">Apr 12 – Apr 20 · 3 cities</p>
-              </div>
-              <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[9px] font-medium text-primary">Planning</span>
-            </div>
-
-            {/* KPI row */}
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { label: "Budget", value: "₹45K" },
-                { label: "Days", value: "9" },
-                { label: "Activities", value: "12" },
-              ].map((kpi) => (
-                <div key={kpi.label} className="rounded-lg border border-border bg-background p-2 text-center">
-                  <p className="text-[9px] text-muted-foreground">{kpi.label}</p>
-                  <p className="text-xs font-bold text-foreground">{kpi.value}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Mini itinerary */}
-            <div className="space-y-1.5">
-              {[
-                { day: "Day 1", activity: "Fushimi Inari Shrine", color: "bg-activity" },
-                { day: "Day 1", activity: "Ramen at Ichiran", color: "bg-food" },
-                { day: "Day 2", activity: "Shinkansen → Osaka", color: "bg-transport" },
-              ].map((row, i) => (
-                <div key={i} className="flex items-center gap-2 rounded-lg bg-muted/40 px-2.5 py-1.5">
-                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${row.color}`} />
-                  <span className="text-[9px] font-medium text-primary">{row.day}</span>
-                  <span className="text-[10px] text-muted-foreground truncate">{row.activity}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Budget bar */}
-            <div>
-              <div className="mb-1 flex items-center justify-between text-[9px]">
-                <span className="text-muted-foreground">63% used</span>
-                <span className="font-medium text-warning">On track</span>
-              </div>
-              <div className="h-1 w-full overflow-clip rounded-full bg-muted">
-                <div className="h-full w-[63%] rounded-full bg-gradient-to-r from-warning to-primary" />
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        <p className="relative text-xs text-muted-foreground">
+        <p className="relative z-10 text-xs text-white/50">
           © {new Date().getFullYear()} {appName}. All rights reserved.
         </p>
       </aside>
