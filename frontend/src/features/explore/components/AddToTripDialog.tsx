@@ -246,46 +246,50 @@ export function AddToTripDialog({
             <Label className="text-sm font-medium">Select Day</Label>
             <div className="relative max-h-48">
               <div className="max-h-48 overflow-y-auto grid gap-2 sm:grid-cols-2">
-              {availableDays.map((day) => (
-                <button
-                  key={day.id}
-                  type="button"
-                  onClick={() => setSelectedDayId(day.id)}
-                  className={cn(
-                    "relative rounded-lg border p-3 text-left transition-all",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    selectedDayId === day.id
-                      ? "border-primary bg-primary/5 text-primary"
-                      : "border-subtle-border hover:border-primary/40 hover:bg-muted/50",
-                  )}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">{day.label}</p>
-                      <p className="text-xs text-muted-foreground">{day.date}</p>
-                    </div>
-                    {selectedDayId === day.id && (
-                      <div className="flex size-5 items-center justify-center">
-                        <div className="size-5 rounded-full border-2 border-primary" />
-                      </div>
+                {availableDays.map((day) => (
+                  <button
+                    key={day.id}
+                    type="button"
+                    onClick={() => setSelectedDayId(day.id)}
+                    className={cn(
+                      "relative rounded-lg border p-3 text-left transition-all",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      selectedDayId === day.id
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-subtle-border hover:border-primary/40 hover:bg-muted/50",
                     )}
-                  </div>
-                </button>
-              ))}
-              {availableDays.length === 0 && (
-                <div className="col-span-full py-6 text-center text-sm text-muted-foreground">
-                  No itinerary days created yet.
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ml-2"
-                    asChild
                   >
-                    <Link to={`/trips/${selectedTripId}/itinerary`}>
-                      Build Itinerary
-                    </Link>
-                  </Button>
-                </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">{day.label}</p>
+                        <p className="text-xs text-muted-foreground">{day.date}</p>
+                      </div>
+                      {selectedDayId === day.id && (
+                        <div className="flex size-5 items-center justify-center">
+                          <div className="size-5 rounded-full border-2 border-primary" />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                ))}
+                {availableDays.length === 0 && (
+                  <div className="col-span-full py-6 text-center text-sm text-muted-foreground">
+                    No itinerary days created yet.
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="ml-2"
+                      asChild
+                    >
+                      <Link to={`/trips/${selectedTripId}/itinerary`}>
+                        Build Itinerary
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+              </div>
+              {availableDays.length > 4 && (
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent" />
               )}
             </div>
           </div>
