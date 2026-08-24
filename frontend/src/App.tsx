@@ -7,11 +7,38 @@ import { Toaster } from "sonner";
 import { AuthProvider } from "@/features/auth/AuthContext";
 import { GuestRoute } from "@/features/auth/GuestRoute";
 import { ProtectedRoute } from "@/features/auth/ProtectedRoute";
-import { AppSectionPlaceholder } from "@/pages/AppSectionPlaceholder";
+
 import { PageTransition } from "@/components/PageTransition";
 
 // Route-level code splitting — each screen ships in its own chunk so the
 // first paint (landing page) never pays for the whole app.
+const AdminLayout = lazy(() =>
+  import("@/features/admin/AdminLayout").then((m) => ({ default: m.AdminLayout })),
+);
+const AdminDashboardPage = lazy(() =>
+  import("@/features/admin/pages/AdminDashboardPage").then((m) => ({ default: m.AdminDashboardPage })),
+);
+const AdminUsersPage = lazy(() =>
+  import("@/features/admin/pages/AdminUsersPage").then((m) => ({ default: m.AdminUsersPage })),
+);
+const AdminTripsPage = lazy(() =>
+  import("@/features/admin/pages/AdminTripsPage").then((m) => ({ default: m.AdminTripsPage })),
+);
+const AdminDestinationsPage = lazy(() =>
+  import("@/features/admin/pages/AdminDestinationsPage").then((m) => ({ default: m.AdminDestinationsPage })),
+);
+const AdminActivitiesPage = lazy(() =>
+  import("@/features/admin/pages/AdminActivitiesPage").then((m) => ({ default: m.AdminActivitiesPage })),
+);
+const AdminAnalyticsPage = lazy(() =>
+  import("@/features/admin/pages/AdminAnalyticsPage").then((m) => ({ default: m.AdminAnalyticsPage })),
+);
+const AdminRolesPage = lazy(() =>
+  import("@/features/admin/pages/AdminRolesPage").then((m) => ({ default: m.AdminRolesPage })),
+);
+const AdminActivityPage = lazy(() =>
+  import("@/features/admin/pages/AdminActivityPage").then((m) => ({ default: m.AdminActivityPage })),
+);
 const AppDashboardPage = lazy(() =>
   import("@/pages/AppDashboardPage").then((m) => ({ default: m.AppDashboardPage })),
 );
@@ -355,13 +382,19 @@ export default function App() {
               path="/admin"
               element={
                 <ProtectedRoute roles={["admin"]}>
-                  <AppSectionPlaceholder
-                    title="Admin Console"
-                    description="Workspace administration — users, content moderation and platform settings."
-                  />
+                  <AdminLayout />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<AdminDashboardPage />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              <Route path="trips" element={<AdminTripsPage />} />
+              <Route path="destinations" element={<AdminDestinationsPage />} />
+              <Route path="activities" element={<AdminActivitiesPage />} />
+              <Route path="analytics" element={<AdminAnalyticsPage />} />
+              <Route path="roles" element={<AdminRolesPage />} />
+              <Route path="activity" element={<AdminActivityPage />} />
+            </Route>
 
             {/* System error pages (public) */}
             <Route path="/404" element={<NotFoundPage />} />

@@ -8,6 +8,7 @@ import { dashboardRouter } from "./dashboard.routes.js";
 import { exploreRouter } from "./explore.routes.js";
 import { notificationsRouter } from "./notifications.routes.js";
 import { settingsRouter } from "./settings.routes.js";
+import { adminRouter } from "./admin.routes.js";
 import { env } from "../config/env.js";
 
 export const apiRouter = Router();
@@ -29,3 +30,4 @@ apiRouter.use("/", dashboardRouter);
 apiRouter.use("/explore", exploreRouter);
 apiRouter.use("/notifications", notificationsRouter);
 apiRouter.use("/", settingsRouter);
+apiRouter.use("/admin", adminRouter);
