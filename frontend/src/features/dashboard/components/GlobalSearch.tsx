@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Luggage, MapPin, Search, Ticket, X } from "lucide-react";
+import { Clock, Luggage, MapPin, Search, Ticket, X } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { getSearchItems } from "@/features/dashboard/dashboard.data";
@@ -25,6 +25,29 @@ const POPULAR_IDS = [
 ];
 
 const MAX_PER_GROUP = 3;
+const RECENT_KEY = "globetrotter.search.recent";
+const MAX_RECENT = 5;
+
+function readRecentSearches(): SearchItem[] {
+  try {
+    const raw = localStorage.getItem(RECENT_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.slice(0, MAX_RECENT) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentSearch(item: SearchItem): void {
+  try {
+    const existing = readRecentSearches().filter((r) => r.id !== item.id);
+    const next = [item, ...existing].slice(0, MAX_RECENT);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+  } catch {
+    // storage unavailable
+  }
+}
 
 export function GlobalSearch() {
   const navigate = useNavigate();
@@ -35,6 +58,9 @@ export function GlobalSearch() {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [recentSearches, setRecentSearches] = useState<SearchItem[]>(() =>
+    readRecentSearches(),
+  );
 
   /* Grouped results, capped per group. */
   const groups = useMemo(() => {
@@ -87,10 +113,22 @@ export function GlobalSearch() {
   }
 
   function select(item: SearchItem) {
+    saveRecentSearch(item);
+    setRecentSearches(readRecentSearches());
     setOpen(false);
     setQuery("");
     inputRef.current?.blur();
     navigate(item.href);
+  }
+
+  function removeRecent(id: string) {
+    try {
+      const existing = readRecentSearches().filter((r) => r.id !== id);
+      localStorage.setItem(RECENT_KEY, JSON.stringify(existing));
+      setRecentSearches(existing);
+    } catch {
+      // storage unavailable
+    }
   }
 
   function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -139,6 +177,8 @@ export function GlobalSearch() {
       }
     }
   }
+
+  const showRecent = !hasQuery && recentSearches.length > 0;
 
   return (
     <div ref={containerRef} className="relative w-full max-w-md">
@@ -196,17 +236,63 @@ export function GlobalSearch() {
           aria-label="Search suggestions"
           className="absolute inset-x-0 top-full z-50 mt-2 max-h-[22rem] overflow-y-auto rounded-xl border border-border bg-background p-2 shadow-lg shadow-black/5 dark:shadow-black/25"
         >
+          {/* Recent searches */}
+          {showRecent ? (
+            <div className="py-1">
+              <p className="px-3 pb-1 pt-1.5 text-xs font-semibold uppercase tracking-wider text-secondary-text">
+                Recent searches
+              </p>
+              {recentSearches.map((item) => (
+                <button
+                  key={`recent-${item.id}`}
+                  type="button"
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-hover"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => select(item)}
+                >
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
+                    <Clock className="size-4 text-muted-foreground" aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">
+                      {item.label}
+                    </span>
+                    {item.sublabel ? (
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {item.sublabel}
+                      </span>
+                    ) : null}
+                  </span>
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    aria-label={`Remove ${item.label} from recent searches`}
+                    className="shrink-0 rounded-sm p-0.5 text-muted-foreground transition-colors hover:text-foreground"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      removeRecent(item.id);
+                    }}
+                  >
+                    <X className="size-3" aria-hidden="true" />
+                  </button>
+                </button>
+              ))}
+            </div>
+          ) : null}
+
           {flatResults.length === 0 ? (
             <p className="px-3 py-6 text-center text-sm text-muted-foreground">
               No matches for &ldquo;{query.trim()}&rdquo;
             </p>
           ) : (
             <>
-              {!hasQuery ? (
+              {!hasQuery && !showRecent ? (
                 <p className="px-3 pb-1 pt-1.5 text-xs font-semibold uppercase tracking-wider text-secondary-text">
                   Popular right now
                 </p>
               ) : null}
+              {!hasQuery && showRecent ? null : null}
               {groups.map((entry) => (
                 <div key={entry.group} className="py-1">
                   {hasQuery ? (
@@ -232,7 +318,7 @@ export function GlobalSearch() {
                           "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors",
                           isActive
                             ? "bg-active-nav text-primary"
-                            : "hover:bg-subtle-bg-hover",
+                            : "hover:bg-hover",
                         )}
                         onMouseEnter={() => setActiveIndex(itemIndex)}
                         onMouseDown={(event) => event.preventDefault()}

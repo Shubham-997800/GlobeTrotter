@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
@@ -27,7 +26,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useAuth } from "@/features/auth/useAuth";
-import { landingConfig } from "@/config/landing.config";
 import { cn } from "@/lib/utils";
 
 export interface NavItemDef {
@@ -53,9 +51,7 @@ const ACCOUNT_NAV: NavItemDef[] = [
 ];
 
 interface SidebarChromeProps {
-  /** Collapsed rail shows icons with tooltips instead of labels. */
   collapsed?: boolean;
-  /** Closes the mobile drawer after a navigation click. */
   onNavigate?: () => void;
 }
 
@@ -100,7 +96,6 @@ function NavLinkRow({
   );
 }
 
-/** Full nav list (primary + account + admin) shared by rail and drawer. */
 export function SidebarNav({
   collapsed = false,
   onNavigate,
@@ -156,32 +151,25 @@ export function SidebarNav({
   );
 }
 
-export function SidebarBrand({ collapsed = false }: { collapsed?: boolean }) {
+/** Brand logo — only used inside mobile drawer sheet. */
+export function SidebarBrand({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <Link
       to="/dashboard"
-      aria-label={`${landingConfig.appName} dashboard`}
-      className={cn(
-        "flex h-9 items-center gap-2 rounded-md px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        collapsed && "justify-center",
-      )}
+      onClick={onNavigate}
+      className="flex items-center gap-2 rounded-md px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-        <Globe className="h-5 w-5" aria-hidden="true" />
+        <Globe className="h-4.5 w-4.5" aria-hidden="true" />
       </span>
-      {!collapsed ? (
-        <span className="truncate text-base font-semibold tracking-tight">
-          {landingConfig.appName}
-        </span>
-      ) : null}
+      <span className="text-base font-bold tracking-tight text-foreground">
+        GlobeTrotter
+      </span>
     </Link>
   );
 }
 
-/**
- * Desktop rail. Handles its own expand/collapse affordance; the collapsed
- * state lives in AppShell so it survives navigation.
- */
+/** Desktop sidebar rail. */
 export function DesktopSidebar({
   collapsed,
   onToggleCollapsed,
@@ -198,41 +186,25 @@ export function DesktopSidebar({
           collapsed ? "w-[68px]" : "w-64",
         )}
       >
-        <div
-          className={cn(
-            "mb-2 flex items-center",
-            collapsed ? "justify-center" : "justify-between px-1",
-          )}
-        >
-          <SidebarBrand collapsed={collapsed} />
-          {!collapsed ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onToggleCollapsed}
-              aria-label="Collapse sidebar"
-              aria-expanded={!collapsed}
-              className="size-8 text-muted-foreground hover:text-foreground"
-            >
-              <PanelLeftClose className="size-4" aria-hidden="true" />
-            </Button>
-          ) : null}
-        </div>
-
-        <Separator />
-
-        {collapsed ? (
+        {/* Collapse / Expand toggle */}
+        <div className={cn("mb-2", collapsed ? "flex justify-center" : "flex justify-end px-1")}>
           <Button
             variant="ghost"
             size="icon"
             onClick={onToggleCollapsed}
-            aria-label="Expand sidebar"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-expanded={!collapsed}
-            className="mt-2 self-center text-muted-foreground hover:text-foreground"
+            className="size-8 text-muted-foreground hover:text-foreground"
           >
-            <PanelLeftOpen className="size-4" aria-hidden="true" />
+            {collapsed ? (
+              <PanelLeftOpen className="size-4" aria-hidden="true" />
+            ) : (
+              <PanelLeftClose className="size-4" aria-hidden="true" />
+            )}
           </Button>
-        ) : null}
+        </div>
+
+        <div className="h-px bg-sidebar-border" />
 
         <div className="mt-2 flex min-h-0 flex-1 flex-col">
           <SidebarNav collapsed={collapsed} />
