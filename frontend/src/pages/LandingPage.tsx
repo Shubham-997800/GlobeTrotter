@@ -2,10 +2,12 @@ import { landingConfig } from "@/config/landing.config";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { StatsBar } from "@/components/landing/StatsBar";
+import { PartnerLogos } from "@/components/landing/PartnerLogos";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { ExploreDestinations } from "@/components/landing/ExploreDestinations";
 import { ProductShowcase } from "@/components/landing/ProductShowcase";
+import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { CommunityPreview } from "@/components/landing/CommunityPreview";
 import { CTASection } from "@/components/landing/CTASection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
@@ -23,6 +25,7 @@ export function LandingPage() {
     steps,
     discover,
     showcase,
+    testimonials,
     community,
     finalCTA,
     footer,
@@ -34,10 +37,12 @@ export function LandingPage() {
       <main className="flex-1">
         <HeroSection hero={hero} trustStats={trustStats} />
         <StatsBar />
+        <PartnerLogos />
         <FeaturesSection heading={featuresHeading} features={features} />
         <HowItWorksSection heading={howItWorksHeading} steps={steps} />
         <ExploreDestinations discover={discover} />
         <ProductShowcase showcase={showcase} />
+        <TestimonialsSection testimonials={testimonials} />
         <CommunityPreview community={community} />
         <CTASection cta={finalCTA} />
       </main>

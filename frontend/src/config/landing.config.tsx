@@ -249,6 +249,33 @@ export const landingConfig: LandingConfig = {
     ],
   },
 
+  testimonials: [
+    {
+      name: "Priya Sharma",
+      role: "Solo Traveler · 12 trips planned",
+      quote:
+        "GlobeTrotter turned my Japan trip from a 3-week spreadsheet nightmare into a 20-minute planning session. The budget tracker alone saved me ₹15,000.",
+      avatar: avatar("Priya Sharma", "e74c3c"),
+      rating: 5,
+    },
+    {
+      name: "Rohan & Ananya",
+      role: "Couple · Bali & Thailand trips",
+      quote:
+        "We used to fight over which restaurant to book. Now we just share the itinerary and both know exactly what's happening. Total game-changer for couples.",
+      avatar: avatar("Rohan Ananya", "3498db"),
+      rating: 5,
+    },
+    {
+      name: "Vikram Patel",
+      role: "Group Organizer · Europe 2025",
+      quote:
+        "Coordinating 8 people across 4 countries? I'd have lost my mind without GlobeTrotter. The shared calendar kept everyone on the same page.",
+      avatar: avatar("Vikram Patel", "2ecc71"),
+      rating: 5,
+    },
+  ],
+
   community: {
     heading: {
       badge: "Community",
@@ -306,10 +333,11 @@ export const landingConfig: LandingConfig = {
     description:
       "Stop planning across scattered tabs and spreadsheets — organize your entire journey in GlobeTrotter and get back to the part you love: traveling.",
     primaryCTA: { label: "Start Planning Your Trip", href: "/get-started" },
+    secondaryCTA: { label: "Explore Destinations", href: "/explore" },
     footnote: "Free to get started · No credit card required",
   },
 
-    footer: {
+  footer: {
     description:
       "The personalized travel-planning platform that helps you build, budget, visualize and share unforgettable journeys.",
     columns: [
@@ -320,14 +348,17 @@ export const landingConfig: LandingConfig = {
           { id: "explore", label: "Explore", href: "/explore" },
           { id: "trips", label: "Trips", href: "/trips" },
           { id: "calendar", label: "Calendar", href: "/calendar" },
+          { id: "community", label: "Community", href: "/community" },
         ],
       },
       {
         id: "company",
         title: "Company",
         links: [
-          { id: "community", label: "Community", href: "/community" },
+          { id: "about", label: "About Us", href: "/help" },
           { id: "help", label: "Help Center", href: "/help" },
+          { id: "blog", label: "Blog", href: "/help" },
+          { id: "careers", label: "Careers", href: "/help" },
         ],
       },
       {
@@ -336,6 +367,8 @@ export const landingConfig: LandingConfig = {
         links: [
           { id: "privacy", label: "Privacy Policy", href: "__privacy__" },
           { id: "terms", label: "Terms & Conditions", href: "__terms__" },
+          { id: "contact", label: "Contact Us", href: "/help" },
+          { id: "status", label: "System Status", href: "/help" },
         ],
       },
     ],

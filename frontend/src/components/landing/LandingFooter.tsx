@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Send } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Container } from "@/components/landing/Container";
 import { Logo } from "@/components/landing/Logo";
 import { LegalDialog } from "@/components/legal/LegalDialog";
@@ -28,6 +31,8 @@ export function LandingFooter({
   const year = new Date().getFullYear();
   const location = useLocation();
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
 
   const handleFooterLinkClick = (href: string) => {
     if (href === "__privacy__" || href === "__terms__") return;
@@ -45,10 +50,53 @@ export function LandingFooter({
     }
   };
 
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.trim()) {
+      setSubscribed(true);
+      setEmail("");
+    }
+  };
+
   return (
     <footer className="border-t border-border bg-card">
       <Container>
-        <div className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
+        {/* Newsletter banner */}
+        <div className="flex flex-col items-center gap-4 border-b border-border py-8 text-center sm:flex-row sm:justify-between sm:text-left">
+          <div>
+            <p className="text-sm font-semibold text-foreground">
+              Stay in the loop
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Get travel tips, new features and destination guides — no spam.
+            </p>
+          </div>
+          {subscribed ? (
+            <p className="text-sm font-medium text-success">
+              Thanks for subscribing!
+            </p>
+          ) : (
+            <form
+              onSubmit={(e) => handleNewsletterSubmit(e)}
+              className="flex w-full max-w-sm gap-2"
+            >
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@email.com"
+                required
+                className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+              <Button type="submit" size="sm">
+                <Send className="h-3.5 w-3.5" aria-hidden="true" />
+                Subscribe
+              </Button>
+            </form>
+          )}
+        </div>
+
+        <div className="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
           {/* Brand */}
           <div className="max-w-sm">
             <Link to="/" aria-label={`${appName} home`} className="inline-flex">
@@ -109,7 +157,7 @@ export function LandingFooter({
 
         <Separator />
 
-        <div className="flex flex-col items-center justify-between gap-3 py-6 text-center text-sm text-muted-foreground">
+        <div className="flex flex-col items-center justify-between gap-3 py-6 text-center text-sm text-muted-foreground sm:flex-row sm:text-left">
           <p>
             © {year} {appName}. All rights reserved.
           </p>

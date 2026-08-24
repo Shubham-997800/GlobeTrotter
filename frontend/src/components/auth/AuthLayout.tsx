@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Quote, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Logo } from "@/components/landing/Logo";
@@ -23,6 +23,13 @@ const HIGHLIGHTS = [
   },
 ];
 
+const BRAND_TESTIMONIAL = {
+  quote:
+    "GlobeTrotter saved me 20+ hours on my Japan trip. The budget tracker alone is worth it.",
+  name: "Priya Sharma",
+  trips: "12 trips planned",
+};
+
 const container = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
@@ -45,6 +52,18 @@ export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
 
   return (
     <div className="grid min-h-dvh bg-background lg:grid-cols-2">
+      {/* Mobile brand banner */}
+      <div className="flex items-center justify-center bg-gradient-to-br from-primary/[0.06] to-travel-blue/[0.04] px-6 py-6 lg:hidden">
+        <div className="text-center">
+          <p className="font-heading text-lg font-bold text-foreground">
+            {appName}
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Plan smarter. Travel better.
+          </p>
+        </div>
+      </div>
+
       {/* Brand panel — desktop only */}
       <aside
         className="relative hidden min-h-dvh overflow-hidden border-r border-border bg-cover bg-center bg-no-repeat lg:flex lg:flex-col lg:justify-between lg:p-10 xl:p-14"
@@ -54,7 +73,7 @@ export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
         }}
       >
         {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black/80" />
+        <div className="absolute inset-0 bg-black/55" />
         {/* Gradient accent */}
         <div
           aria-hidden="true"
@@ -99,6 +118,33 @@ export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
               </motion.li>
             ))}
           </motion.ul>
+
+          {/* Testimonial snippet */}
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="rounded-2xl border border-white/10 bg-white/[0.07] p-5 backdrop-blur-sm"
+          >
+            <div className="flex gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  className="h-3.5 w-3.5 fill-warning text-warning"
+                  aria-hidden="true"
+                />
+              ))}
+            </div>
+            <div className="mt-3 flex gap-2">
+              <Quote className="h-4 w-4 shrink-0 text-primary/60" aria-hidden="true" />
+              <p className="text-sm leading-relaxed text-white/80">
+                {BRAND_TESTIMONIAL.quote}
+              </p>
+            </div>
+            <p className="mt-3 text-xs text-white/60">
+              — {BRAND_TESTIMONIAL.name}, {BRAND_TESTIMONIAL.trips}
+            </p>
+          </motion.div>
         </div>
 
         <p className="relative z-10 text-xs text-white/50">

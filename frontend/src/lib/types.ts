@@ -137,6 +137,14 @@ export interface SectionHeading {
   description?: string;
 }
 
+export interface Testimonial {
+  name: string;
+  role: string;
+  quote: string;
+  avatar: string;
+  rating: number;
+}
+
 export interface LandingConfig {
   appName: string;
   tagline: string;
@@ -150,6 +158,7 @@ export interface LandingConfig {
   benefits: BenefitSectionContent;
   discover: DiscoverContent;
   showcase: ShowcaseContent;
+  testimonials: Testimonial[];
   community: CommunityContent;
   finalCTA: FinalCTA;
   footer: FooterContent;
