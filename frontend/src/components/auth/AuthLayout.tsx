@@ -96,6 +96,28 @@ export function AuthLayout({ children, wide = false }: AuthLayoutProps) {
           </motion.ul>
         </div>
 
+        {/* Travel visual */}
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+          animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="relative w-full max-w-md overflow-clip rounded-2xl border border-border shadow-lg shadow-black/5"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=800"
+            alt="Misty mountain valley bathed in golden sunlight"
+            className="h-48 w-full object-cover sm:h-56"
+            loading="lazy"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"
+          />
+          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-md">
+            🌍 Explore 120+ destinations
+          </span>
+        </motion.div>
+
         <p className="relative text-xs text-muted-foreground">
           © {new Date().getFullYear()} {appName}. All rights reserved.
         </p>
