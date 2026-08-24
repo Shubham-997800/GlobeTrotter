@@ -30,7 +30,7 @@ function QuickActionCard({ action }: { action: QuickActionDef }) {
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         emphasized
           ? "border-primary bg-primary text-white shadow-md hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-lg"
-          : "border-subtle-border bg-card hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg",
+          : "border-subtle-border bg-muted/60 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-muted hover:shadow-lg",
       )}
     >
       <span
@@ -44,11 +44,11 @@ function QuickActionCard({ action }: { action: QuickActionDef }) {
           aria-hidden="true"
         />
       </span>
-      <span className="text-sm font-semibold">{action.title}</span>
+      <span className="text-sm font-semibold text-foreground">{action.title}</span>
       <span
         className={cn(
           "mt-1 text-xs leading-relaxed",
-          emphasized ? "text-white/85" : "text-muted-foreground",
+          emphasized ? "text-white/85" : "text-secondary-text",
         )}
       >
         {action.description}
