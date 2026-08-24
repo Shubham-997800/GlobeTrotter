@@ -12,7 +12,6 @@ import {
 import {
   destinations,
   featuredSlides,
-  insights,
   notifications,
   quickActions,
   recentActivity,
@@ -120,6 +119,41 @@ export async function loadDashboard(): Promise<DashboardSnapshot> {
   const records = await tripsService.listTrips();
   const realTrips = records.map(recordToTrip);
   const myTrips = [...realTrips, ...demoTrips];
+
+  const completedCount = myTrips.filter((t) => t.status === "completed").length;
+  const ongoingCount = myTrips.filter((t) => t.status === "ongoing").length;
+  const upcomingCount = myTrips.filter((t) => t.status === "upcoming").length;
+
+  const insights: Insight[] = [
+    {
+      id: "i-1",
+      label: "Total Trips",
+      value: `${myTrips.length}`,
+      trend: `${completedCount} completed`,
+      trendDirection: "up",
+    },
+    {
+      id: "i-2",
+      label: "Ongoing",
+      value: `${ongoingCount}`,
+      trend: ongoingCount > 0 ? "Currently traveling" : "No active trips",
+      trendDirection: "up",
+    },
+    {
+      id: "i-3",
+      label: "Upcoming",
+      value: `${upcomingCount}`,
+      trend: upcomingCount > 0 ? "Ready to explore" : "Plan your next trip",
+      trendDirection: "up",
+    },
+    {
+      id: "i-4",
+      label: "Destinations",
+      value: `${new Set(myTrips.flatMap((t) => t.destinations)).size}`,
+      trend: "Unique cities",
+      trendDirection: "up",
+    },
+  ];
 
   return {
     featuredSlides,

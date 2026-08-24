@@ -1,6 +1,4 @@
 import { Bell, Check } from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,19 +9,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { AppNotification } from "../dashboard.types";
+import { Link } from "react-router-dom";
+import {
+  useNotifications,
+  useMarkNotificationRead,
+  useMarkAllNotificationsRead,
+} from "@/features/notifications/useNotifications";
 import { cn } from "@/lib/utils";
 
-interface NotificationMenuProps {
-  items: AppNotification[];
-}
-
 /** Bell trigger + unread dot + popover with mark-as-read. */
-export function NotificationMenu({ items }: NotificationMenuProps) {
-  const [readIds, setReadIds] = useState<Set<string>>(new Set());
-  const unreadCount = items.filter((n) => n.unread && !readIds.has(n.id)).length;
+export function NotificationMenu() {
+  const { data: notifications = [], isLoading } = useNotifications();
+  const markRead = useMarkNotificationRead();
+  const markAllRead = useMarkAllNotificationsRead();
 
-  const markAllRead = () => setReadIds(new Set(items.map((n) => n.id)));
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <DropdownMenu>
@@ -54,49 +54,57 @@ export function NotificationMenu({ items }: NotificationMenuProps) {
           <DropdownMenuLabel className="p-0">Notifications</DropdownMenuLabel>
           {unreadCount > 0 ? (
             <button
-              onClick={markAllRead}
-              className="flex items-center gap-1 rounded-sm text-xs font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              onClick={() => markAllRead.mutate()}
+              disabled={markAllRead.isPending}
+              className="flex items-center gap-1 rounded-sm text-xs font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
             >
               <Check className="h-3 w-3" aria-hidden="true" />
-              Mark all read
+              {markAllRead.isPending ? "Marking…" : "Mark all read"}
             </button>
           ) : null}
         </div>
         <DropdownMenuSeparator />
-        {items.length === 0 ? (
+        {isLoading ? (
+          <p className="px-3 py-6 text-center text-sm text-muted-foreground">
+            Loading notifications…
+          </p>
+        ) : notifications.length === 0 ? (
           <p className="px-3 py-6 text-center text-sm text-muted-foreground">
             You&apos;re all caught up.
           </p>
         ) : (
-          items.map((n) => {
-            const isUnread = n.unread && !readIds.has(n.id);
-            return (
-              <DropdownMenuItem
-                key={n.id}
-                onSelect={() => setReadIds((prev) => new Set(prev).add(n.id))}
-                className="items-start gap-2.5 py-2.5"
-              >
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "mt-1.5 h-2 w-2 shrink-0 rounded-full",
-                    isUnread ? "bg-primary" : "bg-transparent",
-                  )}
-                />
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium text-foreground">
-                    {n.title}
-                  </span>
-                  <span className="block truncate text-xs text-muted-foreground">
-                    {n.description}
-                  </span>
-                  <span className="mt-0.5 block text-[11px] text-disabled-text">
-                    {n.timestamp}
-                  </span>
+          notifications.slice(0, 8).map((n) => (
+            <DropdownMenuItem
+              key={n.id}
+              onSelect={() => {
+                if (!n.read) markRead.mutate(n.id);
+              }}
+              className="items-start gap-2.5 py-2.5"
+            >
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "mt-1.5 h-2 w-2 shrink-0 rounded-full",
+                  !n.read ? "bg-primary" : "bg-transparent",
+                )}
+              />
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-medium text-foreground">
+                  {n.title}
                 </span>
-              </DropdownMenuItem>
-            );
-          })
+                <span className="block truncate text-xs text-muted-foreground">
+                  {n.description}
+                </span>
+                <span className="mt-0.5 block text-[11px] text-disabled-text">
+                  {new Date(n.timestamp).toLocaleDateString("en-US", {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
+                </span>
+              </span>
+            </DropdownMenuItem>
+          ))
         )}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>

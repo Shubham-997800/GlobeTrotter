@@ -40,8 +40,7 @@ export function AppDashboardPage() {
 
   return (
     <AppShell
-      crumbs={[{ label: "Home", to: "/dashboard" }, { label: "Dashboard" }]}
-      notifications={data?.notifications ?? []}
+      crumbs={[{ label: "Dashboard" }]}
     >
       <div className="space-y-10">
         {isLoading ? (

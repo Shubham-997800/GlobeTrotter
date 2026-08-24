@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { SafeImg } from "@/components/ui/safe-img";
 import { formatInr } from "@/features/dashboard/dashboard.data";
 import type { Trip } from "@/features/dashboard/dashboard.types";
 import { EmptyState } from "@/features/dashboard/components/States";
@@ -57,12 +58,12 @@ function BudgetMeter({
 function OngoingTripCard({ trip }: { trip: Trip }) {
   return (
     <article className="group relative min-h-[19rem] overflow-hidden rounded-2xl text-white shadow-md">
-      <img
-        src={trip.image}
-        alt={trip.imageAlt}
-        loading="lazy"
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-      />
+      <SafeImg
+          src={trip.image}
+          alt={trip.imageAlt}
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+        />
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/15"
@@ -138,12 +139,12 @@ function OngoingTripCard({ trip }: { trip: Trip }) {
 function UpcomingTripCard({ trip }: { trip: Trip }) {
   return (
     <article className="group flex items-center gap-4 rounded-2xl border border-subtle-border bg-card p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-      <img
-        src={trip.image}
-        alt={trip.imageAlt}
-        loading="lazy"
-        className="size-16 shrink-0 rounded-xl object-cover sm:size-20"
-      />
+      <SafeImg
+          src={trip.image}
+          alt={trip.imageAlt}
+          loading="lazy"
+          className="size-16 shrink-0 rounded-xl object-cover sm:size-20"
+        />
       <div className="min-w-0 flex-1">
         <h3 className="truncate text-sm font-semibold text-foreground">
           {trip.name}

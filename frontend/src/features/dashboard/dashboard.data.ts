@@ -207,7 +207,7 @@ export function getSearchItems(): SearchItem[] {
       group: "Destinations",
       label: `${d.city}, ${d.country}`,
       sublabel: d.description,
-      href: "/explore",
+      href: `/explore/destinations/${d.id}`,
     })),
     ...trips.map<SearchItem>((t) => ({
       id: `trip-${t.id}`,

@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronRight, LogOut, Menu, Settings, UserRound } from "lucide-react";
+import { ChevronRight, LogOut, Menu, Search, Settings, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +32,6 @@ import {
 import { NotificationMenu } from "@/features/dashboard/components/NotificationMenu";
 import { GlobalSearch } from "@/features/dashboard/components/GlobalSearch";
 import { OfflineBanner } from "@/components/OfflineBanner";
-import type { AppNotification } from "@/features/dashboard/dashboard.types";
 import { useAuth } from "@/features/auth/useAuth";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +47,6 @@ interface AppShellProps {
   title?: string;
   description?: string;
   actions?: React.ReactNode;
-  notifications?: AppNotification[];
   children: React.ReactNode;
 }
 
@@ -67,7 +70,6 @@ export function AppShell({
   title,
   description,
   actions,
-  notifications = [],
   children,
 }: AppShellProps) {
   const { user, logout } = useAuth();
@@ -98,9 +100,17 @@ export function AppShell({
 
   return (
     <div className="min-h-dvh bg-background">
+      {/* Skip navigation — keyboard users land here */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
+
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 border-b border-subtle-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-        <div className="flex h-14 items-center gap-2 px-4 sm:px-6">
+        <div className="flex h-14 items-center gap-2 px-4 pt-[env(safe-area-inset-top)] sm:px-6">
           {/* Mobile nav */}
           <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
             <SheetTrigger asChild>
@@ -134,6 +144,25 @@ export function AppShell({
               </nav>
             </SheetContent>
           </Sheet>
+
+          {/* Mobile search — opens full-screen search dialog */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                aria-label="Search destinations, trips and activities"
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-lg p-6">
+              <div className="mt-4">
+                <GlobalSearch />
+              </div>
+            </DialogContent>
+          </Dialog>
 
           {/* Breadcrumbs */}
           <nav aria-label="Breadcrumb" className="min-w-0 shrink-0">
@@ -169,7 +198,7 @@ export function AppShell({
           </div>
 
           <div className={cn("ml-auto flex items-center gap-1", "md:ml-0")}>
-            <NotificationMenu items={notifications} />
+            <NotificationMenu />
             <ThemeToggle />
 
             {/* User menu */}
@@ -233,7 +262,7 @@ export function AppShell({
         />
 
         {/* ── Page content ──────────────────────────────────────── */}
-        <main className="min-w-0 flex-1">
+        <main id="main-content" className="min-w-0 flex-1">
           <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
             {title || actions ? (
               <div className="mb-6 flex flex-wrap items-end justify-between gap-3">

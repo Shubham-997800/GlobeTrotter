@@ -77,10 +77,11 @@ function NavLinkRow({
         cn(
           "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "active:scale-[0.98]",
           collapsed && "justify-center px-0",
           isActive
-            ? "bg-primary/10 text-primary"
-            : "text-muted-foreground hover:bg-hover hover:text-foreground",
+            ? "border-l-2 border-primary bg-sidebar-active text-sidebar-active-text font-semibold"
+            : "border-l-2 border-transparent text-sidebar-text hover:bg-sidebar-hover hover:text-foreground",
         )
       }
     >
@@ -122,16 +123,16 @@ export function SidebarNav({
         <>
           <div
             aria-hidden="true"
-            className="mx-1 my-2 border-t border-subtle-border"
+            className="mx-1 my-2 border-t border-sidebar-border"
           />
-          <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-secondary-text">
+          <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-sidebar-text">
             Account
           </p>
         </>
       ) : (
         <div
           aria-hidden="true"
-          className="mx-2 my-2 border-t border-subtle-border"
+          className="mx-2 my-2 border-t border-sidebar-border"
         />
       )}
 
@@ -193,7 +194,7 @@ export function DesktopSidebar({
       <aside
         data-collapsed={collapsed}
         className={cn(
-          "sticky top-14 hidden h-[calc(100dvh-3.5rem)] shrink-0 flex-col border-r border-subtle-border bg-card p-3 transition-[width] duration-200 ease-in-out lg:flex",
+          "sticky top-14 hidden h-[calc(100dvh-3.5rem)] shrink-0 flex-col border-r border-sidebar-border bg-sidebar p-3 transition-[width] duration-200 ease-in-out lg:flex",
           collapsed ? "w-[68px]" : "w-64",
         )}
       >

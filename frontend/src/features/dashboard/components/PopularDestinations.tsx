@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Bookmark, Star } from "lucide-react";
 
+import { SafeImg } from "@/components/ui/safe-img";
 import type { Destination } from "@/features/dashboard/dashboard.types";
 import { cn } from "@/lib/utils";
 
@@ -94,7 +95,7 @@ export function PopularDestinations({
             <li key={destination.id} className="list-none">
               <article className="group relative h-full overflow-hidden rounded-2xl border border-subtle-border bg-card transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
                 <div className="relative aspect-[4/3] overflow-hidden">
-                  <img
+                  <SafeImg
                     src={destination.image}
                     alt={destination.imageAlt}
                     loading="lazy"
