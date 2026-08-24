@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Globe, LogOut, Menu, Search, Settings, UserRound } from "lucide-react";
 
@@ -35,7 +34,6 @@ interface NavbarProps {
 export function Navbar({ drawerOpen, onDrawerOpenChange }: NavbarProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const navbarRef = useRef<HTMLElement>(null);
   const initials = (user?.name ?? user?.email ?? "U")
     .split(/\s+/)
     .map((part) => part[0])
@@ -45,25 +43,20 @@ export function Navbar({ drawerOpen, onDrawerOpenChange }: NavbarProps) {
 
   const closeDrawer = () => onDrawerOpenChange(false);
 
-  // Lock navbar width on mount to prevent ANY layout shift from portals/dropdowns.
-  useEffect(() => {
-    const el = navbarRef.current;
-    if (!el) return;
-    const w = el.getBoundingClientRect().width;
-    el.style.width = `${w}px`;
-    return () => {
-      el.style.width = "";
-    };
-  }, []);
-
   return (
-    <header
-      ref={navbarRef}
-      className="sticky top-0 z-40 border-b border-border/60 bg-background/80"
-    >
-      <div className="flex h-14 items-center gap-3 px-4 pt-[env(safe-area-inset-top)] sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+      {/*
+        3-zone flex layout:
+        Zone 1 — shrink-0: hamburger + brand (never shrinks)
+        Zone 2 — min-w-0 flex-1: search bar (takes all remaining space)
+        Zone 3 — shrink-0: actions (never shrinks)
 
-        {/* ── Zone 1: Hamburger + Brand ── */}
+        shift-proof: every zone is isolated. Dropdown portals render outside
+        this tree, so flex never recalculates.
+      */}
+      <div className="mx-auto flex h-14 max-w-screen-2xl items-center gap-2 px-4 pt-[env(safe-area-inset-top)] sm:gap-3 sm:px-6">
+
+        {/* ── Zone 1: Hamburger + Brand ─────────────────── */}
         <Sheet open={drawerOpen} onOpenChange={onDrawerOpenChange}>
           <SheetTrigger asChild>
             <Button
@@ -108,14 +101,14 @@ export function Navbar({ drawerOpen, onDrawerOpenChange }: NavbarProps) {
           </span>
         </Link>
 
-        {/* ── Zone 2: Search — takes remaining space ── */}
+        {/* ── Zone 2: Search — takes remaining space ────── */}
         <div className="hidden min-w-0 flex-1 justify-center md:flex">
           <GlobalSearch />
         </div>
 
-        {/* ── Zone 3: Actions ── */}
-        <div className="flex shrink-0 items-center gap-1">
-          {/* Mobile search */}
+        {/* ── Zone 3: Actions — never shrinks ───────────── */}
+        <div className="flex shrink-0 items-center gap-0.5">
+          {/* Mobile search trigger */}
           <Dialog>
             <DialogTrigger asChild>
               <Button

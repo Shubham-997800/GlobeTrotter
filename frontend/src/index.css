@@ -292,8 +292,10 @@
   }
   html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
-    scrollbar-gutter: stable;
+    /* !important needed to beat Radix RemoveScroll inline overflow:hidden */
+    overflow-x: hidden !important;
+    overflow-y: scroll !important;
+    scrollbar-gutter: stable both-edges;
   }
   body {
     background-color: var(--color-background);
@@ -301,7 +303,7 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    overflow-x: hidden;
+    overflow-x: hidden !important;
   }
 }
 
@@ -329,7 +331,11 @@
   }
 }
 
-/* When Radix locks body scroll (Dialog/Sheet), body ko lock karo lekin html ka scrollbar rahega */
+/* When Radix locks body scroll (Dialog/Sheet), html ka overflow bhi preserve karo */
+html[data-scroll-locked] {
+  overflow-y: scroll !important;
+  scrollbar-gutter: stable both-edges !important;
+}
 body[data-scroll-locked] {
   overflow: hidden !important;
 }
