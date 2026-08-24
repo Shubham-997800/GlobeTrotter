@@ -145,17 +145,19 @@ function ActivityVisual() {
   );
 }
 
+const CURRENCY = "₹";
+
 function BudgetVisual() {
   return (
     <div className="flex h-full flex-col justify-center gap-3 p-3">
       <div className="grid grid-cols-2 gap-3">
         <div>
           <p className="text-[10px] text-muted-foreground">Estimated</p>
-          <p className="text-sm font-bold text-foreground">₹45,000</p>
+          <p className="text-sm font-bold text-foreground">{CURRENCY}45,000</p>
         </div>
         <div>
           <p className="text-[10px] text-muted-foreground">Spent</p>
-          <p className="text-sm font-bold text-foreground">₹28,500</p>
+          <p className="text-sm font-bold text-foreground">{CURRENCY}28,500</p>
         </div>
       </div>
       <div>
@@ -231,7 +233,7 @@ export function FeatureCard({ feature, className }: FeatureCardProps) {
   return (
     <article
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-strong-border hover:shadow-md",
+        "group relative flex h-full flex-col overflow-clip rounded-xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-strong-border hover:shadow-md",
         className,
       )}
     >
@@ -250,7 +252,7 @@ export function FeatureCard({ feature, className }: FeatureCardProps) {
         {feature.description}
       </p>
 
-      <div className="mt-5 h-28 rounded-xl border border-border bg-muted/40 transition-colors duration-300 group-hover:bg-accent/50">
+      <div className="mt-5 h-32 rounded-xl border border-border bg-muted/40 transition-colors duration-300 group-hover:bg-accent/50">
         <Visual />
       </div>
     </article>

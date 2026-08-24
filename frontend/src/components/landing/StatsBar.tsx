@@ -44,7 +44,7 @@ export function StatsBar() {
     >
       <Container>
         <Reveal>
-          <div className="grid grid-cols-2 divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-sm md:grid-cols-4 md:divide-x">
+          <div className="grid grid-cols-2 divide-border overflow-clip rounded-2xl border border-border bg-card shadow-sm md:grid-cols-4 md:divide-x">
             {STATS.map((stat) => (
               <StatItem key={stat.label} stat={stat} />
             ))}

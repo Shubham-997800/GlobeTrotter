@@ -16,6 +16,8 @@ import {
 
 import { cn } from "@/lib/utils";
 
+const CURRENCY = "₹";
+
 const fadeUp = {
   hidden: { opacity: 0, y: 8 },
   visible: { opacity: 1, y: 0 },
@@ -76,7 +78,7 @@ export function DashboardPreview({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-2xl border border-border bg-card shadow-xl shadow-black/5 dark:shadow-black/30",
+        "overflow-clip rounded-2xl border border-border bg-card shadow-xl shadow-black/5 dark:shadow-black/30",
         className,
       )}
     >
@@ -151,7 +153,7 @@ export function DashboardPreview({ className }: { className?: string }) {
             variants={stagger}
           >
             {[
-              { label: "Budget", value: "₹45,000" },
+              { label: "Budget", value: `${CURRENCY}45,000` },
               { label: "Days", value: "9" },
               { label: "Cities", value: "3" },
               { label: "Activities", value: "12" },
@@ -216,8 +218,8 @@ export function DashboardPreview({ className }: { className?: string }) {
             <div className="rounded-xl border border-border bg-background p-3 lg:col-span-2">
               <p className="mb-3 text-xs font-semibold">Budget summary</p>
               <div className="flex items-end justify-between">
-                <p className="text-lg font-bold">₹28,500</p>
-                <p className="text-[11px] text-muted-foreground">of ₹45,000</p>
+                <p className="text-lg font-bold">{CURRENCY}28,500</p>
+                <p className="text-[11px] text-muted-foreground">of {CURRENCY}45,000</p>
               </div>
               <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
                 <motion.div
@@ -229,13 +231,13 @@ export function DashboardPreview({ className }: { className?: string }) {
               </div>
               <div className="mt-2 flex justify-between text-[11px]">
                 <span className="text-success">Spent</span>
-                <span className="text-muted-foreground">₹16,500 remaining</span>
+                <span className="text-muted-foreground">{CURRENCY}16,500 remaining</span>
               </div>
               <div className="mt-3 space-y-1.5 border-t border-border pt-3">
                 {[
-                  { label: "Flights", value: "₹9,200" },
-                  { label: "Stays", value: "₹11,400" },
-                  { label: "Food", value: "₹3,900" },
+                  { label: "Flights", value: `${CURRENCY}9,200` },
+                  { label: "Stays", value: `${CURRENCY}11,400` },
+                  { label: "Food", value: `${CURRENCY}3,900` },
                 ].map((c) => (
                   <div
                     key={c.label}

@@ -61,7 +61,7 @@ export function CTASection({ cta }: CTASectionProps) {
     <section id="cta" className="py-20 sm:py-28" aria-label="Get started">
       <Container>
         <Reveal>
-          <div className="relative overflow-hidden rounded-3xl border border-border bg-card px-6 py-16 text-center shadow-sm sm:px-16 sm:py-20">
+          <div className="relative overflow-clip rounded-3xl border border-border bg-card px-6 py-16 text-center shadow-sm sm:px-16 sm:py-20">
             {/* Decorative background: subtle map grid + travel route */}
             <div
               aria-hidden="true"

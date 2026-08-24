@@ -15,6 +15,8 @@ import type { HeroContent, TrustStat } from "@/lib/types";
 const HERO_IMG =
   "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=1600";
 
+const CURRENCY = "₹";
+
 const container = {
   hidden: {},
   visible: {
@@ -38,7 +40,7 @@ export function HeroSection({ hero, trustStats }: HeroSectionProps) {
   return (
     <section
       id="home"
-      className="relative overflow-hidden pt-28 pb-16 sm:pt-36 sm:pb-24"
+      className="relative overflow-clip pt-28 pb-16 sm:pt-36 sm:pb-24"
       aria-label="Introduction"
     >
       {/* Decorative background */}
@@ -183,7 +185,7 @@ export function HeroSection({ hero, trustStats }: HeroSectionProps) {
 
                 {/* Mini itinerary UI (bottom) */}
                 <div className="absolute inset-x-3 bottom-3">
-                  <div className="rounded-2xl border border-white/15 bg-white/85 p-3.5 shadow-lg backdrop-blur-md dark:bg-[#101914]/85">
+                  <div className="rounded-2xl border border-white/15 bg-white/85 p-3.5 shadow-lg backdrop-blur-md dark:bg-card/85">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <MapPin
@@ -233,7 +235,7 @@ export function HeroSection({ hero, trustStats }: HeroSectionProps) {
                   </span>
                 </div>
                 <p className="mt-1.5 text-lg font-bold text-foreground">
-                  ₹45,000
+                  {CURRENCY}45,000
                   <span className="ml-1 text-xs font-normal text-muted-foreground">
                     total
                   </span>
@@ -245,7 +247,7 @@ export function HeroSection({ hero, trustStats }: HeroSectionProps) {
                   />
                 </div>
                 <p className="mt-2 text-[11px] text-muted-foreground">
-                  ₹28,500 spent · on track
+                  {CURRENCY}28,500 spent · on track
                 </p>
               </motion.div>
 

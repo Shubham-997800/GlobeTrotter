@@ -30,7 +30,10 @@ export function LandingFooter({
   const navigate = useNavigate();
 
   const handleFooterLinkClick = (href: string) => {
-    if (href.startsWith("#")) {
+    if (href === "__privacy__" || href === "__terms__") return;
+    if (href.startsWith("/")) {
+      navigate(href);
+    } else if (href.startsWith("#")) {
       const sectionId = href.slice(1);
       if (location.pathname === "/") {
         scrollToSection(sectionId);
@@ -54,23 +57,6 @@ export function LandingFooter({
             <p className="text-pretty mt-4 text-sm leading-relaxed text-muted-foreground">
               {footer.description}
             </p>
-
-            <div className="mt-5 flex items-center gap-2">
-              {footer.socials.map((social) => {
-                const Icon = social.icon;
-                return (
-                  <a
-                    key={social.name}
-                    href={social.href}
-                    aria-label={social.name}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-strong-border hover:bg-hover hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <Icon className="h-4.5 w-4.5" aria-hidden="true" />
-                    <span className="sr-only">{social.name}</span>
-                  </a>
-                );
-              })}
-            </div>
           </div>
 
           {/* Link columns */}
@@ -85,15 +71,35 @@ export function LandingFooter({
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link.id}>
-                    <button
-                      onClick={() => handleFooterLinkClick(link.href)}
-                      className={cn(
-                        "text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary",
-                        "text-left w-full",
-                      )}
-                    >
-                      {link.label}
-                    </button>
+                    {link.href === "__privacy__" ? (
+                      <LegalDialog
+                        type="privacy"
+                        trigger={
+                          <button className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary text-left w-full">
+                            {link.label}
+                          </button>
+                        }
+                      />
+                    ) : link.href === "__terms__" ? (
+                      <LegalDialog
+                        type="terms"
+                        trigger={
+                          <button className="text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary text-left w-full">
+                            {link.label}
+                          </button>
+                        }
+                      />
+                    ) : (
+                      <button
+                        onClick={() => handleFooterLinkClick(link.href)}
+                        className={cn(
+                          "text-sm text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary",
+                          "text-left w-full",
+                        )}
+                      >
+                        {link.label}
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -107,24 +113,6 @@ export function LandingFooter({
           <p>
             © {year} {appName}. All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
-            <LegalDialog
-              type="privacy"
-              trigger={
-                <button className="text-xs text-muted-foreground transition-colors hover:text-foreground">
-                  Privacy Policy
-                </button>
-              }
-            />
-            <LegalDialog
-              type="terms"
-              trigger={
-                <button className="text-xs text-muted-foreground transition-colors hover:text-foreground">
-                  Terms & Conditions
-                </button>
-              }
-            />
-          </div>
           <span className="flex items-center gap-1">
             <span aria-hidden="true">🌍</span>
             <span>{footer.madeWithTagline ?? "Made for Travelers"}</span>

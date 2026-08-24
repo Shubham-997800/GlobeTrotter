@@ -11,12 +11,6 @@ import {
   Plane,
 } from "lucide-react";
 
-import {
-  InstagramIcon,
-  TwitterIcon,
-  YoutubeIcon,
-  LinkedinIcon,
-} from "@/components/icons/brand-icons";
 import type { LandingConfig } from "@/lib/types";
 
 const img = (id: string) =>
@@ -157,45 +151,6 @@ export const landingConfig: LandingConfig = {
       points: ["Track Your Journey", "Manage Your Budget"],
     },
   ],
-  benefits: {
-    badge: "Why GlobeTrotter",
-    title: "Travel planning without the chaos",
-    description:
-      "One calm workspace for itineraries, activities and budgets — so you spend less time organizing and more time exploring.",
-    items: [
-      {
-        icon: CalendarDays,
-        title: "Day-wise clarity",
-        description:
-          "See exactly what happens on every day of your trip with a clean, visual timeline.",
-      },
-      {
-        icon: Wallet,
-        title: "Budget in control",
-        description:
-          "Set a budget up front and watch every expense update your totals in real time.",
-      },
-      {
-        icon: Users,
-        title: "Made for groups",
-        description:
-          "Share plans with friends and family so everyone always knows the plan.",
-      },
-      {
-        icon: Sparkles,
-        title: "Discover as you go",
-        description:
-          "Find activities and hidden gems near each stop and drop them straight into your days.",
-      },
-    ],
-    stats: [
-      { value: "10K+", label: "Trips planned" },
-      { value: "120+", label: "Destinations covered" },
-      { value: "3x", label: "Faster planning" },
-      { value: "4.9/5", label: "Traveler rating" },
-    ],
-  },
-
   discover: {
     heading: {
       badge: "Explore Destinations",
@@ -255,7 +210,7 @@ export const landingConfig: LandingConfig = {
         id: "dubai",
         country: "UAE",
         city: "Dubai",
-        description: "Feather skylines, desert thrills and futuristic nightscapes.",
+        description: "Dazzling skylines, desert thrills and futuristic nightscapes.",
         rating: 4.7,
         category: "adventure",
         image: img("photo-1512453979798-5ea266f8880c"),
@@ -362,36 +317,27 @@ export const landingConfig: LandingConfig = {
         id: "product",
         title: "Product",
         links: [
-          { id: "explore", label: "Explore", href: "#explore" },
-          { id: "trips", label: "Trips", href: "#trips" },
-          { id: "itinerary", label: "Itinerary", href: "#itinerary" },
-          { id: "calendar", label: "Calendar", href: "#calendar" },
+          { id: "explore", label: "Explore", href: "/explore" },
+          { id: "trips", label: "Trips", href: "/trips" },
+          { id: "calendar", label: "Calendar", href: "/calendar" },
         ],
       },
       {
         id: "company",
         title: "Company",
         links: [
-          { id: "about", label: "About", href: "#about" },
-          { id: "community", label: "Community", href: "#community" },
-          { id: "contact", label: "Contact", href: "#contact" },
+          { id: "community", label: "Community", href: "/community" },
+          { id: "help", label: "Help Center", href: "/help" },
         ],
       },
       {
         id: "support",
         title: "Support",
         links: [
-          { id: "help", label: "Help Center", href: "#help" },
-          { id: "privacy", label: "Privacy Policy", href: "#privacy" },
-          { id: "terms", label: "Terms", href: "#terms" },
+          { id: "privacy", label: "Privacy Policy", href: "__privacy__" },
+          { id: "terms", label: "Terms & Conditions", href: "__terms__" },
         ],
       },
-    ],
-    socials: [
-      { name: "Instagram", href: "#", icon: InstagramIcon },
-      { name: "X (Twitter)", href: "#", icon: TwitterIcon },
-      { name: "YouTube", href: "#", icon: YoutubeIcon },
-      { name: "LinkedIn", href: "#", icon: LinkedinIcon },
     ],
     madeWithTagline: "Made for Travelers 🌍",
   },
