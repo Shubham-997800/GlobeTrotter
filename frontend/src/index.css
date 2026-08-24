@@ -1,4 +1,6 @@
 @import url("@fontsource-variable/inter");
+@import url("@fontsource-variable/plus-jakarta-sans");
+@import url("@fontsource-variable/dm-sans");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -187,8 +189,9 @@
 }
 
 @theme inline {
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif,
+  --font-sans: "DM Sans Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-heading: "Plus Jakarta Sans Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
 
   --color-background: var(--background);
   --color-main: var(--main);
@@ -289,6 +292,7 @@
   }
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
   body {
     background-color: var(--color-background);

@@ -20,7 +20,7 @@ export function SectionHeading({
       )}
     >
       <Badge variant="soft">{heading.badge}</Badge>
-      <h2 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+      <h2 className="font-heading text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
         {heading.title}
       </h2>
       {heading.description ? (

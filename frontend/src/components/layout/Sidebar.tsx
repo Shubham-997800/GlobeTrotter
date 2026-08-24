@@ -11,6 +11,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   PlusCircle,
+  Route,
   Settings,
   Shield,
   UserRound,

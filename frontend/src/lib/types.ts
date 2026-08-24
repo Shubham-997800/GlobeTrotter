@@ -1,7 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import type { ComponentType, ReactNode, SVGProps } from "react";
-
-export type BrandIcon = ComponentType<SVGProps<SVGSVGElement>>;
+import type { ReactNode } from "react";
 
 export interface NavLink {
   id: string;
@@ -78,11 +76,6 @@ export interface FooterColumn {
 export interface FooterContent {
   description: string;
   columns: FooterLinkGroup[];
-  socials: {
-    name: string;
-    href: string;
-    icon: BrandIcon;
-  }[];
   madeWithTagline?: string;
 }
 
@@ -144,6 +137,14 @@ export interface SectionHeading {
   description?: string;
 }
 
+export interface Testimonial {
+  name: string;
+  role: string;
+  quote: string;
+  avatar: string;
+  rating: number;
+}
+
 export interface LandingConfig {
   appName: string;
   tagline: string;
@@ -157,6 +158,7 @@ export interface LandingConfig {
   benefits: BenefitSectionContent;
   discover: DiscoverContent;
   showcase: ShowcaseContent;
+  testimonials: Testimonial[];
   community: CommunityContent;
   finalCTA: FinalCTA;
   footer: FooterContent;

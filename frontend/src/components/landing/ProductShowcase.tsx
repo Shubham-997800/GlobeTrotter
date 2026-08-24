@@ -14,7 +14,7 @@ import { DashboardPreview } from "@/components/landing/DashboardPreview";
 import { Reveal } from "@/components/landing/Reveal";
 import type { ShowcaseContent } from "@/lib/types";
 
-const MAX_TILT_PX = 8;
+const MAX_TILT_PX = 4;
 
 /**
  * Desktop-only pointer parallax: the preview drifts a few px toward the
@@ -68,14 +68,14 @@ function ParallaxPreview() {
 
 export function ProductShowcase({ showcase }: { showcase: ShowcaseContent }) {
   return (
-    <section id="showcase" className="scroll-mt-24 py-20 sm:py-28">
+    <section id="showcase" className="scroll-mt-24 overflow-clip py-20 sm:py-28">
       <Container>
         <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-16">
           {/* Left: copy */}
           <div>
             <Reveal>
               <Badge variant="soft">{showcase.badge}</Badge>
-              <h2 className="text-balance mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+              <h2 className="font-heading text-balance mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
                 {showcase.title}
               </h2>
               <p className="text-pretty mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
@@ -101,7 +101,7 @@ export function ProductShowcase({ showcase }: { showcase: ShowcaseContent }) {
 
           {/* Right: product preview */}
           <Reveal className="lg:justify-self-end" delay={0.15}>
-            <div className="group relative w-full max-w-2xl">
+            <div className="group relative w-full max-w-2xl py-4">
               <div
                 aria-hidden="true"
                 className="absolute -inset-x-6 -top-8 -bottom-8 -z-10 rounded-[2rem] bg-gradient-to-br from-primary/[0.08] via-travel-blue/[0.06] to-transparent blur-2xl"

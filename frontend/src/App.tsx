@@ -1,14 +1,14 @@
 import { Suspense, lazy } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import { AuthProvider } from "@/features/auth/AuthContext";
 import { GuestRoute } from "@/features/auth/GuestRoute";
 import { ProtectedRoute } from "@/features/auth/ProtectedRoute";
 import { AppSectionPlaceholder } from "@/pages/AppSectionPlaceholder";
+import { PageTransition } from "@/components/PageTransition";
 
 // Route-level code splitting — each screen ships in its own chunk so the
 // first paint (landing page) never pays for the whole app.
@@ -60,13 +60,13 @@ const CalendarPage = lazy(() =>
   })),
 );
 const ProfilePage = lazy(() =>
-  import("@/pages/ProfilePage").then((m) => ({ default: m.ProfilePage })),
+  import("@/pages/profile/ProfilePage").then((m) => ({ default: m.ProfilePage })),
 );
 const SettingsPage = lazy(() =>
-  import("@/pages/SettingsPage").then((m) => ({ default: m.SettingsPage })),
+  import("@/pages/settings/SettingsPage").then((m) => ({ default: m.SettingsPage })),
 );
 const NotificationsPage = lazy(() =>
-  import("@/pages/NotificationsPage").then((m) => ({
+  import("@/pages/notifications/NotificationsPage").then((m) => ({
     default: m.NotificationsPage,
   })),
 );
@@ -126,8 +126,6 @@ function RouteFallback() {
   );
 }
 
-const queryClient = new QueryClient();
-
 function AppToaster() {
   const { resolvedTheme } = useTheme();
   return (
@@ -142,9 +140,7 @@ function AppToaster() {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <BrowserRouter>
           <Suspense fallback={<RouteFallback />}>
             <Routes>
             {/* Public */}
@@ -194,7 +190,7 @@ export default function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <AppDashboardPage />
+                  <PageTransition><AppDashboardPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -205,7 +201,7 @@ export default function App() {
               path="/community"
               element={
                 <ProtectedRoute>
-                  <CommunityPage />
+                  <PageTransition><CommunityPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -214,7 +210,7 @@ export default function App() {
               path="/calendar"
               element={
                 <ProtectedRoute>
-                  <CalendarPage />
+                  <PageTransition><CalendarPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -223,7 +219,7 @@ export default function App() {
               path="/profile"
               element={
                 <ProtectedRoute>
-                  <ProfilePage />
+                  <PageTransition><ProfilePage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -232,7 +228,7 @@ export default function App() {
               path="/settings"
               element={
                 <ProtectedRoute>
-                  <SettingsPage />
+                  <PageTransition><SettingsPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -241,7 +237,7 @@ export default function App() {
               path="/notifications"
               element={
                 <ProtectedRoute>
-                  <NotificationsPage />
+                  <PageTransition><NotificationsPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -250,7 +246,7 @@ export default function App() {
               path="/saved"
               element={
                 <ProtectedRoute>
-                  <SavedPage />
+                  <PageTransition><SavedPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -259,7 +255,7 @@ export default function App() {
               path="/help"
               element={
                 <ProtectedRoute>
-                  <HelpSupportPage />
+                  <PageTransition><HelpSupportPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -269,7 +265,7 @@ export default function App() {
               path="/trips"
               element={
                 <ProtectedRoute>
-                  <MyTripsPage />
+                  <PageTransition><MyTripsPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -277,7 +273,7 @@ export default function App() {
               path="/trips/create"
               element={
                 <ProtectedRoute>
-                  <CreateTripPage />
+                  <PageTransition><CreateTripPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -333,7 +329,7 @@ export default function App() {
               path="/explore"
               element={
                 <ProtectedRoute>
-                  <ExplorePage />
+                  <PageTransition><ExplorePage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -341,7 +337,7 @@ export default function App() {
               path="/explore/destinations/:destinationId"
               element={
                 <ProtectedRoute>
-                  <DestinationDetailsPage />
+                  <PageTransition><DestinationDetailsPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -378,8 +374,6 @@ export default function App() {
             </Routes>
           </Suspense>
           <AppToaster />
-        </BrowserRouter>
       </AuthProvider>
-    </QueryClientProvider>
   );
 }

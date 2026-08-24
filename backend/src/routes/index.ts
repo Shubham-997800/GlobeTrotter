@@ -6,6 +6,8 @@ import { itineraryRouter } from "./itinerary.routes.js";
 import { catalogRouter } from "./catalog.routes.js";
 import { dashboardRouter } from "./dashboard.routes.js";
 import { exploreRouter } from "./explore.routes.js";
+import { notificationsRouter } from "./notifications.routes.js";
+import { settingsRouter } from "./settings.routes.js";
 import { env } from "../config/env.js";
 
 export const apiRouter = Router();
@@ -25,3 +27,5 @@ apiRouter.use("/trips", tripsRouter, itineraryRouter);
 apiRouter.use("/", catalogRouter);
 apiRouter.use("/", dashboardRouter);
 apiRouter.use("/explore", exploreRouter);
+apiRouter.use("/notifications", notificationsRouter);
+apiRouter.use("/", settingsRouter);

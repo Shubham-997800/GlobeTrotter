@@ -57,19 +57,9 @@ import {
   tripDuration,
   formatMoney,
 } from "@/features/trips/trips.utils";
+import { currencySymbol } from "@/features/trips/trips.data";
 
 /* ── Helpers ─────────────────────────────────────────────────── */
-
-function currencySymbol(code: string): string {
-  const map: Record<string, string> = {
-    INR: "₹",
-    USD: "$",
-    EUR: "€",
-    GBP: "£",
-    JPY: "¥",
-  };
-  return map[code] ?? code;
-}
 
 function getTripStatus(trip: TripRecord, now = new Date()): TripBadgeStatus {
   if (trip.status === "draft") return "draft";
@@ -103,6 +93,7 @@ function TripHero({
           <img
             src={trip.coverImage}
             alt={trip.name}
+            loading="eager"
             className="h-full w-full object-cover"
           />
         ) : (
@@ -242,7 +233,7 @@ function OverviewTab({
         <StatCard label="Activities" value={String(activities.length)} icon={<Sparkles className="h-4 w-4" />} />
         <StatCard
           label="Est. Activity Cost"
-          value={`₹${totalCost.toLocaleString()}`}
+          value={formatMoney(totalCost, trip.currency)}
           icon={<Wallet className="h-4 w-4" />}
         />
       </div>
@@ -413,6 +404,7 @@ function ActivitiesTab({
                 <img
                   src={activity.image}
                   alt={activity.name}
+                  loading="lazy"
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -441,7 +433,7 @@ function ActivitiesTab({
               </p>
             </div>
             <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
-              ₹{activity.estimatedCostInr.toLocaleString()}
+              {formatMoney(activity.estimatedCostInr, trip.currency)}
             </span>
           </Card>
         );
@@ -539,7 +531,7 @@ function BudgetTab({
                   {cat}
                 </span>
                 <span className="text-sm font-medium text-foreground">
-                  ₹{amount.toLocaleString()}
+                   {formatMoney(amount, trip.currency)}
                 </span>
               </div>
             ))

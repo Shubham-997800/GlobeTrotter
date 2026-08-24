@@ -1,7 +1,6 @@
-"use client";
-
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, LogIn, ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -24,6 +23,13 @@ interface LandingNavbarProps {
   className?: string;
 }
 
+function scrollToSection(sectionId: string) {
+  const element = document.getElementById(sectionId);
+  if (element) {
+    element.scrollIntoView({ behavior: "smooth" });
+  }
+}
+
 export function LandingNavbar({
   appName,
   navLinks,
@@ -31,6 +37,8 @@ export function LandingNavbar({
 }: LandingNavbarProps) {
   const [scrolled, setScrolled] = React.useState(false);
   const [active, setActive] = React.useState<string>(navLinks[0]?.id ?? "");
+  const location = useLocation();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -60,6 +68,17 @@ export function LandingNavbar({
     return () => observer.disconnect();
   }, [navLinks]);
 
+  const handleNavClick = (href: string) => {
+    if (href.startsWith("#")) {
+      const sectionId = href.slice(1);
+      if (location.pathname === "/") {
+        scrollToSection(sectionId);
+      } else {
+        navigate(`/${href}`);
+      }
+    }
+  };
+
   return (
     <header
       className={cn(
@@ -70,6 +89,13 @@ export function LandingNavbar({
         className,
       )}
     >
+      {/* Skip navigation */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-2 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
       <Container>
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
@@ -91,16 +117,26 @@ export function LandingNavbar({
               return (
                 <a
                   key={link.id}
-                  href={link.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavClick(link.href);
+                  }}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "relative rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
                     isActive
-                      ? "bg-active-nav text-primary"
-                      : "text-secondary-text hover:bg-hover hover:text-foreground",
+                      ? "text-primary"
+                      : "text-secondary-text hover:text-foreground",
                   )}
                 >
-                  {link.label}
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-active"
+                      className="absolute inset-0 rounded-md bg-active-nav"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10">{link.label}</span>
                 </a>
               );
             })}
@@ -146,15 +182,27 @@ export function LandingNavbar({
                 </SheetHeader>
 
                 <div className="flex flex-col gap-1 p-4">
-                  {navLinks.map((link) => (
-                    <a
-                      key={link.id}
-                      href={link.href}
-                      className="rounded-lg px-3 py-3 text-base font-medium text-secondary-text transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      {link.label}
-                    </a>
-                  ))}
+                  {navLinks.map((link) => {
+                    const isActive = active === link.id;
+                    return (
+                      <a
+                        key={link.id}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleNavClick(link.href);
+                        }}
+                        aria-current={isActive ? "page" : undefined}
+                        className={cn(
+                          "rounded-lg px-3 py-3 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
+                          isActive
+                            ? "bg-active-nav text-primary"
+                            : "text-secondary-text hover:bg-hover hover:text-foreground",
+                        )}
+                      >
+                        {link.label}
+                      </a>
+                    );
+                  })}
                 </div>
 
                 <div className="mt-auto space-y-2 border-t border-border p-6">

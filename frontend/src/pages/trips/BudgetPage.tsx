@@ -9,17 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ErrorState } from "@/features/dashboard/components/States";
 import { useItinerary, useTrip } from "@/features/trips/useItinerary";
-
-function currencySymbol(code: string): string {
-  const map: Record<string, string> = {
-    INR: "₹",
-    USD: "$",
-    EUR: "€",
-    GBP: "£",
-    JPY: "¥",
-  };
-  return map[code] ?? code;
-}
+import { currencySymbol } from "@/features/trips/trips.data";
 
 export function BudgetPage() {
   const { tripId } = useParams<{ tripId: string }>();

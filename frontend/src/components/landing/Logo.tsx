@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { Globe } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -19,17 +20,19 @@ export function Logo({
 }: LogoProps) {
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
-      <span
+      <motion.span
         className={cn(
           "flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-travel-blue text-primary-foreground shadow-sm",
           iconClassName,
         )}
+        whileHover={{ rotate: 360 }}
+        transition={{ duration: 0.6, ease: "easeInOut" }}
       >
         <Globe className="h-4.5 w-4.5" aria-hidden="true" />
-      </span>
+      </motion.span>
       <span className="flex flex-col items-start leading-tight">
         <span
-          className={cn("text-base font-semibold tracking-tight", textClassName)}
+          className={cn("font-heading text-base font-semibold tracking-tight", textClassName)}
         >
           {name}
         </span>

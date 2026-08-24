@@ -9,6 +9,7 @@ import { AuthError } from "@/components/auth/AuthError";
 import { FieldError } from "@/components/auth/FormField";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { SubmitButton } from "@/components/auth/SubmitButton";
+import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -51,7 +52,6 @@ export function LoginForm() {
     defaultValues: { identifier: "", password: "", remember: true },
   });
 
-  // oxlint-disable-next-line react/incompatible-library -- RHF watch() intentionally returns a fresh function per render.
   const remember = watch("remember");
 
   const onSubmit = async (values: LoginValues) => {
@@ -105,6 +105,17 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+      {/* Social login */}
+      <SocialLoginButtons disabled={status !== "idle"} />
+
+      <div className="flex items-center gap-3" aria-hidden="true">
+        <Separator className="flex-1" />
+        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          or sign in with email
+        </span>
+        <Separator className="flex-1" />
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="identifier">Email or username</Label>
         <div className="relative">
@@ -177,7 +188,6 @@ export function LoginForm() {
         labels={{ submitting: "Signing in…", success: "Signed in!" }}
       />
 
-      {/* One-click demo access */}
       <div className="flex items-center gap-3" aria-hidden="true">
         <Separator className="flex-1" />
         <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -198,12 +208,12 @@ export function LoginForm() {
       </Button>
 
       <p className="rounded-lg border border-dashed border-border bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
-        Demo account —{" "}
+        Demo —{" "}
         <span className="font-medium text-secondary-text">
-          demo@globetrotter.app
+          {DEMO_CREDENTIALS.identifier}
         </span>{" "}
         ·{" "}
-        <span className="font-medium text-secondary-text">Demo@1234</span>
+        <span className="font-medium text-secondary-text">{DEMO_CREDENTIALS.password}</span>
       </p>
     </form>
   );

@@ -20,6 +20,24 @@ interface TravelBannerProps {
   slides: FeaturedSlide[];
 }
 
+function ProgressBar({ active, paused }: { active: boolean; paused: boolean }) {
+  return (
+    <div className="absolute inset-x-0 top-0 z-10 h-1 overflow-hidden">
+      <motion.div
+        className="h-full bg-primary/60"
+        initial={false}
+        animate={active && !paused ? { width: "100%" } : { width: "0%" }}
+        transition={
+          active && !paused
+            ? { duration: AUTOPLAY_MS / 1000, ease: "linear" }
+            : { duration: 0 }
+        }
+        key={active ? "run" : "reset"}
+      />
+    </div>
+  );
+}
+
 export function TravelBanner({ slides }: TravelBannerProps) {
   const prefersReducedMotion = useReducedMotion();
   const [index, setIndex] = useState(0);
@@ -66,6 +84,7 @@ export function TravelBanner({ slides }: TravelBannerProps) {
       onBlurCapture={() => setPaused(false)}
     >
       <div className="relative h-72 overflow-hidden rounded-3xl sm:h-80 lg:h-[26rem]">
+        <ProgressBar active={!paused && !prefersReducedMotion && count >= 2} paused={paused} />
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={slide.id}

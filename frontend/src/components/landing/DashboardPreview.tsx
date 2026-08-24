@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   Luggage,
@@ -14,6 +15,17 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+
+const CURRENCY = "₹";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 8 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const stagger = {
+  visible: { transition: { staggerChildren: 0.06 } },
+};
 
 const sidebarItems: {
   icon: typeof LayoutDashboard;
@@ -66,7 +78,7 @@ export function DashboardPreview({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-2xl border border-border bg-card shadow-xl shadow-black/5 dark:shadow-black/30",
+        "overflow-clip rounded-2xl border border-border bg-card shadow-xl shadow-black/5 dark:shadow-black/30",
         className,
       )}
     >
@@ -134,15 +146,21 @@ export function DashboardPreview({ className }: { className?: string }) {
           </div>
 
           {/* KPI cards */}
-          <div className="mb-4 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+          <motion.div
+            className="mb-4 grid grid-cols-2 gap-2.5 lg:grid-cols-4"
+            initial="hidden"
+            animate="visible"
+            variants={stagger}
+          >
             {[
-              { label: "Budget", value: "₹45,000" },
+              { label: "Budget", value: `${CURRENCY}45,000` },
               { label: "Days", value: "9" },
               { label: "Cities", value: "3" },
               { label: "Activities", value: "12" },
             ].map((kpi) => (
-              <div
+              <motion.div
                 key={kpi.label}
+                variants={fadeUp}
                 className="rounded-xl border border-border bg-background p-3"
               >
                 <p className="truncate text-[11px] text-muted-foreground">
@@ -151,19 +169,24 @@ export function DashboardPreview({ className }: { className?: string }) {
                 <p className="mt-1 text-lg font-semibold tracking-tight">
                   {kpi.value}
                 </p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Activities + budget summary */}
           <div className="grid gap-3 lg:grid-cols-5">
-            <div className="rounded-xl border border-border bg-background p-3 lg:col-span-3">
+              <div className="rounded-xl border border-border bg-background p-3 lg:col-span-3">
               <p className="mb-3 text-xs font-semibold">Upcoming activities</p>
-              <ul className="space-y-2.5">
+              <motion.ul
+                className="space-y-2.5"
+                initial="hidden"
+                animate="visible"
+                variants={stagger}
+              >
                 {activities.map((row) => {
                   const RowIcon = TYPE_ICONS[row.type];
                   return (
-                    <li key={row.label} className="flex items-center gap-2.5">
+                    <motion.li key={row.label} variants={fadeUp} className="flex items-center gap-2.5">
                       <span
                         className={cn(
                           "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
@@ -186,33 +209,35 @@ export function DashboardPreview({ className }: { className?: string }) {
                           row.dot,
                         )}
                       />
-                    </li>
+                    </motion.li>
                   );
                 })}
-              </ul>
+              </motion.ul>
             </div>
 
             <div className="rounded-xl border border-border bg-background p-3 lg:col-span-2">
               <p className="mb-3 text-xs font-semibold">Budget summary</p>
               <div className="flex items-end justify-between">
-                <p className="text-lg font-bold">₹28,500</p>
-                <p className="text-[11px] text-muted-foreground">of ₹45,000</p>
+                <p className="text-lg font-bold">{CURRENCY}28,500</p>
+                <p className="text-[11px] text-muted-foreground">of {CURRENCY}45,000</p>
               </div>
               <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
-                <div
+                <motion.div
                   className="h-full rounded-full bg-gradient-to-r from-warning to-primary"
-                  style={{ width: "63%" }}
+                  initial={{ width: 0 }}
+                  animate={{ width: "63%" }}
+                  transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
                 />
               </div>
               <div className="mt-2 flex justify-between text-[11px]">
                 <span className="text-success">Spent</span>
-                <span className="text-muted-foreground">₹16,500 remaining</span>
+                <span className="text-muted-foreground">{CURRENCY}16,500 remaining</span>
               </div>
               <div className="mt-3 space-y-1.5 border-t border-border pt-3">
                 {[
-                  { label: "Flights", value: "₹9,200" },
-                  { label: "Stays", value: "₹11,400" },
-                  { label: "Food", value: "₹3,900" },
+                  { label: "Flights", value: `${CURRENCY}9,200` },
+                  { label: "Stays", value: `${CURRENCY}11,400` },
+                  { label: "Food", value: `${CURRENCY}3,900` },
                 ].map((c) => (
                   <div
                     key={c.label}

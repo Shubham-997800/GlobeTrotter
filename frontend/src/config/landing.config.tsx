@@ -11,12 +11,6 @@ import {
   Plane,
 } from "lucide-react";
 
-import {
-  InstagramIcon,
-  TwitterIcon,
-  YoutubeIcon,
-  LinkedinIcon,
-} from "@/components/icons/brand-icons";
 import type { LandingConfig } from "@/lib/types";
 
 const img = (id: string) =>
@@ -38,8 +32,9 @@ export const landingConfig: LandingConfig = {
 
   navLinks: [
     { id: "home", label: "Home", href: "#home" },
-    { id: "explore", label: "Explore", href: "#explore" },
+    { id: "features", label: "Features", href: "#features" },
     { id: "how-it-works", label: "How It Works", href: "#how-it-works" },
+    { id: "explore", label: "Explore", href: "#explore" },
     { id: "community", label: "Community", href: "#community" },
   ],
 
@@ -60,9 +55,9 @@ export const landingConfig: LandingConfig = {
   },
 
   trustStats: [
-    { icon: Users, value: "10K+", label: "Travelers" },
-    { icon: Luggage, value: "2.5K+", label: "Trips Planned" },
-    { icon: MapPin, value: "120+", label: "Destinations" },
+    { icon: Users, value: "500+", label: "Travelers" },
+    { icon: Luggage, value: "200+", label: "Trips Planned" },
+    { icon: MapPin, value: "50+", label: "Destinations" },
   ],
 
   featuresHeading: {
@@ -156,45 +151,6 @@ export const landingConfig: LandingConfig = {
       points: ["Track Your Journey", "Manage Your Budget"],
     },
   ],
-  benefits: {
-    badge: "Why GlobeTrotter",
-    title: "Travel planning without the chaos",
-    description:
-      "One calm workspace for itineraries, activities and budgets — so you spend less time organizing and more time exploring.",
-    items: [
-      {
-        icon: CalendarDays,
-        title: "Day-wise clarity",
-        description:
-          "See exactly what happens on every day of your trip with a clean, visual timeline.",
-      },
-      {
-        icon: Wallet,
-        title: "Budget in control",
-        description:
-          "Set a budget up front and watch every expense update your totals in real time.",
-      },
-      {
-        icon: Users,
-        title: "Made for groups",
-        description:
-          "Share plans with friends and family so everyone always knows the plan.",
-      },
-      {
-        icon: Sparkles,
-        title: "Discover as you go",
-        description:
-          "Find activities and hidden gems near each stop and drop them straight into your days.",
-      },
-    ],
-    stats: [
-      { value: "10K+", label: "Trips planned" },
-      { value: "120+", label: "Destinations covered" },
-      { value: "3x", label: "Faster planning" },
-      { value: "4.9/5", label: "Traveler rating" },
-    ],
-  },
-
   discover: {
     heading: {
       badge: "Explore Destinations",
@@ -254,7 +210,7 @@ export const landingConfig: LandingConfig = {
         id: "dubai",
         country: "UAE",
         city: "Dubai",
-        description: "Feather skylines, desert thrills and futuristic nightscapes.",
+        description: "Dazzling skylines, desert thrills and futuristic nightscapes.",
         rating: 4.7,
         category: "adventure",
         image: img("photo-1512453979798-5ea266f8880c"),
@@ -292,6 +248,33 @@ export const landingConfig: LandingConfig = {
       "Manage Expenses",
     ],
   },
+
+  testimonials: [
+    {
+      name: "Early Tester",
+      role: "Solo Traveler · Beta Program",
+      quote:
+        "The budget tracker helped me stay on top of expenses during a multi-city trip. No more spreadsheets.",
+      avatar: avatar("Early Tester", "e74c3c"),
+      rating: 5,
+    },
+    {
+      name: "Beta User",
+      role: "Couple · Weekend Trips",
+      quote:
+        "We shared the itinerary and both knew exactly what was happening each day. Made planning together much easier.",
+      avatar: avatar("Beta User", "3498db"),
+      rating: 5,
+    },
+    {
+      name: "Alpha Tester",
+      role: "Group Organizer · Europe Trip",
+      quote:
+        "Coordinating multiple people across cities was seamless. The shared calendar kept everyone aligned.",
+      avatar: avatar("Alpha Tester", "2ecc71"),
+      rating: 5,
+    },
+  ],
 
   community: {
     heading: {
@@ -350,10 +333,11 @@ export const landingConfig: LandingConfig = {
     description:
       "Stop planning across scattered tabs and spreadsheets — organize your entire journey in GlobeTrotter and get back to the part you love: traveling.",
     primaryCTA: { label: "Start Planning Your Trip", href: "/get-started" },
+    secondaryCTA: { label: "Explore Destinations", href: "/explore" },
     footnote: "Free to get started · No credit card required",
   },
 
-    footer: {
+  footer: {
     description:
       "The personalized travel-planning platform that helps you build, budget, visualize and share unforgettable journeys.",
     columns: [
@@ -361,36 +345,32 @@ export const landingConfig: LandingConfig = {
         id: "product",
         title: "Product",
         links: [
-          { id: "explore", label: "Explore", href: "#explore" },
-          { id: "trips", label: "Trips", href: "#trips" },
-          { id: "itinerary", label: "Itinerary", href: "#itinerary" },
-          { id: "calendar", label: "Calendar", href: "#calendar" },
+          { id: "explore", label: "Explore", href: "/explore" },
+          { id: "trips", label: "Trips", href: "/trips" },
+          { id: "calendar", label: "Calendar", href: "/calendar" },
+          { id: "community", label: "Community", href: "/community" },
         ],
       },
       {
         id: "company",
         title: "Company",
         links: [
-          { id: "about", label: "About", href: "#about" },
-          { id: "community", label: "Community", href: "#community" },
-          { id: "contact", label: "Contact", href: "#contact" },
+          { id: "about", label: "About Us", href: "/help" },
+          { id: "help", label: "Help Center", href: "/help" },
+          { id: "blog", label: "Blog", href: "/help" },
+          { id: "careers", label: "Careers", href: "/help" },
         ],
       },
       {
         id: "support",
         title: "Support",
         links: [
-          { id: "help", label: "Help Center", href: "#help" },
-          { id: "privacy", label: "Privacy Policy", href: "#privacy" },
-          { id: "terms", label: "Terms", href: "#terms" },
+          { id: "privacy", label: "Privacy Policy", href: "__privacy__" },
+          { id: "terms", label: "Terms & Conditions", href: "__terms__" },
+          { id: "contact", label: "Contact Us", href: "/help" },
+          { id: "status", label: "System Status", href: "/help" },
         ],
       },
-    ],
-    socials: [
-      { name: "Instagram", href: "#", icon: InstagramIcon },
-      { name: "X (Twitter)", href: "#", icon: TwitterIcon },
-      { name: "YouTube", href: "#", icon: YoutubeIcon },
-      { name: "LinkedIn", href: "#", icon: LinkedinIcon },
     ],
     madeWithTagline: "Made for Travelers 🌍",
   },

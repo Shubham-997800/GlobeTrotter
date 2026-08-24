@@ -31,13 +31,13 @@ function PlanningVisual() {
           <div className="flex flex-col items-center gap-1">
             <span
               className={cn(
-                "flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold",
+                "flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300",
                 i === 1
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-travel-blue/15 text-travel-blue",
+                  ? "bg-primary text-primary-foreground group-hover:scale-110"
+                  : "bg-travel-blue/15 text-travel-blue group-hover:bg-travel-blue/25",
               )}
             >
-              {i + 1}
+              {city.id === "osaka" ? <MapPin className="h-3 w-3" /> : i + 1}
             </span>
             <span className="text-[9px] font-medium text-muted-foreground">
               {city.label}
@@ -46,7 +46,7 @@ function PlanningVisual() {
           {i < 2 ? (
             <span
               aria-hidden="true"
-              className="h-px flex-1 border-t-2 border-dashed border-travel-blue/40"
+              className="h-px flex-1 border-t-2 border-dashed border-travel-blue/40 transition-all duration-500 group-hover:border-travel-blue/70"
             />
           ) : null}
         </div>
@@ -145,17 +145,19 @@ function ActivityVisual() {
   );
 }
 
+const CURRENCY = "₹";
+
 function BudgetVisual() {
   return (
     <div className="flex h-full flex-col justify-center gap-3 p-3">
       <div className="grid grid-cols-2 gap-3">
         <div>
           <p className="text-[10px] text-muted-foreground">Estimated</p>
-          <p className="text-sm font-bold text-foreground">₹45,000</p>
+          <p className="text-sm font-bold text-foreground">{CURRENCY}45,000</p>
         </div>
         <div>
           <p className="text-[10px] text-muted-foreground">Spent</p>
-          <p className="text-sm font-bold text-foreground">₹28,500</p>
+          <p className="text-sm font-bold text-foreground">{CURRENCY}28,500</p>
         </div>
       </div>
       <div>
@@ -165,7 +167,7 @@ function BudgetVisual() {
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-warning to-primary"
+            className="h-full rounded-full bg-gradient-to-r from-warning to-primary transition-all duration-700 ease-out group-hover:shadow-[0_0_8px_rgba(217,119,6,0.4)]"
             style={{ width: "63%" }}
           />
         </div>
@@ -197,12 +199,12 @@ function CalendarVisual() {
             <span
               key={d}
               className={cn(
-                "flex h-5 w-full items-center justify-center rounded text-[10px]",
+                "flex h-5 w-full items-center justify-center rounded text-[10px] transition-all duration-200",
                 today
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-primary text-primary-foreground group-hover:scale-110 group-hover:shadow-sm"
                   : busy
-                    ? "bg-travel-blue text-travel-blue-foreground"
-                    : "text-secondary-text",
+                    ? "bg-travel-blue text-travel-blue-foreground group-hover:bg-travel-blue/80"
+                    : "text-secondary-text group-hover:text-foreground",
               )}
             >
               {d}
@@ -231,7 +233,7 @@ export function FeatureCard({ feature, className }: FeatureCardProps) {
   return (
     <article
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-strong-border hover:shadow-md",
+        "group relative flex h-full flex-col overflow-clip rounded-xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-strong-border hover:shadow-md",
         className,
       )}
     >
@@ -250,7 +252,7 @@ export function FeatureCard({ feature, className }: FeatureCardProps) {
         {feature.description}
       </p>
 
-      <div className="mt-5 h-28 rounded-xl border border-border bg-muted/40 transition-colors duration-300 group-hover:bg-accent/50">
+      <div className="mt-5 h-32 rounded-xl border border-border bg-muted/40 transition-colors duration-300 group-hover:bg-accent/50">
         <Visual />
       </div>
     </article>

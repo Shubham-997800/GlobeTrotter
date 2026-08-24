@@ -1,5 +1,7 @@
+import { Link } from "react-router-dom";
 import { Heart, MessageCircle, MapPin } from "lucide-react";
 
+import { SafeImg } from "@/components/ui/safe-img";
 import type { TravelStory } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -12,17 +14,17 @@ export function TravelStoryCard({ story, className }: TravelStoryCardProps) {
   return (
     <article
       className={cn(
-        "group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md",
+        "group flex h-full flex-col overflow-clip rounded-2xl border border-border bg-card shadow-sm transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1.5 hover:shadow-xl hover:shadow-black/10",
         className,
       )}
     >
       {/* Post image */}
       <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-        <img
+        <SafeImg
           src={story.image}
           alt={story.alt}
           loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-110"
         />
         <div
           aria-hidden="true"
@@ -37,7 +39,7 @@ export function TravelStoryCard({ story, className }: TravelStoryCardProps) {
       {/* Body */}
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-center gap-3">
-          <img
+          <SafeImg
             src={story.avatar}
             alt={`${story.username} avatar`}
             loading="lazy"
@@ -66,7 +68,9 @@ export function TravelStoryCard({ story, className }: TravelStoryCardProps) {
             <MessageCircle className="h-4 w-4" aria-hidden="true" />
             {story.comments}
           </span>
-          <span className="ml-auto text-xs font-medium text-primary">View</span>
+          <span className="ml-auto text-xs font-medium text-primary">
+            <Link to="/community" className="transition-colors hover:text-primary-hover">View</Link>
+          </span>
         </div>
       </div>
     </article>
