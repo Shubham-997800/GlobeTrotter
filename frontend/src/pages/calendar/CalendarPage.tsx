@@ -703,7 +703,7 @@ export function CalendarPage() {
             />
           ) : isLoading ? (
             <div className="animate-pulse rounded-2xl border bg-card p-4">
-              <div className="grid grid-cols-7 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
                 {Array.from({ length: 28 }).map((_, index) => (
                   <div key={index} className="h-20 rounded-lg bg-muted" />
                 ))}

@@ -40,67 +40,72 @@ export function WeekGrid({
   onCreateAt: (date: string, startMinutes?: number) => void;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border bg-card" aria-label="Week view">
-      {/* Day headers */}
-      <div className="grid grid-cols-[48px_repeat(7,minmax(0,1fr))] border-b border-subtle-border bg-muted/50">
-        <div />
-        {days.map((day) => (
-          <DayHeader
-            key={day}
-            day={day}
-            isToday={day === todayKeyValue}
-            selected={day === selectedKey}
-            onSelect={onSelectDay}
-          />
-        ))}
+    <div className="rounded-2xl border bg-card" aria-label="Week view">
+      <div className="overflow-x-auto">
+        <div className="grid grid-cols-[48px_repeat(7,minmax(0,1fr))] border-b border-subtle-border bg-muted/50 min-w-max" style={{ minWidth: "504px" }}>
+          <div />
+          {days.map((day) => (
+            <DayHeader
+              key={day}
+              day={day}
+              isToday={day === todayKeyValue}
+              selected={day === selectedKey}
+              onSelect={onSelectDay}
+            />
+          ))}
+        </div>
       </div>
 
       {/* All-day trip strip */}
-      <div className="grid grid-cols-[48px_repeat(7,minmax(0,1fr))] gap-px border-b border-subtle-border bg-subtle-border">
-        <div className="flex items-center justify-center bg-muted/30 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-          All day
+      <div className="overflow-x-auto">
+        <div className="grid grid-cols-[48px_repeat(7,minmax(0,1fr))] gap-px border-b border-subtle-border bg-subtle-border min-w-max" style={{ minWidth: "504px" }}>
+          <div className="flex items-center justify-center bg-muted/30 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            All day
+          </div>
+          {days.map((day) => {
+            const trips = (eventsByDate.get(day) ?? []).filter(
+              (event) => event.type === "trip",
+            );
+            return (
+              <div key={day} className="min-h-8 space-y-1 bg-card p-1">
+                {trips.map((trip) => (
+                  <StaticEventChip key={trip.id} event={{ ...trip, startTime: undefined }} />
+                ))}
+              </div>
+            );
+          })}
         </div>
-        {days.map((day) => {
-          const trips = (eventsByDate.get(day) ?? []).filter(
-            (event) => event.type === "trip",
-          );
-          return (
-            <div key={day} className="min-h-8 space-y-1 bg-card p-1">
-              {trips.map((trip) => (
-                <StaticEventChip key={trip.id} event={{ ...trip, startTime: undefined }} />
-              ))}
-            </div>
-          );
-        })}
       </div>
 
       {/* Time grid */}
-      <div className="grid grid-cols-[48px_repeat(7,minmax(0,1fr))]">
-        {/* Gutter */}
-        <div className="border-r border-subtle-border" aria-hidden="true">
-          {HOURS.map((hour) => (
-            <div
+      <div className="overflow-x-auto">
+        <div className="grid grid-cols-[48px_repeat(7,minmax(0,1fr))] min-w-max" style={{ minWidth: "504px" }}>
+          {/* Gutter */}
+          <div className="border-r border-subtle-border" aria-hidden="true">
+            {HOURS.map((hour) => (
+<div
               key={hour}
               style={{ height: HOUR_HEIGHT_PX }}
               className="-translate-y-1.5 pr-1 text-right text-[10px] tabular-nums text-muted-foreground"
             >
-              {String(hour).padStart(2, "0")}:00
-            </div>
+                {String(hour).padStart(2, "0")}:00
+              </div>
+            ))}
+          </div>
+
+          {days.map((day) => (
+            <WeekDayColumn
+              key={day}
+              day={day}
+              events={(eventsByDate.get(day) ?? []).filter(
+                (event) => event.type !== "trip",
+              )}
+              showNowLine={day === todayKeyValue}
+              onEventClick={onEventClick}
+              onCreateAt={onCreateAt}
+            />
           ))}
         </div>
-
-        {days.map((day) => (
-          <WeekDayColumn
-            key={day}
-            day={day}
-            events={(eventsByDate.get(day) ?? []).filter(
-              (event) => event.type !== "trip",
-            )}
-            showNowLine={day === todayKeyValue}
-            onEventClick={onEventClick}
-            onCreateAt={onCreateAt}
-          />
-        ))}
       </div>
     </div>
   );

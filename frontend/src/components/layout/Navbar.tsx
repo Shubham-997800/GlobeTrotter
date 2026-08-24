@@ -54,7 +54,7 @@ export function Navbar({ drawerOpen, onDrawerOpenChange }: NavbarProps) {
         shift-proof: every zone is isolated. Dropdown portals render outside
         this tree, so flex never recalculates.
       */}
-      <div className="mx-auto flex h-14 max-w-screen-2xl items-center gap-2 px-4 pt-[env(safe-area-inset-top)] sm:gap-3 sm:px-6">
+      <div className="mx-auto flex h-14 max-w-screen-2xl items-center gap-2 px-4 pt-[env(safe-area-inset-top)] sm:gap-3 sm:px-6 lg:px-8">
 
         {/* ── Zone 1: Hamburger + Brand ─────────────────── */}
         <Sheet open={drawerOpen} onOpenChange={onDrawerOpenChange}>

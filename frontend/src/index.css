@@ -292,7 +292,6 @@
   }
   html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
   }
   body {
     background-color: var(--color-background);
@@ -300,7 +299,6 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    overflow-x: hidden !important;
   }
 }
 
@@ -332,7 +330,7 @@
 #main-content {
   scrollbar-gutter: stable both-edges;
   scroll-behavior: auto;
-  max-width: 1600px;
+  max-width: 1536px;
   margin-inline: auto;
 }
 

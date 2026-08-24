@@ -32,7 +32,7 @@ export function MonthGrid({
   onEventClick: (event: CalendarEvent) => void;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border bg-card" role="grid" aria-label="Month view">
+    <div className="rounded-2xl border bg-card" role="grid" aria-label="Month view">
       <div className="grid grid-cols-7 border-b border-subtle-border bg-muted/50">
         {shortWeekdayLabels().map((label) => (
           <div
@@ -43,19 +43,21 @@ export function MonthGrid({
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-px bg-subtle-border">
-        {matrix.map((cell) => (
-          <MonthDayCell
-            key={cell.key}
-            cell={cell}
-            events={eventsByDate.get(cell.key) ?? []}
-            selected={cell.key === selectedKey}
-            isToday={cell.key === todayKeyValue}
-            onSelect={onSelectDay}
-            onCreate={onCreateAt}
-            onEventClick={onEventClick}
-          />
-        ))}
+      <div className="overflow-x-auto">
+        <div className="grid grid-cols-7 gap-px bg-subtle-border min-w-max" style={{ minWidth: "504px" }}>
+          {matrix.map((cell) => (
+            <MonthDayCell
+              key={cell.key}
+              cell={cell}
+              events={eventsByDate.get(cell.key) ?? []}
+              selected={cell.key === selectedKey}
+              isToday={cell.key === todayKeyValue}
+              onSelect={onSelectDay}
+              onCreate={onCreateAt}
+              onEventClick={onEventClick}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

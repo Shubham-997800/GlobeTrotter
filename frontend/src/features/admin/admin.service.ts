@@ -4,13 +4,11 @@ const api = axios.create({ baseURL: "/api" });
 
 api.interceptors.request.use((config) => {
   try {
-    const raw = localStorage.getItem("globetrotter.auth");
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      const token = parsed?.state?.token;
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    const token =
+      localStorage.getItem("globetrotter.auth.token") ??
+      sessionStorage.getItem("globetrotter.auth.token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
   } catch {
     // Best-effort
@@ -20,12 +18,10 @@ api.interceptors.request.use((config) => {
 
 function authHeaders(): Record<string, string> {
   try {
-    const raw = localStorage.getItem("globetrotter.auth");
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      const token = parsed?.state?.token;
-      if (token) return { Authorization: `Bearer ${token}` };
-    }
+    const token =
+      localStorage.getItem("globetrotter.auth.token") ??
+      sessionStorage.getItem("globetrotter.auth.token");
+    if (token) return { Authorization: `Bearer ${token}` };
   } catch {
     // Best-effort
   }
