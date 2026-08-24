@@ -60,7 +60,7 @@ export function AppShell({
 
       <OfflineBanner />
 
-      <div className="flex">
+      <div className="flex min-h-[calc(100dvh-3.5rem)]">
         {/* Desktop sidebar */}
         <DesktopSidebar
           collapsed={sidebarCollapsed}

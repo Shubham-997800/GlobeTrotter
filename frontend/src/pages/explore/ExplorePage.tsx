@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
+import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { DestinationSearch } from "@/features/explore/components/DestinationSearch";
 import { ExploreHero } from "@/features/explore/components/ExploreHero";
@@ -210,6 +211,7 @@ export function ExplorePage() {
   const featuredDestination = trendingQuery.data?.destinations[0] ?? exploreDestinations[0];
 
   return (
+    <AppShell>
     <div className="space-y-8">
       {/* ── Search Bar ── */}
       <div className="relative max-w-3xl mx-auto">
@@ -434,6 +436,7 @@ export function ExplorePage() {
         destinationName={addToTripDestinationName}
       />
     </div>
+    </AppShell>
   );
 }
 

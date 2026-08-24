@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { AppShell } from "@/components/layout/AppShell";
 import { Input } from "@/components/ui/input";
 import { DestinationCard } from "@/features/explore/components/DestinationCard";
 import { AddToTripDialog } from "@/features/explore/components/AddToTripDialog";
@@ -68,6 +69,7 @@ export function SearchResultsPage() {
   const totalCount = destinations.length + activities.length + places.length;
 
   return (
+    <AppShell>
     <div className="space-y-8">
       {/* ── Search Bar ── */}
       <div className="relative max-w-3xl mx-auto">
@@ -205,6 +207,7 @@ export function SearchResultsPage() {
         destinationName={addToTripDestinationName}
       />
     </div>
+    </AppShell>
   );
 }
 

@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { AppShell } from "@/components/layout/AppShell";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -145,8 +146,9 @@ export function DestinationDetailsPage() {
   );
 
   return (
+    <AppShell>
     <TooltipProvider>
-      <div className="max-w-6xl mx-auto space-y-8 px-4 py-6">
+      <div className="space-y-8">
         {/* Hero */}
         <section aria-labelledby="destination-title" className="relative rounded-3xl overflow-hidden">
           <div className="absolute inset-0 z-0">
@@ -430,6 +432,7 @@ export function DestinationDetailsPage() {
         />
       </div>
     </TooltipProvider>
+    </AppShell>
   );
 }
 

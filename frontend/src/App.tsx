@@ -286,7 +286,7 @@ export default function App() {
               path="/trips/:tripId"
               element={
                 <ProtectedRoute>
-                  <TripDetailsPage />
+                  <PageTransition><TripDetailsPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -294,7 +294,7 @@ export default function App() {
               path="/trips/:tripId/budget"
               element={
                 <ProtectedRoute>
-                  <BudgetPage />
+                  <PageTransition><BudgetPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -302,7 +302,7 @@ export default function App() {
               path="/trips/:tripId/share"
               element={
                 <ProtectedRoute>
-                  <ShareTripPage />
+                  <PageTransition><ShareTripPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -310,7 +310,7 @@ export default function App() {
               path="/trips/:tripId/itinerary"
               element={
                 <ProtectedRoute>
-                  <ItineraryBuilderPage />
+                  <PageTransition><ItineraryBuilderPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
@@ -345,7 +345,7 @@ export default function App() {
               path="/explore/search"
               element={
                 <ProtectedRoute>
-                  <SearchResultsPage />
+                  <PageTransition><SearchResultsPage /></PageTransition>
                 </ProtectedRoute>
               }
             />
