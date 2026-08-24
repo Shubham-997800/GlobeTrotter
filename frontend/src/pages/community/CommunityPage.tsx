@@ -6,6 +6,7 @@ import {
   MapPin,
   PenLine,
   Search,
+  Share2,
   UserRound,
 } from "lucide-react";
 
@@ -14,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { EmptyState, ErrorState } from "@/features/dashboard/components/States";
 import { useAuth } from "@/features/auth/useAuth";
 import { cn } from "@/lib/utils";
@@ -42,11 +44,6 @@ const FEED_TABS: { id: FeedTabId; label: string }[] = [
   { id: "saved", label: "Saved" },
 ];
 
-/**
- * Community hub — composer, tabbed feed with infinite pagination and
- * the trending right rail. Search overlays results across posts,
- * people, trips and destinations.
- */
 export function CommunityPage() {
   const { user } = useAuth();
   const viewer = useMemo(() => toCommunityUser(user), [user]);
@@ -58,7 +55,6 @@ export function CommunityPage() {
   const [profileUser, setProfileUser] = useState<CommunityUser | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
 
-  // Debounce search so typing doesn't hammer the (mock) service.
   useEffect(() => {
     const timer = setTimeout(() => setQuery(searchInput.trim()), 300);
     return () => clearTimeout(timer);
@@ -68,140 +64,143 @@ export function CommunityPage() {
   const searching = query.length > 0;
 
   return (
-    <AppShell
-      title="Travel community"
-      description="Stories, itineraries and travelers worth following."
-      actions={
-        <Button size="sm" onClick={() => setShareOpen(true)}>
-          <Compass className="size-4" aria-hidden="true" />
-          Share a trip
-        </Button>
-      }
-    >
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="min-w-0 space-y-5">
-          <PostComposer viewer={viewer} onPosted={() => setTab("for-you")} />
+    <AppShell>
+      <div className="space-y-6">
+        {/* ── Page Header ── */}
+        <PageHeader
+          title="Community"
+          description="Discover real trips and get inspired by other travelers."
+          actions={
+            <Button size="sm" onClick={() => setShareOpen(true)}>
+              <Share2 className="size-4" aria-hidden="true" />
+              Share Your Trip
+            </Button>
+          }
+        />
 
-          {/* Search */}
-          <div className="relative">
-            <Search
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <Input
-              value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Search posts, people, trips, destinations…"
-              className="h-10 rounded-full pl-9 pr-9"
-              aria-label="Search the community"
-            />
-            {searchInput ? (
-              <button
-                type="button"
-                onClick={() => setSearchInput("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
-                aria-label="Clear search"
-              >
-                Clear
-              </button>
-            ) : null}
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="min-w-0 space-y-5">
+            <PostComposer viewer={viewer} onPosted={() => setTab("for-you")} />
+
+            {/* Search */}
+            <div className="relative">
+              <Search
+                className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <Input
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                placeholder="Search destinations, travelers, or topics…"
+                className="h-10 rounded-xl pl-9 pr-9"
+                aria-label="Search the community"
+              />
+              {searchInput ? (
+                <button
+                  type="button"
+                  onClick={() => setSearchInput("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
+                  aria-label="Clear search"
+                >
+                  Clear
+                </button>
+              ) : null}
+            </div>
+
+            {searching ? (
+              <SearchResults
+                query={query}
+                viewer={viewer}
+                onOpenProfile={setProfileUser}
+              />
+            ) : (
+              <>
+                <Tabs value={tab} onValueChange={(value) => setTab(value as FeedTabId)}>
+                  <TabsList className="w-full justify-start overflow-x-auto">
+                    {FEED_TABS.map((entry) => (
+                      <TabsTrigger key={entry.id} value={entry.id} className="gap-1.5">
+                        {entry.id === "saved" ? (
+                          <Bookmark className="size-3.5" aria-hidden="true" />
+                        ) : null}
+                        {entry.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </Tabs>
+
+                {/* Feed */}
+                <div className="space-y-4" aria-live="polite">
+                  {feed.isLoading ? (
+                    [0, 1].map((i) => <PostSkeleton key={i} />)
+                  ) : feed.isError ? (
+                    <ErrorState
+                      title="The feed hit a snag"
+                      description="We couldn't load posts just now. Give it another go."
+                      onRetry={() => void feed.refetch()}
+                    />
+                  ) : (feed.data?.pages.flatMap((page) => page.posts).length ?? 0) === 0 ? (
+                    <EmptyState
+                      icon={PenLine}
+                      title={
+                        tab === "saved"
+                          ? "Nothing saved yet"
+                          : tab === "following"
+                            ? "Follow some travelers first"
+                            : "No stories here yet"
+                      }
+                      description={
+                        tab === "saved"
+                          ? "Tap the bookmark on any post to keep it handy."
+                          : tab === "following"
+                            ? "Posts from people you follow will show up here."
+                            : "Be the first — share a story or a trip above."
+                      }
+                    />
+                  ) : (
+                    <>
+                      {feed.data?.pages.flatMap((page) => page.posts).map((post) => (
+                        <PostCard
+                          key={post.id}
+                          post={post}
+                          viewer={viewer}
+                          onOpenProfile={setProfileUser}
+                          onTagClick={(tag) => setSearchInput(tag)}
+                        />
+                      ))}
+                      {feed.hasNextPage ? (
+                        <div className="flex justify-center">
+                          <Button
+                            variant="outline"
+                            onClick={() => void feed.fetchNextPage()}
+                            disabled={feed.isFetchingNextPage}
+                          >
+                            {feed.isFetchingNextPage ? (
+                              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                            ) : null}
+                            Load more
+                          </Button>
+                        </div>
+                      ) : null}
+                    </>
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
-          {searching ? (
-            <SearchResults
-              query={query}
-              viewer={viewer}
-              onOpenProfile={setProfileUser}
-            />
-          ) : (
-            <>
-              <Tabs value={tab} onValueChange={(value) => setTab(value as FeedTabId)}>
-                <TabsList className="w-full justify-start overflow-x-auto">
-                  {FEED_TABS.map((entry) => (
-                    <TabsTrigger key={entry.id} value={entry.id} className="gap-1.5">
-                      {entry.id === "saved" ? (
-                        <Bookmark className="size-3.5" aria-hidden="true" />
-                      ) : null}
-                      {entry.label}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-
-              {/* Feed */}
-              <div className="space-y-4" aria-live="polite">
-                {feed.isLoading ? (
-                  [0, 1].map((i) => <PostSkeleton key={i} />)
-                ) : feed.isError ? (
-                  <ErrorState
-                    title="The feed hit a snag"
-                    description="We couldn't load posts just now. Give it another go."
-                    onRetry={() => void feed.refetch()}
-                  />
-                ) : (feed.data?.pages.flatMap((page) => page.posts).length ?? 0) === 0 ? (
-                  <EmptyState
-                    icon={PenLine}
-                    title={
-                      tab === "saved"
-                        ? "Nothing saved yet"
-                        : tab === "following"
-                          ? "Follow some travelers first"
-                          : "No stories here yet"
-                    }
-                    description={
-                      tab === "saved"
-                        ? "Tap the bookmark on any post to keep it handy."
-                        : tab === "following"
-                          ? "Posts from people you follow will show up here."
-                          : "Be the first — share a story or a trip above."
-                    }
-                  />
-                ) : (
-                  <>
-                    {feed.data?.pages.flatMap((page) => page.posts).map((post) => (
-                      <PostCard
-                        key={post.id}
-                        post={post}
-                        viewer={viewer}
-                        onOpenProfile={setProfileUser}
-                        onTagClick={(tag) => setSearchInput(tag)}
-                      />
-                    ))}
-                    {feed.hasNextPage ? (
-                      <div className="flex justify-center">
-                        <Button
-                          variant="outline"
-                          onClick={() => void feed.fetchNextPage()}
-                          disabled={feed.isFetchingNextPage}
-                        >
-                          {feed.isFetchingNextPage ? (
-                            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                          ) : null}
-                          Load more
-                        </Button>
-                      </div>
-                    ) : null}
-                  </>
-                )}
-              </div>
-            </>
-          )}
+          <TrendingSidebar
+            viewerId={viewerId}
+            onPickQuery={(picked) => setSearchInput(picked)}
+            onOpenProfile={setProfileUser}
+          />
         </div>
 
-        <TrendingSidebar
-          viewerId={viewerId}
-          onPickQuery={(picked) => setSearchInput(picked)}
-          onOpenProfile={setProfileUser}
-        />
+        <ProfileDialog user={profileUser} viewerId={viewerId} onClose={() => setProfileUser(null)} />
+        <ShareTripDialog open={shareOpen} viewer={viewer} onClose={() => setShareOpen(false)} />
       </div>
-
-      <ProfileDialog user={profileUser} viewerId={viewerId} onClose={() => setProfileUser(null)} />
-      <ShareTripDialog open={shareOpen} viewer={viewer} onClose={() => setShareOpen(false)} />
     </AppShell>
   );
 }
-
-/* ── Search overlay ─────────────────────────────────────────────── */
 
 function SearchResults({
   query,
@@ -297,8 +296,6 @@ function SearchResults({
     </div>
   );
 }
-
-/* ── Loading skeleton ───────────────────────────────────────────── */
 
 function PostSkeleton() {
   return (

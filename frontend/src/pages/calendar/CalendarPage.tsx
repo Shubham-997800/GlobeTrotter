@@ -418,67 +418,79 @@ export function CalendarPage() {
     : null;
 
   return (
-      <AppShell
-        title="Travel calendar"
-      description="Every trip, activity and plan on one timeline."
-      actions={
-        <Button size="sm" onClick={() => openCreateForm()}>
-          <Plus className="size-4" aria-hidden="true" />
-          New entry
-        </Button>
-      }
-    >
+      <AppShell>
       <DndContext
         sensors={sensors}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onDragCancel={() => setActiveDrag(null)}
       >
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="min-w-0 space-y-4">
-          {/* Toolbar */}
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => step(-1)}
-                aria-label="Previous period"
-              >
-                <ChevronLeft className="size-4" aria-hidden="true" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => setAnchor(todayKey())}>
-                Today
-              </Button>
-              <input
-                type="date"
-                value={anchor}
-                onChange={(event) => {
-                  if (event.target.value) setAnchor(event.target.value);
-                }}
-                aria-label="Pick a date"
-                className="h-9 rounded-lg border border-input bg-card px-2 text-sm text-card-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [color-scheme:light] dark:[color-scheme:dark]"
-              />
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => step(1)}
-                aria-label="Next period"
-              >
-                <ChevronRight className="size-4" aria-hidden="true" />
-              </Button>
-            </div>
-            <h2 className="mr-auto text-base font-semibold text-card-foreground">{title}</h2>
+      <div className="space-y-5">
+        {/* ── Page Header ── */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              Travel Calendar
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              See all your trips and planned activities in one place.
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => openCreateForm()}>
+              <Plus className="size-4" aria-hidden="true" />
+              New Entry
+            </Button>
+          </div>
+        </div>
 
-            <Tabs value={view} onValueChange={(value) => setView(value as CalendarViewId)}>
-              <TabsList>
-                <TabsTrigger value="month">Month</TabsTrigger>
-                <TabsTrigger value="week">Week</TabsTrigger>
-                <TabsTrigger value="day">Day</TabsTrigger>
-                <TabsTrigger value="agenda">Agenda</TabsTrigger>
-              </TabsList>
-            </Tabs>
+        {/* ── Toolbar ── */}
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border bg-card p-2">
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => step(-1)}
+              aria-label="Previous period"
+              className="size-8"
+            >
+              <ChevronLeft className="size-4" aria-hidden="true" />
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setAnchor(todayKey())} className="h-8 px-3 text-xs font-medium">
+              Today
+            </Button>
+            <input
+              type="date"
+              value={anchor}
+              onChange={(event) => {
+                if (event.target.value) setAnchor(event.target.value);
+              }}
+              aria-label="Pick a date"
+              className="h-8 rounded-lg border border-input bg-background px-2 text-xs text-card-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [color-scheme:light] dark:[color-scheme:dark]"
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => step(1)}
+              aria-label="Next period"
+              className="size-8"
+            >
+              <ChevronRight className="size-4" aria-hidden="true" />
+            </Button>
+          </div>
 
+          <h2 className="mr-auto text-sm font-semibold text-card-foreground">{title}</h2>
+
+          <Tabs value={view} onValueChange={(value) => setView(value as CalendarViewId)}>
+            <TabsList className="h-8">
+              <TabsTrigger value="month" className="h-7 px-2.5 text-xs">Month</TabsTrigger>
+              <TabsTrigger value="week" className="h-7 px-2.5 text-xs">Week</TabsTrigger>
+              <TabsTrigger value="day" className="h-7 px-2.5 text-xs">Day</TabsTrigger>
+              <TabsTrigger value="agenda" className="h-7 px-2.5 text-xs">Agenda</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          <div className="hidden items-center gap-1.5 sm:flex">
             <Select
               value={filters.trips}
               onValueChange={(value) =>
@@ -488,7 +500,7 @@ export function CalendarPage() {
                 }))
               }
             >
-              <SelectTrigger className="h-9 w-[130px]" aria-label="Filter by trip stage">
+              <SelectTrigger className="h-8 w-[120px] text-xs" aria-label="Filter by trip stage">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -508,7 +520,7 @@ export function CalendarPage() {
                 }))
               }
             >
-              <SelectTrigger className="h-9 w-[140px]" aria-label="Filter by type">
+              <SelectTrigger className="h-8 w-[130px] text-xs" aria-label="Filter by type">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -529,7 +541,7 @@ export function CalendarPage() {
                 }))
               }
             >
-              <SelectTrigger className="h-9 w-[130px]" aria-label="Filter by status">
+              <SelectTrigger className="h-8 w-[120px] text-xs" aria-label="Filter by status">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -540,7 +552,10 @@ export function CalendarPage() {
               </SelectContent>
             </Select>
           </div>
+        </div>
 
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="min-w-0 space-y-4">
           {/* Content */}
           {eventsQuery.isError ? (
             <ErrorState
@@ -687,6 +702,7 @@ export function CalendarPage() {
             </p>
           </section>
         </aside>
+      </div>
       </div>
 
       {/* ── Details dialog ── */}

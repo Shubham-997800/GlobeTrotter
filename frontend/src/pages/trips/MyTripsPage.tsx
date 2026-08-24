@@ -4,6 +4,7 @@ import { Plus, RefreshCw } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/shared/PageHeader";
 import {
   useTripsList,
   useDeleteTrips,
@@ -200,11 +201,12 @@ export function MyTripsPage() {
 
   if (list.isLoading) {
     return (
-      <AppShell
-        title="My Trips"
-        description="Every plan you've started, sorted by what's next."
-      >
+      <AppShell>
         <div className="space-y-6">
+          <PageHeader
+            title="My Trips"
+            description="Plan, organize and manage all your journeys in one place."
+          />
           <TripStatsSkeleton />
           <TripHighlightSkeleton />
           <TripGridSkeleton count={6} />
@@ -216,7 +218,11 @@ export function MyTripsPage() {
   if (list.isError || !list.data) {
     return (
       <AppShell>
-        <div className="rounded-2xl border border-error-border bg-error-bg p-6 text-center">
+        <PageHeader
+          title="My Trips"
+          description="Plan, organize and manage all your journeys in one place."
+        />
+        <div className="mt-6 rounded-2xl border border-error-border bg-error-bg p-6 text-center">
           <p className="font-semibold text-error-text">Couldn't load your trips</p>
           <p className="mt-1 text-sm text-muted-foreground">
             Something went wrong while fetching your trips.
@@ -238,29 +244,33 @@ export function MyTripsPage() {
   }
 
   return (
-    <AppShell
-      title="My Trips"
-      description="Every plan you've started, sorted by what's next."
-      actions={
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label="Refresh trips"
-            onClick={() => list.refetch()}
-          >
-            <RefreshCw className="size-4" aria-hidden="true" />
-          </Button>
-          <Button asChild>
-            <Link to="/trips/create">
-              <Plus className="size-4" aria-hidden="true" />
-              New Trip
-            </Link>
-          </Button>
-        </div>
-      }
-    >
+    <AppShell>
       <div className="space-y-6">
+        {/* ── Page Header ── */}
+        <PageHeader
+          title="My Trips"
+          description="Plan, organize and manage all your journeys in one place."
+          actions={
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label="Refresh trips"
+                onClick={() => list.refetch()}
+              >
+                <RefreshCw className="size-4" aria-hidden="true" />
+              </Button>
+              <Button asChild>
+                <Link to="/trips/create">
+                  <Plus className="size-4" aria-hidden="true" />
+                  Create Trip
+                </Link>
+              </Button>
+            </div>
+          }
+        />
+
+        {/* ── Summary Stats ── */}
         {showStats ? (
           <TripSummaryStats
             counts={{
@@ -272,17 +282,19 @@ export function MyTripsPage() {
           />
         ) : null}
 
+        {/* ── Upcoming Highlight ── */}
         {nextHighlight ? (
           <UpcomingTripHighlight trip={createTripCardModel(nextHighlight)} />
         ) : null}
 
-        <div className="flex flex-col gap-4">
+        {/* ── Filters + Tabs ── */}
+        <div className="space-y-3">
           <TripStatusTabs
             value={filters.status}
             onValueChange={(next) => setFilters((prev) => ({ ...prev, status: next }))}
             tabs={statusTabs}
           />
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0 flex-1">
               <TripFiltersBar
                 searchInput={filters.search}
@@ -298,10 +310,11 @@ export function MyTripsPage() {
           </div>
         </div>
 
+        {/* ── Trip Content ── */}
         {models.length === 0 ? (
           <NoResultsState onClearFilters={clearFilters} />
         ) : isDraftView ? (
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {draftModels.map((trip) => (
               <DraftTripCard
                 key={trip.record.id}
@@ -312,17 +325,16 @@ export function MyTripsPage() {
           </div>
         ) : (
           <>
+            {/* Drafts Section */}
             {filters.status === "all" && draftModels.length > 0 ? (
               <section className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                    Continue Planning
-                  </h2>
-                  <span className="text-xs text-muted-foreground">
+                <h2 className="text-sm font-semibold text-muted-foreground">
+                  Continue Planning
+                  <span className="ml-2 text-xs font-normal">
                     {draftModels.length} {draftModels.length === 1 ? "draft" : "drafts"}
                   </span>
-                </div>
-                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                </h2>
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {draftModels.map((trip) => (
                     <DraftTripCard
                       key={trip.record.id}
@@ -334,9 +346,10 @@ export function MyTripsPage() {
               </section>
             ) : null}
 
+            {/* Main Trips */}
             {mainModels.length > 0 ? (
               view === "grid" ? (
-                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {mainModels.map((trip) => (
                     <TripCard
                       key={trip.record.id}
@@ -348,7 +361,7 @@ export function MyTripsPage() {
                   ))}
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {mainModels.map((trip) => (
                     <TripListRow
                       key={trip.record.id}
@@ -365,6 +378,7 @@ export function MyTripsPage() {
         )}
       </div>
 
+      {/* ── Bulk Actions ── */}
       {selected.length > 0 ? (
         <BulkActionBar
           selectedTrips={selectedTrips}
@@ -378,6 +392,7 @@ export function MyTripsPage() {
         />
       ) : null}
 
+      {/* ── Delete Dialog ── */}
       <DeleteTripsDialog
         open={pendingDelete !== null}
         onOpenChange={(open) => {

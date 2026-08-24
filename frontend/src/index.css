@@ -331,6 +331,7 @@
 /* Main scrollable area — stable scrollbar gutter prevents layout shift */
 #main-content {
   scrollbar-gutter: stable both-edges;
+  scroll-behavior: auto;
 }
 
 /* When Radix locks body scroll (Dialog/Sheet), lock <main> too */

@@ -12,7 +12,6 @@ import {
   PencilLine,
   Share2,
   Trash2,
-  Wallet,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -41,14 +40,12 @@ export interface TripCardActions {
 interface TripCardProps extends TripCardActions {
   trip: TripCardModel;
   selected?: boolean;
-  /** When true, selection checkboxes stay visible (bulk mode). */
   selectionActive?: boolean;
 }
 
 /**
- * Grid travel card. Hierarchy follows the design spec:
- * image → status → name → destination → dates → progress → budget →
- * quick info → actions. All values come from the shared view model.
+ * Travel-oriented trip card. Clean hierarchy:
+ * image → status badge → name → destination → dates → quick stats → actions.
  */
 export function TripCard({
   trip,
@@ -76,7 +73,7 @@ export function TripCard({
       )}
       aria-label={`${trip.name}, ${trip.city}`}
     >
-      {/* ── Cover ─────────────────────────────────────────────── */}
+      {/* ── Cover Image ── */}
       <div className="relative">
         <Link
           to={detailsTo}
@@ -87,14 +84,13 @@ export function TripCard({
             src={trip.image}
             alt={trip.imageAlt}
             eager={false}
-            className="aspect-[16/9]"
+            className="aspect-[16/10]"
             imgClassName="transition-transform duration-300 ease-out group-hover:scale-[1.04]"
           />
         </Link>
-        {/* Legibility gradient under badges/labels */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/55 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent"
         />
 
         <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">
@@ -124,8 +120,8 @@ export function TripCard({
         ) : null}
       </div>
 
-      {/* ── Body ──────────────────────────────────────────────── */}
-      <div className="flex min-w-0 flex-1 flex-col gap-3 p-4 sm:p-5">
+      {/* ── Body ── */}
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5 p-4">
         <div className="min-w-0">
           <h3 className="truncate text-base font-semibold tracking-tight text-foreground">
             <Link
@@ -144,64 +140,13 @@ export function TripCard({
           </p>
         </div>
 
-        {trip.description ? (
-          <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-            {trip.description}
-          </p>
-        ) : null}
-
         <p className="flex items-center gap-1.5 text-xs font-medium text-secondary-text">
           <CalendarDays className="size-3.5 shrink-0 text-travel-blue" aria-hidden="true" />
           {trip.dateRange || "Dates not set"}
         </p>
 
-        {/* Planning progress */}
-        <div>
-          <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
-            <span>Planning progress</span>
-            <span>{trip.percent}%</span>
-          </div>
-          <div
-            role="progressbar"
-            aria-valuenow={trip.percent}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={`${trip.name} planning progress`}
-            className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted"
-          >
-            <div
-              className="h-full rounded-full bg-primary transition-[width] duration-500"
-              style={{ width: `${Math.max(trip.percent, 2)}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Budget — honest about what's tracked */}
-        <div className="rounded-xl border border-subtle-border bg-muted/50 p-2.5">
-          <div className="flex items-center justify-between gap-2 text-sm">
-            <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-              <Wallet className="size-3.5 shrink-0 text-budget" aria-hidden="true" />
-              Budget
-            </span>
-            <span className="font-semibold text-foreground">
-              {trip.budgetTotalLabel || "Not set"}
-            </span>
-          </div>
-          <p className="mt-0.5 text-right text-[11px] text-muted-foreground">
-            {trip.budgetEstimateLabel
-              ? `≈ ${trip.budgetEstimateLabel} estimated spend`
-              : "No spending tracked yet"}
-          </p>
-        </div>
-
-        {/* Quick info */}
-        <ul className="flex flex-wrap gap-1.5" aria-label="Quick info">
-          {trip.city ? (
-            <li className="inline-flex items-center gap-1 rounded-full border border-info-border bg-info-bg px-2 py-0.5 text-[11px] font-medium text-info-text">
-              <MapPin className="size-3" aria-hidden="true" />
-              {trip.city}
-            </li>
-          ) : null}
+        {/* Quick Stats Row */}
+        <ul className="flex flex-wrap gap-1.5" aria-label="Trip stats">
           <li className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2 py-0.5 text-[11px] font-medium text-secondary-text">
             <ListChecks className="size-3" aria-hidden="true" />
             {trip.activitiesCount} {trip.activitiesCount === 1 ? "activity" : "activities"}
@@ -210,9 +155,14 @@ export function TripCard({
             <CalendarDays className="size-3" aria-hidden="true" />
             {trip.daysPlanned > 0 ? `${trip.daysPlanned} days` : "No dates"}
           </li>
+          {trip.budgetTotalLabel ? (
+            <li className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2 py-0.5 text-[11px] font-medium text-secondary-text">
+              {trip.budgetTotalLabel}
+            </li>
+          ) : null}
         </ul>
 
-        {/* ── Actions ─────────────────────────────────────────── */}
+        {/* ── Actions ── */}
         <div className="mt-auto flex items-center gap-2 pt-1">
           {isDraft ? (
             <Button asChild size="sm" className="min-w-0 flex-1">
