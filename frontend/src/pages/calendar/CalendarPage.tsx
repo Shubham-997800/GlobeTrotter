@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import {
   DndContext,
   DragOverlay,
+  KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
@@ -228,6 +229,7 @@ export function CalendarPage() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor),
   );
 
   const allEvents = eventsQuery.data?.events ?? [];

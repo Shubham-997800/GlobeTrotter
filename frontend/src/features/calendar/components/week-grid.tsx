@@ -233,7 +233,7 @@ function HourCell({
         isOver && "bg-accent",
       )}
       onClick={() => onCreateAt(day, hour * 60)}
-      role="presentation"
+      role="button"
       aria-label={`Add at ${formatTimeLabel(`${String(hour).padStart(2, "0")}:00`)}`}
     />
   );

@@ -76,7 +76,7 @@ export function TripListRow({
           "shrink-0 transition-opacity",
           selectionActive || selected
             ? "opacity-100"
-            : "opacity-0 focus-visible:opacity-100 group-hover:opacity-100 max-lg:pointer-events-none max-lg:hidden",
+            : "opacity-0 focus-visible:opacity-100 group-hover:opacity-100",
         )}
       />
 

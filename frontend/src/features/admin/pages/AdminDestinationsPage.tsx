@@ -276,6 +276,7 @@ export function AdminDestinationsPage() {
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8"
+                              aria-label="Edit"
                               onClick={() => openEdit(dest as unknown as DestFormState)}
                             >
                               <Pencil className="h-3.5 w-3.5" />
@@ -284,6 +285,7 @@ export function AdminDestinationsPage() {
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8 text-destructive"
+                              aria-label="Delete"
                               onClick={() => setDeleteConfirm(dest.id)}
                             >
                               <Trash2 className="h-3.5 w-3.5" />

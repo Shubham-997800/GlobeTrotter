@@ -161,14 +161,9 @@ export function SavedPage() {
                 Activities ({visibleActivities.length})
               </TabsTrigger>
             </TabsList>
-          </Tabs>
-        </div>
 
-        {/* Content */}
-        <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
-          {/* All */}
-          <TabsContent value="all" className="space-y-8">
-            {totalCount === 0 ? (
+            <TabsContent value="all" className="space-y-8">
+              {totalCount === 0 ? (
               <EmptyState
                 icon={Bookmark}
                 title="Nothing saved yet"
@@ -240,6 +235,7 @@ export function SavedPage() {
             )}
           </TabsContent>
         </Tabs>
+      </div>
       </div>
     </AppShell>
   );

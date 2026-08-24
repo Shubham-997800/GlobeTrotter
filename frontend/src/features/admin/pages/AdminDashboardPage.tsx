@@ -81,10 +81,12 @@ export function AdminDashboardPage() {
     },
   ];
 
-  const maxCount = Math.max(...(data?.popularDestinations?.map((d) => d.count) ?? [1]));
-  const maxRole = Math.max(
-    ...(stats?.roleBreakdown ? Object.values(stats.roleBreakdown).map(Number) : [1]),
-  );
+  const maxCount = data?.popularDestinations?.length
+    ? Math.max(...data.popularDestinations.map(d => d.count))
+    : 1;
+  const maxRole = stats?.roleBreakdown && Object.values(stats.roleBreakdown).length
+    ? Math.max(...Object.values(stats.roleBreakdown).map(Number))
+    : 1;
 
   return (
     <div className="space-y-6">

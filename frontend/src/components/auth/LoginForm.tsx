@@ -126,6 +126,7 @@ export function LoginForm() {
           <Input
             id="identifier"
             type="text"
+            inputMode="email"
             autoComplete="username"
             placeholder="you@company.com"
             className="pl-9"

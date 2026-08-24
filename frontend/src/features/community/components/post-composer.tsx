@@ -196,7 +196,7 @@ export function PostComposer({
           />
 
           {media.length > 0 ? (
-            <ul className="grid grid-cols-4 gap-2" aria-label="Attached photos">
+            <ul className="grid grid-cols-2 sm:grid-cols-4 gap-2" aria-label="Attached photos">
               {media.map((item) => (
                 <li key={item.id} className="group relative aspect-square overflow-hidden rounded-lg border border-subtle-border bg-muted">
                   {item.url ? (

@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   CalendarDays,
   Clock,
@@ -121,7 +121,7 @@ export default function PublicTripViewPage() {
             GlobeTrotter
           </span>
           <Button variant="outline" size="sm" asChild>
-            <a href="/login">Sign in to plan your own trip</a>
+            <Link to="/login">Sign in to plan your own trip</Link>
           </Button>
         </div>
       </header>
@@ -148,7 +148,7 @@ export default function PublicTripViewPage() {
               This trip may have been removed or the link is incorrect.
             </p>
             <Button className="mt-4" asChild>
-              <a href="/login">Go to GlobeTrotter</a>
+              <Link to="/login">Go to GlobeTrotter</Link>
             </Button>
           </div>
         ) : (
@@ -333,7 +333,7 @@ export default function PublicTripViewPage() {
                 Create your own personalized itinerary on GlobeTrotter.
               </p>
               <Button className="mt-4" asChild>
-                <a href="/register">Start Planning — It's Free</a>
+                <Link to="/register">Start Planning — It's Free</Link>
               </Button>
             </div>
           </>

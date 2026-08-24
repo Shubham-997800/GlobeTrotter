@@ -101,9 +101,9 @@ export function TripCard({
             className={cn(
               "size-4.5 border-white/70 bg-black/30 backdrop-blur-sm transition-opacity",
               "data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:opacity-100",
-              selectionActive || selected
-                ? "opacity-100"
-                : "opacity-0 focus-visible:opacity-100 group-hover:opacity-100 max-lg:pointer-events-none max-lg:hidden",
+                selectionActive || selected
+                  ? "opacity-100"
+                  : "opacity-0 focus-visible:opacity-100 group-hover:opacity-100",
             )}
           />
           <TripStatusBadge

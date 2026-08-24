@@ -50,7 +50,7 @@ export function AdminUsersPage() {
     order: sortOrder,
   };
 
-  const { data, isLoading, isError } = useAdminUsers(params);
+  const { data, isLoading, isError, refetch } = useAdminUsers(params);
   const updateRole = useAdminUpdateUserRole();
 
   const handleRoleChange = async (userId: string, newRole: string) => {
@@ -127,7 +127,7 @@ export function AdminUsersPage() {
                 <p className="font-medium text-foreground">Failed to load users</p>
                 <p className="mt-1 text-sm text-muted-foreground">Something went wrong while fetching user data. Please try again.</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
                 Retry
               </Button>
             </div>

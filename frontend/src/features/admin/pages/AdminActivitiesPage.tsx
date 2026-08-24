@@ -78,7 +78,7 @@ export function AdminActivitiesPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const params = { page, limit: 15, search, category: categoryFilter, sort: "name" as const, order: "asc" as const };
-  const { data, isLoading, isError } = useAdminActivities(params);
+  const { data, isLoading, isError, refetch } = useAdminActivities(params);
   const createMutation = useAdminCreateActivity();
   const updateMutation = useAdminUpdateActivity();
   const deleteMutation = useAdminDeleteActivity();
@@ -168,7 +168,7 @@ export function AdminActivitiesPage() {
                 <p className="text-sm font-medium text-foreground">Failed to load activities</p>
                 <p className="mt-1 text-sm text-muted-foreground">Something went wrong. Please try again later.</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
                 Retry
               </Button>
             </div>
@@ -219,6 +219,7 @@ export function AdminActivitiesPage() {
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8"
+                              aria-label="Edit"
                               onClick={() => openEdit(act as unknown as ActFormState)}
                             >
                               <Pencil className="h-3.5 w-3.5" />
@@ -227,6 +228,7 @@ export function AdminActivitiesPage() {
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8 text-destructive"
+                              aria-label="Delete"
                               onClick={() => setDeleteConfirm(act.id)}
                             >
                               <Trash2 className="h-3.5 w-3.5" />

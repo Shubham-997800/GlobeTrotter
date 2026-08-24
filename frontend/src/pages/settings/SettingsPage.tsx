@@ -1747,8 +1747,7 @@ export function SettingsPage() {
                 <button
                   key={item.id}
                   type="button"
-                  aria-selected={isActive}
-                  role="tab"
+                  aria-current={isActive ? "page" : undefined}
                   onClick={() => requestSection(item.id)}
                   className={cn(
                     "shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
