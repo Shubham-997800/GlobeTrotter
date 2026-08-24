@@ -418,9 +418,8 @@ export function CalendarPage() {
     : null;
 
   return (
-    <AppShell
-      crumbs={[{ label: "Home", to: "/dashboard" }, { label: "Calendar" }]}
-      title="Travel calendar"
+      <AppShell
+        title="Travel calendar"
       description="Every trip, activity and plan on one timeline."
       actions={
         <Button size="sm" onClick={() => openCreateForm()}>

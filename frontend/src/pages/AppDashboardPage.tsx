@@ -39,9 +39,7 @@ export function AppDashboardPage() {
   const toggleSaved = useToggleSavedDestination();
 
   return (
-    <AppShell
-      crumbs={[{ label: "Dashboard" }]}
-    >
+    <AppShell>
       <div className="space-y-10">
         {isLoading ? (
           <DashboardSkeleton />

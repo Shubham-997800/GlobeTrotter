@@ -302,7 +302,7 @@ export function ProfilePage() {
   };
 
   return (
-    <AppShell crumbs={[{ label: "Home", to: "/dashboard" }, { label: "Profile" }]}>
+    <AppShell>
       <div className="space-y-6 pb-28">
         {/* ── Header ─────────────────────────────────────────── */}
         <Card>

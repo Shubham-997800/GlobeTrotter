@@ -57,14 +57,7 @@ export function ShareTripPage() {
   };
 
   return (
-    <AppShell
-      crumbs={[
-        { label: "Home", to: "/dashboard" },
-        { label: "My Trips", to: "/trips" },
-        { label: trip?.name ?? "Trip", to: trip ? `/trips/${trip.id}` : "/trips" },
-        { label: "Share" },
-      ]}
-    >
+    <AppShell>
       <div className="space-y-6">
         <Button
           variant="ghost"

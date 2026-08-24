@@ -330,7 +330,7 @@ export default function ItineraryBuilderPage() {
   /* ---------------- render ---------------- */
   if (tripQuery.isLoading || itineraryQuery.isLoading) {
     return (
-      <AppShell crumbs={[{ label: "Trips", to: "/trips" }, { label: "Itinerary" }]}>
+      <AppShell>
         <div className="animate-pulse space-y-6">
           <div className="h-40 rounded-2xl bg-muted" />
           <div className="h-24 rounded-2xl bg-muted" />
@@ -347,7 +347,7 @@ export default function ItineraryBuilderPage() {
 
   if (tripQuery.isError || itineraryQuery.isError || !trip || !itinerary) {
     return (
-      <AppShell crumbs={[{ label: "Trips", to: "/trips" }, { label: "Itinerary" }]}>
+      <AppShell>
         <ErrorState
           title="We couldn't load this itinerary"
           description="The trip may have been removed, or something went wrong on our side."
@@ -378,16 +378,6 @@ export default function ItineraryBuilderPage() {
 
   return (
     <AppShell
-      crumbs={[
-        { label: "Trips", to: "/trips" },
-        {
-          label:
-            destinations.find((entry) => entry.id === trip.destinationId)?.city ??
-            trip.name,
-          to: `/trips/${trip.id}`,
-        },
-        { label: "Itinerary" },
-      ]}
       title="Plan Your Journey"
       description="Craft each day at your own pace."
       actions={<ViewSwitcher value={view} onChange={setView} />}

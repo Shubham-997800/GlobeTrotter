@@ -201,7 +201,6 @@ export function MyTripsPage() {
   if (list.isLoading) {
     return (
       <AppShell
-        crumbs={[{ label: "Home", to: "/dashboard" }, { label: "My Trips" }]}
         title="My Trips"
         description="Every plan you've started, sorted by what's next."
       >
@@ -216,9 +215,7 @@ export function MyTripsPage() {
 
   if (list.isError || !list.data) {
     return (
-      <AppShell
-        crumbs={[{ label: "Home", to: "/dashboard" }, { label: "My Trips" }]}
-      >
+      <AppShell>
         <div className="rounded-2xl border border-error-border bg-error-bg p-6 text-center">
           <p className="font-semibold text-error-text">Couldn't load your trips</p>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -234,9 +231,7 @@ export function MyTripsPage() {
 
   if (records.length === 0) {
     return (
-      <AppShell
-        crumbs={[{ label: "Home", to: "/dashboard" }, { label: "My Trips" }]}
-      >
+      <AppShell>
         <NoTripsState />
       </AppShell>
     );
@@ -244,7 +239,6 @@ export function MyTripsPage() {
 
   return (
     <AppShell
-      crumbs={[{ label: "Home", to: "/dashboard" }, { label: "My Trips" }]}
       title="My Trips"
       description="Every plan you've started, sorted by what's next."
       actions={

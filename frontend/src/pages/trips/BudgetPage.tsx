@@ -42,14 +42,7 @@ export function BudgetPage() {
   const isLoading = tripQuery.isLoading || itineraryQuery.isLoading;
 
   return (
-    <AppShell
-      crumbs={[
-        { label: "Home", to: "/dashboard" },
-        { label: "My Trips", to: "/trips" },
-        { label: trip?.name ?? "Trip", to: trip ? `/trips/${trip.id}` : "/trips" },
-        { label: "Budget" },
-      ]}
-    >
+    <AppShell>
       <div className="space-y-6">
         <Button
           variant="ghost"

@@ -52,9 +52,8 @@ export function HelpSupportPage() {
   };
 
   return (
-    <AppShell
-      crumbs={[{ label: "Home", to: "/dashboard" }, { label: "Help & Support" }]}
-      title="Help & Support"
+      <AppShell
+        title="Help & Support"
       description="Find answers, browse common questions, or contact our team."
     >
       <div className="grid gap-6 lg:grid-cols-2">

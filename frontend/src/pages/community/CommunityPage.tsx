@@ -69,7 +69,6 @@ export function CommunityPage() {
 
   return (
     <AppShell
-      crumbs={[{ label: "Home", to: "/dashboard" }, { label: "Community" }]}
       title="Travel community"
       description="Stories, itineraries and travelers worth following."
       actions={

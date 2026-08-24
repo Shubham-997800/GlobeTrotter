@@ -136,12 +136,7 @@ export function NotificationsPage() {
   };
 
   return (
-    <AppShell
-      crumbs={[
-        { label: "Home", to: "/dashboard" },
-        { label: "Notifications" },
-      ]}
-    >
+      <AppShell>
       <div className="space-y-6">
         {/* ── Header ─────────────────────────────────────────── */}
         <div className="flex flex-wrap items-end justify-between gap-3">

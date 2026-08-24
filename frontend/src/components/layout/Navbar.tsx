@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronRight, Globe, LogOut, Menu, Search, Settings, UserRound } from "lucide-react";
+import { Globe, LogOut, Menu, Search, Settings, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,20 +21,18 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/landing/ThemeToggle";
-import { SidebarNav } from "@/components/layout/Sidebar";
+import { SidebarBrand, SidebarNav } from "@/components/layout/Sidebar";
 import { NotificationMenu } from "@/features/dashboard/components/NotificationMenu";
 import { GlobalSearch } from "@/features/dashboard/components/GlobalSearch";
 import { useAuth } from "@/features/auth/useAuth";
 import { cn } from "@/lib/utils";
-import type { Crumb } from "@/components/layout/AppShell";
 
 interface NavbarProps {
-  crumbs: Crumb[];
   drawerOpen: boolean;
   onDrawerOpenChange: (open: boolean) => void;
 }
 
-export function Navbar({ crumbs, drawerOpen, onDrawerOpenChange }: NavbarProps) {
+export function Navbar({ drawerOpen, onDrawerOpenChange }: NavbarProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const initials = (user?.name ?? user?.email ?? "U")
@@ -49,13 +47,13 @@ export function Navbar({ crumbs, drawerOpen, onDrawerOpenChange }: NavbarProps) 
   return (
     <header className="sticky top-0 z-40 border-b border-subtle-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="flex h-14 items-center gap-2 px-4 pt-[env(safe-area-inset-top)] sm:px-6">
-        {/* Mobile nav */}
+        {/* Mobile nav drawer trigger */}
         <Sheet open={drawerOpen} onOpenChange={onDrawerOpenChange}>
           <SheetTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="h-8 w-8 lg:hidden"
               aria-label="Open navigation menu"
             >
               <Menu className="h-5 w-5" />
@@ -67,28 +65,49 @@ export function Navbar({ crumbs, drawerOpen, onDrawerOpenChange }: NavbarProps) 
             </div>
             <nav
               aria-label="Primary"
-              className="flex h-[calc(100%-4rem)] flex-col p-3"
+              className="flex h-[calc(100%-4.5rem)] flex-col overflow-y-auto p-3"
             >
               <SidebarNav onNavigate={closeDrawer} />
-              <Button asChild className="mt-3 w-full">
+            </nav>
+            <div className="border-t border-subtle-border p-3">
+              <Button asChild className="w-full gap-2" size="sm">
                 <Link to="/trips/create" onClick={closeDrawer}>
                   Create New Trip
                 </Link>
               </Button>
-            </nav>
+            </div>
           </SheetContent>
         </Sheet>
 
-        {/* Mobile search */}
+        {/* Brand — same style as landing page Logo */}
+        <Link
+          to="/dashboard"
+          aria-label="GlobeTrotter dashboard"
+          className="shrink-0"
+        >
+          <span className="inline-flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-travel-blue text-primary-foreground shadow-sm">
+              <Globe className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <span className="font-heading text-base font-semibold tracking-tight text-foreground">
+              GlobeTrotter
+            </span>
+          </span>
+        </Link>
+
+        {/* Spacer */}
+        <div className="min-w-0 flex-1" />
+
+        {/* Mobile search trigger */}
         <Dialog>
           <DialogTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="h-8 w-8 md:hidden"
               aria-label="Search destinations, trips and activities"
             >
-              <Search className="h-5 w-5" />
+              <Search className="h-[18px] w-[18px]" />
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-lg p-6">
@@ -98,54 +117,13 @@ export function Navbar({ crumbs, drawerOpen, onDrawerOpenChange }: NavbarProps) 
           </DialogContent>
         </Dialog>
 
-        {/* Brand */}
-        <Link
-          to="/dashboard"
-          aria-label="GlobeTrotter dashboard"
-          className="flex items-center gap-2 rounded-md px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Globe className="h-4 w-4" aria-hidden="true" />
-          </span>
-          <span className="text-sm font-semibold tracking-tight text-foreground">
-            GlobeTrotter
-          </span>
-        </Link>
-
-        {/* Breadcrumbs */}
-        <nav aria-label="Breadcrumb" className="min-w-0 shrink-0">
-          <ol className="flex items-center gap-1 text-sm">
-            {crumbs.map((crumb, index) => (
-              <li key={`${crumb.label}-${index}`} className="flex min-w-0 items-center gap-1">
-                {index > 0 ? (
-                  <ChevronRight
-                    aria-hidden="true"
-                    className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
-                  />
-                ) : null}
-                {crumb.to ? (
-                  <Link
-                    to={crumb.to}
-                    className="truncate rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    {crumb.label}
-                  </Link>
-                ) : (
-                  <span aria-current="page" className="truncate font-medium text-foreground">
-                    {crumb.label}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ol>
-        </nav>
-
-        {/* Global search — center on md+ */}
-        <div className="hidden min-w-0 flex-1 justify-center px-4 md:flex">
+        {/* Desktop search — inline */}
+        <div className="hidden min-w-0 max-w-sm flex-1 md:block">
           <GlobalSearch />
         </div>
 
-        <div className={cn("ml-auto flex items-center gap-1", "md:ml-0")}>
+        {/* Right actions */}
+        <div className="flex items-center gap-0.5">
           <NotificationMenu />
           <ThemeToggle />
 
@@ -154,13 +132,13 @@ export function Navbar({ crumbs, drawerOpen, onDrawerOpenChange }: NavbarProps) 
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className={cn("gap-2 pl-1.5 pr-2 sm:pl-2")}
+                className="gap-2 px-2"
                 aria-label="Open account menu"
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary">
                   {initials}
                 </span>
-                <span className="hidden max-w-32 truncate text-sm font-medium sm:inline">
+                <span className="hidden max-w-32 truncate text-sm font-medium lg:inline">
                   {user?.name ?? "Account"}
                 </span>
               </Button>
@@ -177,13 +155,11 @@ export function Navbar({ crumbs, drawerOpen, onDrawerOpenChange }: NavbarProps) 
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => navigate("/profile")}>
                 <UserRound className="mr-2 h-4 w-4" />
-                Profile settings
-                <kbd className="ml-auto text-[10px] text-muted-foreground">⌘K P</kbd>
+                Profile
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => navigate("/settings")}>
                 <Settings className="mr-2 h-4 w-4" />
-                Preferences
-                <kbd className="ml-auto text-[10px] text-muted-foreground">⌘K ,</kbd>
+                Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -195,7 +171,6 @@ export function Navbar({ crumbs, drawerOpen, onDrawerOpenChange }: NavbarProps) 
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign out
-                <kbd className="ml-auto text-[10px] text-muted-foreground">⌘⇧Q</kbd>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -1666,14 +1666,14 @@ export function SettingsPage() {
 
   if (settingsQuery.isError) {
     return (
-      <AppShell crumbs={[{ label: "Home", to: "/dashboard" }, { label: "Settings" }]}>
+      <AppShell>
         <ErrorState onRetry={() => void settingsQuery.refetch()} />
       </AppShell>
     );
   }
 
   return (
-    <AppShell crumbs={[{ label: "Home", to: "/dashboard" }, { label: "Settings" }]}>
+    <AppShell>
       <div className="space-y-6 pb-28">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">

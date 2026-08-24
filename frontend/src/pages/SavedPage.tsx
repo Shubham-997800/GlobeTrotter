@@ -51,7 +51,6 @@ export function SavedPage() {
 
   return (
     <AppShell
-      crumbs={[{ label: "Home", to: "/dashboard" }, { label: "Saved" }]}
       title="Saved"
       description="Your saved destinations and activities, all in one place."
       actions={

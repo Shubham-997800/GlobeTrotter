@@ -11,7 +11,6 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   PlusCircle,
-  Route,
   Settings,
   Shield,
   UserRound,
@@ -67,22 +66,39 @@ function NavLinkRow({
   const link = (
     <NavLink
       to={item.to}
+      end={item.to === "/dashboard"}
       onClick={onNavigate}
       aria-label={collapsed ? item.label : undefined}
       className={({ isActive }) =>
         cn(
-          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          "active:scale-[0.98]",
+          "group/item relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
+          "transition-colors duration-150 ease-out",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
           collapsed && "justify-center px-0",
           isActive
-            ? "border-l-2 border-primary bg-sidebar-active text-sidebar-active-text font-semibold"
-            : "border-l-2 border-transparent text-sidebar-text hover:bg-sidebar-hover hover:text-foreground",
+            ? "bg-sidebar-active text-sidebar-active-text"
+            : "text-sidebar-text hover:bg-sidebar-hover hover:text-foreground",
         )
       }
     >
-      <item.icon className="h-[18px] w-[18px] shrink-0" />
-      {!collapsed ? <span className="truncate">{item.label}</span> : null}
+      {({ isActive }) => (
+        <>
+          {/* Active indicator — left accent bar */}
+          {isActive ? (
+            <span
+              aria-hidden="true"
+              className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-sidebar-active-icon"
+            />
+          ) : null}
+          <item.icon
+            className={cn(
+              "h-[18px] w-[18px] shrink-0 transition-colors duration-150",
+              isActive ? "text-sidebar-active-icon" : "text-sidebar-text group-hover/item:text-foreground",
+            )}
+          />
+          {!collapsed ? <span className="truncate">{item.label}</span> : null}
+        </>
+      )}
     </NavLink>
   );
 
@@ -91,7 +107,9 @@ function NavLinkRow({
   return (
     <Tooltip>
       <TooltipTrigger asChild>{link}</TooltipTrigger>
-      <TooltipContent side="right">{item.label}</TooltipContent>
+      <TooltipContent side="right" sideOffset={8}>
+        {item.label}
+      </TooltipContent>
     </Tooltip>
   );
 }
@@ -104,7 +122,7 @@ export function SidebarNav({
   const isAdmin = user?.role === "admin";
 
   return (
-    <nav aria-label="Primary" className="flex min-h-0 flex-1 flex-col gap-1">
+    <nav aria-label="Primary" className="flex min-h-0 flex-1 flex-col gap-0.5">
       {MAIN_NAV.map((item) => (
         <NavLinkRow
           key={item.to}
@@ -114,39 +132,49 @@ export function SidebarNav({
         />
       ))}
 
+      {/* Divider + Account section */}
       {!collapsed ? (
-        <>
-          <div
-            aria-hidden="true"
-            className="mx-1 my-2 border-t border-sidebar-border"
-          />
-          <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-sidebar-text">
+        <div className="mt-auto pt-3">
+          <div aria-hidden="true" className="mx-3 mb-2 border-t border-sidebar-border" />
+          <p className="px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-sidebar-text/60">
             Account
           </p>
-        </>
+          {ACCOUNT_NAV.map((item) => (
+            <NavLinkRow
+              key={item.to}
+              item={item}
+              collapsed={collapsed}
+              onNavigate={onNavigate}
+            />
+          ))}
+          {isAdmin ? (
+            <NavLinkRow
+              item={{ to: "/admin", label: "Admin Console", icon: Shield }}
+              collapsed={collapsed}
+              onNavigate={onNavigate}
+            />
+          ) : null}
+        </div>
       ) : (
-        <div
-          aria-hidden="true"
-          className="mx-2 my-2 border-t border-sidebar-border"
-        />
+        <>
+          <div aria-hidden="true" className="mx-2 my-2 border-t border-sidebar-border" />
+          {ACCOUNT_NAV.map((item) => (
+            <NavLinkRow
+              key={item.to}
+              item={item}
+              collapsed={collapsed}
+              onNavigate={onNavigate}
+            />
+          ))}
+          {isAdmin ? (
+            <NavLinkRow
+              item={{ to: "/admin", label: "Admin Console", icon: Shield }}
+              collapsed={collapsed}
+              onNavigate={onNavigate}
+            />
+          ) : null}
+        </>
       )}
-
-      {ACCOUNT_NAV.map((item) => (
-        <NavLinkRow
-          key={item.to}
-          item={item}
-          collapsed={collapsed}
-          onNavigate={onNavigate}
-        />
-      ))}
-
-      {isAdmin ? (
-        <NavLinkRow
-          item={{ to: "/admin", label: "Admin Console", icon: Shield }}
-          collapsed={collapsed}
-          onNavigate={onNavigate}
-        />
-      ) : null}
     </nav>
   );
 }
@@ -157,7 +185,7 @@ export function SidebarBrand({ onNavigate }: { onNavigate?: () => void }) {
     <Link
       to="/dashboard"
       onClick={onNavigate}
-      className="flex items-center gap-2 rounded-md px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="flex items-center gap-2.5 rounded-md px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
         <Globe className="h-4.5 w-4.5" aria-hidden="true" />
@@ -178,54 +206,59 @@ export function DesktopSidebar({
   onToggleCollapsed: () => void;
 }) {
   return (
-    <TooltipProvider delayDuration={150}>
+    <TooltipProvider delayDuration={200}>
       <aside
         data-collapsed={collapsed}
         className={cn(
-          "sticky top-14 hidden h-[calc(100dvh-3.5rem)] shrink-0 flex-col border-r border-sidebar-border bg-sidebar p-3 transition-[width] duration-200 ease-in-out lg:flex",
-          collapsed ? "w-[68px]" : "w-64",
+          "sticky top-14 hidden h-[calc(100dvh-3.5rem)] shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200 ease-in-out lg:flex",
+          collapsed ? "w-[68px] px-2 py-3" : "w-64 px-3 py-3",
         )}
       >
         {/* Collapse / Expand toggle */}
-        <div className={cn("mb-2", collapsed ? "flex justify-center" : "flex justify-end px-1")}>
+        <div className={cn("mb-1", collapsed ? "flex justify-center" : "flex justify-end")}>
           <Button
             variant="ghost"
             size="icon"
             onClick={onToggleCollapsed}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-expanded={!collapsed}
-            className="size-8 text-muted-foreground hover:text-foreground"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground"
           >
             {collapsed ? (
-              <PanelLeftOpen className="size-4" aria-hidden="true" />
+              <PanelLeftOpen className="h-4 w-4" aria-hidden="true" />
             ) : (
-              <PanelLeftClose className="size-4" aria-hidden="true" />
+              <PanelLeftClose className="h-4 w-4" aria-hidden="true" />
             )}
           </Button>
         </div>
 
-        <div className="h-px bg-sidebar-border" />
-
-        <div className="mt-2 flex min-h-0 flex-1 flex-col">
+        {/* Nav content */}
+        <div className="flex min-h-0 flex-1 flex-col">
           <SidebarNav collapsed={collapsed} />
         </div>
 
-        <div className={cn("pt-3", collapsed && "self-center")}>
+        {/* Create trip CTA */}
+        <div className={cn("pt-2", collapsed && "self-center")}>
           {collapsed ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button size="icon" aria-label="Create new trip" asChild>
+                <Button
+                  size="icon"
+                  aria-label="Create new trip"
+                  asChild
+                  className="h-9 w-9"
+                >
                   <Link to="/trips/create">
-                    <PlusCircle className="size-5" aria-hidden="true" />
+                    <PlusCircle className="h-[18px] w-[18px]" aria-hidden="true" />
                   </Link>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">Create New Trip</TooltipContent>
+              <TooltipContent side="right" sideOffset={8}>Create New Trip</TooltipContent>
             </Tooltip>
           ) : (
-            <Button asChild className="w-full">
+            <Button asChild className="w-full gap-2" size="sm">
               <Link to="/trips/create">
-                <PlusCircle />
+                <PlusCircle className="h-4 w-4" aria-hidden="true" />
                 Create New Trip
               </Link>
             </Button>

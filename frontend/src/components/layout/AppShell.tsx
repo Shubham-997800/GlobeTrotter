@@ -1,23 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 
-import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
-import {
-  DesktopSidebar,
-} from "@/components/layout/Sidebar";
+import { DesktopSidebar } from "@/components/layout/Sidebar";
 import { OfflineBanner } from "@/components/OfflineBanner";
-import { useAuth } from "@/features/auth/useAuth";
-
-export interface Crumb {
-  label: string;
-  /** Omit for the current (non-link) crumb. */
-  to?: string;
-}
 
 interface AppShellProps {
-  crumbs: Crumb[];
-  /** Omit when the page renders its own heading (e.g. dashboard welcome). */
   title?: string;
   description?: string;
   actions?: React.ReactNode;
@@ -34,19 +21,12 @@ function readCollapsedPreference(): boolean {
   }
 }
 
-/**
- * Shared signed-in layout: sticky top bar (menu, breadcrumbs, global search,
- * actions), collapsible desktop sidebar rail, mobile drawer and the user
- * menu. Feature pages only pass content — they never rebuild chrome.
- */
 export function AppShell({
-  crumbs,
   title,
   description,
   actions,
   children,
 }: AppShellProps) {
-  const { user } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     readCollapsedPreference,
@@ -59,7 +39,7 @@ export function AppShell({
         sidebarCollapsed ? "1" : "0",
       );
     } catch {
-      // Preference is best-effort; the shell still works without storage.
+      // Best-effort persistence
     }
   }, [sidebarCollapsed]);
 
@@ -74,7 +54,6 @@ export function AppShell({
       </a>
 
       <Navbar
-        crumbs={crumbs}
         drawerOpen={drawerOpen}
         onDrawerOpenChange={setDrawerOpen}
       />
@@ -82,15 +61,15 @@ export function AppShell({
       <OfflineBanner />
 
       <div className="flex">
-        {/* ── Desktop sidebar ───────────────────────────────────── */}
+        {/* Desktop sidebar */}
         <DesktopSidebar
           collapsed={sidebarCollapsed}
           onToggleCollapsed={() => setSidebarCollapsed((prev) => !prev)}
         />
 
-        {/* ── Page content ──────────────────────────────────────── */}
+        {/* Page content */}
         <main id="main-content" className="min-w-0 flex-1">
-          <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+          <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
             {title || actions ? (
               <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
                 <div className="min-w-0">
@@ -105,7 +84,9 @@ export function AppShell({
                     </p>
                   ) : null}
                 </div>
-                {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+                {actions ? (
+                  <div className="flex items-center gap-2">{actions}</div>
+                ) : null}
               </div>
             ) : null}
             {children}

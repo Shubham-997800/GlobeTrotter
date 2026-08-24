@@ -268,11 +268,6 @@ export function CreateTripPage() {
 
   return (
     <AppShell
-      crumbs={[
-        { label: "Home", to: "/dashboard" },
-        { label: "My Trips", to: "/trips" },
-        { label: isEdit ? "Edit" : "Create Trip" },
-      ]}
       title={isEdit ? "Edit Trip" : "Create a New Trip"}
       description={isEdit
         ? "Adjust the details and save when you're ready."
