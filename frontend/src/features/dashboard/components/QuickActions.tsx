@@ -28,7 +28,7 @@ function QuickActionCard({ action }: { action: QuickActionDef }) {
         "group flex items-center gap-3 rounded-xl border p-3.5 transition-all duration-200 sm:p-4",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         emphasized
-          ? "border-primary-active bg-primary-active text-white shadow-md hover:bg-primary-hover"
+          ? "border-primary-active bg-primary-active text-white shadow-md"
           : "border-subtle-border bg-card hover:border-primary/30 hover:shadow-sm",
       )}
     >
