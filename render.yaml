@@ -1,0 +1,30 @@
+# Render blueprint — deploys the GlobeTrotter API.
+# 1. Push this repo to GitHub
+# 2. Render Dashboard → New → Blueprint → pick the repo
+# 3. Fill in the three SUPABASE_* values when prompted (sync: false)
+#    Get them from: supabase.com/dashboard → your project → Project Settings → API
+services:
+  - type: web
+    name: globetrotter-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    # --include=dev: Render builds with NODE_ENV=production, which makes
+    # npm skip devDependencies — but typescript/@types/node are needed here.
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGIN
+        value: "http://localhost:5173,http://127.0.0.1:5173"
+      - key: PASSWORD_RESET_REDIRECT_URL
+        value: "http://localhost:5173/reset-password"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
