@@ -1,112 +1,86 @@
-import axios from "axios";
-
-const api = axios.create({ baseURL: "/api" });
-
-api.interceptors.request.use((config) => {
-  try {
-    const token =
-      localStorage.getItem("globetrotter.auth.token") ??
-      sessionStorage.getItem("globetrotter.auth.token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  } catch {
-    // Best-effort
-  }
-  return config;
-});
-
-function authHeaders(): Record<string, string> {
-  try {
-    const token =
-      localStorage.getItem("globetrotter.auth.token") ??
-      sessionStorage.getItem("globetrotter.auth.token");
-    if (token) return { Authorization: `Bearer ${token}` };
-  } catch {
-    // Best-effort
-  }
-  return {};
-}
+import {
+  getAdminDashboard,
+  getAdminUsers,
+  getAdminTrips,
+  getAdminDestinations,
+  createDestination,
+  updateDestination,
+  deleteDestination,
+  getAdminActivities,
+  createActivity,
+  updateActivity,
+  deleteActivity,
+  getAdminAnalytics,
+} from "./admin.data";
 
 export const adminService = {
   async getDashboard() {
-    const { data } = await api.get("/admin/stats", { headers: authHeaders() });
-    return data;
+    return getAdminDashboard();
   },
 
   async getUsers(params: Record<string, string | number>) {
-    const { data } = await api.get("/admin/users", { params, headers: authHeaders() });
-    return data;
+    return getAdminUsers(params);
   },
 
   async getUser(userId: string) {
-    const { data } = await api.get(`/admin/users/${userId}`, { headers: authHeaders() });
-    return data;
+    const { users } = getAdminUsers({});
+    const user = users.find(u => u.id === userId);
+    if (!user) throw new Error("User not found");
+    return user;
   },
 
   async updateUserRole(userId: string, role: string) {
-    const { data } = await api.patch(
-      `/admin/users/${userId}/role`,
-      { role },
-      { headers: authHeaders() },
-    );
-    return data;
+    const { users } = getAdminUsers({});
+    const user = users.find(u => u.id === userId);
+    if (!user) throw new Error("User not found");
+    user.role = role as "user" | "admin";
+    return user;
   },
 
   async getTrips(params: Record<string, string | number>) {
-    const { data } = await api.get("/admin/trips", { params, headers: authHeaders() });
-    return data;
+    return getAdminTrips(params);
   },
 
   async getTrip(tripId: string) {
-    const { data } = await api.get(`/admin/trips/${tripId}`, { headers: authHeaders() });
-    return data;
+    const { trips } = getAdminTrips({});
+    const trip = trips.find(t => t.id === tripId);
+    if (!trip) throw new Error("Trip not found");
+    return trip;
   },
 
   async getDestinations(params: Record<string, string | number>) {
-    const { data } = await api.get("/admin/destinations", { params, headers: authHeaders() });
-    return data;
+    return getAdminDestinations(params);
   },
 
   async createDestination(payload: Record<string, unknown>) {
-    const { data } = await api.post("/admin/destinations", payload, { headers: authHeaders() });
-    return data;
+    return createDestination(payload);
   },
 
   async updateDestination(destId: string, payload: Record<string, unknown>) {
-    const { data } = await api.patch(`/admin/destinations/${destId}`, payload, {
-      headers: authHeaders(),
-    });
-    return data;
+    return updateDestination(destId, payload);
   },
 
   async deleteDestination(destId: string) {
-    await api.delete(`/admin/destinations/${destId}`, { headers: authHeaders() });
+    return deleteDestination(destId);
   },
 
   async getActivities(params: Record<string, string | number>) {
-    const { data } = await api.get("/admin/activities", { params, headers: authHeaders() });
-    return data;
+    return getAdminActivities(params);
   },
 
   async createActivity(payload: Record<string, unknown>) {
-    const { data } = await api.post("/admin/activities", payload, { headers: authHeaders() });
-    return data;
+    return createActivity(payload);
   },
 
   async updateActivity(activityId: string, payload: Record<string, unknown>) {
-    const { data } = await api.patch(`/admin/activities/${activityId}`, payload, {
-      headers: authHeaders(),
-    });
-    return data;
+    return updateActivity(activityId, payload);
   },
 
   async deleteActivity(activityId: string) {
-    await api.delete(`/admin/activities/${activityId}`, { headers: authHeaders() });
+    return deleteActivity(activityId);
   },
 
   async getAnalytics() {
-    const { data } = await api.get("/admin/analytics", { headers: authHeaders() });
-    return data;
+    return getAdminAnalytics();
   },
 };
