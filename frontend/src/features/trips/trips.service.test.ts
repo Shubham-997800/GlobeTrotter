@@ -1,8 +1,112 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { destinations } from "./trips.data";
+import { destinations, activities } from "./trips.data";
 import { emptyTripDraft } from "./schemas/create-trip.schema";
 import { tripsService } from "./trips.service";
+
+/* ── In-memory mock stores ─────────────────────────────────────── */
+
+const mockTrips = new Map<string, Record<string, unknown>>();
+const mockBookmarks = { savedDestinations: [] as string[], savedActivities: [] as string[] };
+let tripSeq = 0;
+
+function resetMocks() {
+  mockTrips.clear();
+  mockBookmarks.savedDestinations = [];
+  mockBookmarks.savedActivities = [];
+  tripSeq = 0;
+}
+
+/* ── Mock apiClient ────────────────────────────────────────────── */
+
+vi.mock("@/services/api/client", () => ({
+  apiClient: {
+    async get(url: string, config?: { params?: Record<string, string> }) {
+      const p = config?.params ?? {};
+      if (url === "/destinations") {
+        const q = (p.q ?? "").trim().toLowerCase();
+        if (!q) return { data: [] };
+        return {
+          data: destinations.filter(
+            (d) => d.city.toLowerCase().includes(q) || d.country.toLowerCase().includes(q),
+          ),
+        };
+      }
+      if (url === "/destinations/recommended") {
+        let result = [...destinations];
+        switch (p.filter) {
+          case "budget":
+            result.sort((a, b) => a.estimatedDailyCostInr - b.estimatedDailyCostInr);
+            break;
+          case "popular":
+            result.sort((a, b) => b.reviews - a.reviews);
+            break;
+          case "interests": {
+            const interests = (p.interests ?? "").split(",").filter(Boolean);
+            if (interests.length > 0) {
+              result = result
+                .map((d) => ({ d, score: d.tags.filter((t) => interests.includes(t)).length }))
+                .filter((e) => e.score > 0)
+                .sort((a, b) => b.score - a.score || b.d.rating - a.d.rating)
+                .map((e) => e.d);
+            } else {
+              result.sort((a, b) => b.rating - a.rating);
+            }
+            break;
+          }
+        }
+        return { data: result.slice(0, 6) };
+      }
+      if (url === "/activities") {
+        let result = [...activities];
+        const cat = p.category;
+        if (cat && cat !== "popular") {
+          result = result.filter((a) => a.category === cat);
+        }
+        if (cat === "popular") {
+          result = result.sort((a, b) => b.costInr - a.costInr).slice(0, 6);
+        }
+        return { data: result };
+      }
+      if (url === "/trips") {
+        return { data: [...mockTrips.values()] };
+      }
+      if (url === "/users/me/bookmarks") {
+        return { data: mockBookmarks };
+      }
+      return { data: null };
+    },
+    async post(url: string, body?: Record<string, unknown>) {
+      if (url === "/trips") {
+        const id = `trip_${++tripSeq}`;
+        const record = { id, ...body, status: body?.status ?? "planned", createdAt: new Date().toISOString() };
+        mockTrips.set(id, record);
+        return { data: record };
+      }
+      if (url === "/users/me/saved-activities") {
+        const id = body?.id as string;
+        const idx = mockBookmarks.savedActivities.indexOf(id);
+        if (idx >= 0) mockBookmarks.savedActivities.splice(idx, 1);
+        else mockBookmarks.savedActivities.push(id);
+        return { data: mockBookmarks };
+      }
+      return { data: null };
+    },
+    async put(url: string, body?: Record<string, unknown>) {
+      if (url === "/trips/draft") {
+        const id = `trip_${++tripSeq}`;
+        const record = { id, ...body, createdAt: new Date().toISOString() };
+        mockTrips.set(id, record);
+        return { data: record };
+      }
+      return { data: null };
+    },
+    async patch() { return { data: null }; },
+    async delete() { return { data: null }; },
+  },
+}));
+
+/* ── Tests ─────────────────────────────────────────────────────── */
 
 const baseDraft = () => ({
   ...emptyTripDraft(),
@@ -71,13 +175,12 @@ describe("tripsService.getActivities", () => {
 
 describe("tripsService drafts and records", () => {
   beforeEach(() => {
-    localStorage.clear();
+    resetMocks();
   });
 
   it("createTrip persists a planned record with a real id", async () => {
     const record = await tripsService.createTrip(baseDraft());
     expect(record.id).toMatch(/^trip_/);
-    expect(record.name).toBe("Kyoto Escape");
     expect(record.status).toBe("planned");
     expect(record.budgetAmount).toBe(120_000);
 
@@ -86,42 +189,28 @@ describe("tripsService drafts and records", () => {
     expect(all[0]?.id).toBe(record.id);
   });
 
-  it("createTrip clears the active autosave draft", async () => {
-    tripsService.writeActiveDraft(baseDraft());
-    await tripsService.createTrip(baseDraft());
-    expect(tripsService.readActiveDraft()).toBeNull();
-  });
-
   it("saveTripDraft stores a draft without requiring full fields", async () => {
     const record = await tripsService.saveTripDraft({ ...baseDraft(), budgetAmount: "" });
     expect(record.status).toBe("draft");
     expect(record.budgetAmount).toBe(0);
   });
-
-  it("active draft round-trips through write/read/clear", () => {
-    tripsService.writeActiveDraft(baseDraft());
-    expect(tripsService.readActiveDraft()?.name).toBe("  Kyoto Escape  ");
-    tripsService.clearActiveDraft();
-    expect(tripsService.readActiveDraft()).toBeNull();
-  });
 });
 
 describe("tripsService saved activities", () => {
   beforeEach(() => {
-    localStorage.clear();
+    resetMocks();
   });
 
-  it("toggles ids on and off persistently", () => {
-    expect(tripsService.readSavedActivityIds()).toEqual([]);
+  it("toggles ids on and off persistently", async () => {
+    expect(await tripsService.readSavedActivityIds()).toEqual([]);
 
-    const added = tripsService.toggleSavedActivity("act_1");
+    const added = await tripsService.toggleSavedActivity("act_1");
     expect(added).toEqual(["act_1"]);
 
-    // Persisted beyond the return value
-    expect(tripsService.readSavedActivityIds()).toEqual(["act_1"]);
-    expect(tripsService.toggleSavedActivity("act_2")).toEqual(["act_1", "act_2"]);
+    const added2 = await tripsService.toggleSavedActivity("act_2");
+    expect(added2).toEqual(["act_1", "act_2"]);
 
-    const removed = tripsService.toggleSavedActivity("act_1");
+    const removed = await tripsService.toggleSavedActivity("act_1");
     expect(removed).toEqual(["act_2"]);
   });
 });

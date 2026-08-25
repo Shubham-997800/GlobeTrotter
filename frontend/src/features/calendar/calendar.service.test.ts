@@ -1,13 +1,183 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { calendarService } from "./calendar.service";
 import { itineraryService } from "@/features/trips/itinerary.service";
 import { tripsService } from "@/features/trips/trips.service";
 import type { TripRecord } from "@/features/trips/trips.types";
+import type { ItineraryRecord, ItineraryActivity } from "@/features/trips/itinerary.types";
 import { emptyTripDraft } from "@/features/trips/schemas/create-trip.schema";
 
-beforeEach(() => {
+/* ── In-memory mock stores ─────────────────────────────────────── */
+
+const mockTrips = new Map<string, Record<string, unknown>>();
+const mockItineraries = new Map<string, ItineraryRecord>();
+let tripSeq = 0;
+let actSeq = 0;
+
+function resetMocks() {
+  mockTrips.clear();
+  mockItineraries.clear();
+  tripSeq = 0;
+  actSeq = 0;
   localStorage.clear();
+}
+
+function makeDefaultItinerary(tripId: string): ItineraryRecord {
+  const startDate = "2026-09-01";
+  return {
+    tripId,
+    days: [
+      { id: "day_2026-09-01", tripId, date: startDate, notes: "" },
+      { id: "day_2026-09-02", tripId, date: "2026-09-02", notes: "" },
+      { id: "day_2026-09-03", tripId, date: "2026-09-03", notes: "" },
+    ],
+    activities: [],
+    stops: [],
+  };
+}
+
+/* ── Mock apiClient ────────────────────────────────────────────── */
+
+vi.mock("@/services/api/client", () => ({
+  apiClient: {
+    async get(url: string) {
+      // List trips
+      if (url === "/trips") {
+        return { data: [...mockTrips.values()] };
+      }
+      // Get itinerary
+      const itinMatch = url.match(/^\/trips\/([^/]+)\/itinerary$/);
+      if (itinMatch) {
+        const tid = itinMatch[1];
+        const record = mockItineraries.get(tid);
+        if (!record) return { data: makeDefaultItinerary(tid) };
+        return { data: record };
+      }
+      return { data: null };
+    },
+    async post(url: string, body?: Record<string, unknown>) {
+      // Create trip
+      if (url === "/trips") {
+        const id = `trip_${++tripSeq}`;
+        const days = 3;
+        const record: TripRecord = {
+          id,
+          name: String(body?.name ?? ""),
+          description: body?.description as string | undefined,
+          startDate: String(body?.startDate ?? ""),
+          endDate: String(body?.endDate ?? ""),
+          destinationId: String(body?.destinationId ?? ""),
+          interests: (body?.interests as string[]) ?? [],
+          budgetTier: String(body?.budgetTier ?? "moderate"),
+          currency: String(body?.currency ?? "INR"),
+          budgetAmount: Number(body?.budgetAmount ?? 0),
+          status: (body?.status as string) ?? "planned",
+          createdAt: new Date().toISOString(),
+        } as TripRecord;
+        mockTrips.set(id, record);
+
+        // Auto-create itinerary with days
+        const itin = makeDefaultItinerary(id);
+        mockItineraries.set(id, itin);
+
+        return { data: record };
+      }
+      // Create activity
+      const actMatch = url.match(/^\/trips\/([^/]+)\/activities$/);
+      if (actMatch && body) {
+        const tid = actMatch[1];
+        let record = mockItineraries.get(tid);
+        if (!record) {
+          record = makeDefaultItinerary(tid);
+          mockItineraries.set(tid, record);
+        }
+        const act: ItineraryActivity = {
+          id: `act_${++actSeq}`,
+          dayId: String(body.dayId ?? record.days[0].id),
+          name: String(body.name ?? ""),
+          description: String(body.description ?? ""),
+          category: String(body.category ?? "custom") as ItineraryActivity["category"],
+          location: String(body.location ?? ""),
+          startTime: String(body.startTime ?? "09:00"),
+          endTime: String(body.endTime ?? "10:00"),
+          estimatedCostInr: Number(body.estimatedCostInr ?? 0),
+          source: "custom",
+        } as ItineraryActivity;
+        record.activities.push(act);
+        // Write to localStorage cache so readItineraryByTrip works
+        localStorage.setItem(
+          `globetrotter.itinerary-cache.${tid}`,
+          JSON.stringify(record),
+        );
+        return { data: act };
+      }
+      // Move activity
+      const moveMatch = url.match(/^\/trips\/([^/]+)\/activities\/([^/]+)\/move$/);
+      if (moveMatch && body) {
+        const tid = moveMatch[1];
+        const aid = moveMatch[2];
+        const record = mockItineraries.get(tid);
+        if (!record) throw new Error("No itinerary");
+        const activity = record.activities.find((a) => a.id === aid);
+        if (!activity) throw new Error("Activity not found");
+        activity.dayId = String(body.dayId);
+        localStorage.setItem(
+          `globetrotter.itinerary-cache.${tid}`,
+          JSON.stringify(record),
+        );
+        return { data: activity };
+      }
+      return { data: null };
+    },
+    async put(url: string, body?: Record<string, unknown>) {
+      // Save itinerary (full document)
+      const putItinMatch = url.match(/^\/trips\/([^/]+)\/itinerary$/);
+      if (putItinMatch && body) {
+        const tid = putItinMatch[1];
+        const record = body as ItineraryRecord;
+        mockItineraries.set(tid, record);
+        localStorage.setItem(
+          `globetrotter.itinerary-cache.${tid}`,
+          JSON.stringify(record),
+        );
+        return { data: record };
+      }
+      // Save draft
+      if (url === "/trips/draft") {
+        const id = `trip_${++tripSeq}`;
+        const record = { id, ...body, createdAt: new Date().toISOString() };
+        mockTrips.set(id, record);
+        return { data: record };
+      }
+      return { data: null };
+    },
+    async patch(url: string, body?: Record<string, unknown>) {
+      // Update activity
+      const updActMatch = url.match(/^\/trips\/([^/]+)\/activities\/([^/]+)$/);
+      if (updActMatch && body) {
+        const tid = updActMatch[1];
+        const aid = updActMatch[2];
+        const record = mockItineraries.get(tid);
+        if (!record) throw new Error("No itinerary");
+        const activity = record.activities.find((a) => a.id === aid);
+        if (!activity) throw new Error("Activity not found");
+        Object.assign(activity, body);
+        localStorage.setItem(
+          `globetrotter.itinerary-cache.${tid}`,
+          JSON.stringify(record),
+        );
+        return { data: activity };
+      }
+      return { data: null };
+    },
+    async delete() { return { data: null }; },
+  },
+}));
+
+/* ── Helpers ───────────────────────────────────────────────────── */
+
+beforeEach(() => {
+  resetMocks();
 });
 
 async function makeTripWithDays(): Promise<TripRecord> {
@@ -19,6 +189,8 @@ async function makeTripWithDays(): Promise<TripRecord> {
     destinationId: "dst_kyoto",
   });
 }
+
+/* ── Tests ─────────────────────────────────────────────────────── */
 
 describe("calendarService custom events", () => {
   it("creates, updates and deletes standalone events", async () => {
