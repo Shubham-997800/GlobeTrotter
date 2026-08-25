@@ -19,7 +19,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: CORS_ORIGIN
-        value: "http://localhost:5173,http://127.0.0.1:5173"
+        value: "*"
       - key: PASSWORD_RESET_REDIRECT_URL
         value: "http://localhost:5173/reset-password"
       - key: SUPABASE_URL

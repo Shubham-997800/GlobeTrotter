@@ -35,6 +35,48 @@ function writeSession(session: AuthSession, remember: boolean): void {
   }
 }
 
+function handleAuthError(err: unknown, fallback: string): never {
+  if (err instanceof ApiError) throw err;
+
+  // Axios error with a server response
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "response" in err
+  ) {
+    const resp = (err as { response?: { status?: number; data?: unknown } }).response;
+    const status = resp?.status;
+    const data = resp?.data;
+
+    // Backend returned structured JSON error
+    if (data && typeof data === "object" && "code" in (data as Record<string, unknown>)) {
+      const body = data as { code?: string; message?: string };
+      throw new ApiError(
+        (body.code as AuthErrorCode) ?? "SERVER_ERROR",
+        body.message ?? fallback,
+      );
+    }
+
+    // Backend returned something but not our shape (Render cold start HTML, 503, etc.)
+    if (status === 503) {
+      throw new ApiError("SERVER_ERROR", "Server is starting up. Please wait a moment and try again.");
+    }
+    if (status && status >= 400) {
+      throw new ApiError("SERVER_ERROR", `Server error (${status}). Please try again.`);
+    }
+  }
+
+  // Axios timeout or network failure
+  if (typeof err === "object" && err !== null && "code" in (err as Record<string, unknown>)) {
+    const code = (err as { code?: string }).code;
+    if (code === "ECONNABORTED" || code === "ERR_NETWORK") {
+      throw new ApiError("NETWORK_ERROR", "Unable to reach the server. Please check your connection and try again.");
+    }
+  }
+
+  throw new ApiError("NETWORK_ERROR", fallback);
+}
+
 function clearSession(): void {
   localStorage.removeItem(SESSION_KEY);
   sessionStorage.removeItem(SESSION_KEY);
@@ -71,20 +113,7 @@ export const authService = {
       writeSession(data, payload.remember);
       return data;
     } catch (err) {
-      if (err instanceof ApiError) throw err;
-      if (
-        typeof err === "object" &&
-        err !== null &&
-        "response" in err &&
-        typeof (err as { response?: { data?: unknown } }).response?.data === "object"
-      ) {
-        const body = (err as { response: { data: { code?: string; message?: string } } }).response.data;
-        throw new ApiError(
-          (body.code as AuthErrorCode) ?? "SERVER_ERROR",
-          body.message ?? "Login failed. Please try again.",
-        );
-      }
-      throw new ApiError("NETWORK_ERROR", "Unable to reach the server. Check your connection.");
+      handleAuthError(err, "Unable to reach the server. Check your connection.");
     }
   },
 
@@ -108,20 +137,7 @@ export const authService = {
       writeSession(data, remember);
       return data;
     } catch (err) {
-      if (err instanceof ApiError) throw err;
-      if (
-        typeof err === "object" &&
-        err !== null &&
-        "response" in err &&
-        typeof (err as { response?: { data?: unknown } }).response?.data === "object"
-      ) {
-        const body = (err as { response: { data: { code?: string; message?: string } } }).response.data;
-        throw new ApiError(
-          (body.code as AuthErrorCode) ?? "SERVER_ERROR",
-          body.message ?? "Registration failed. Please try again.",
-        );
-      }
-      throw new ApiError("NETWORK_ERROR", "Unable to reach the server. Check your connection.");
+      handleAuthError(err, "Registration failed. Please try again.");
     }
   },
 
@@ -132,20 +148,7 @@ export const authService = {
       });
       return data;
     } catch (err) {
-      if (err instanceof ApiError) throw err;
-      if (
-        typeof err === "object" &&
-        err !== null &&
-        "response" in err &&
-        typeof (err as { response?: { data?: unknown } }).response?.data === "object"
-      ) {
-        const body = (err as { response: { data: { code?: string; message?: string } } }).response.data;
-        throw new ApiError(
-          (body.code as AuthErrorCode) ?? "SERVER_ERROR",
-          body.message ?? "Failed to send reset email.",
-        );
-      }
-      throw new ApiError("NETWORK_ERROR", "Unable to reach the server. Check your connection.");
+      handleAuthError(err, "Failed to send reset email.");
     }
   },
 
@@ -156,20 +159,7 @@ export const authService = {
         password: payload.password,
       });
     } catch (err) {
-      if (err instanceof ApiError) throw err;
-      if (
-        typeof err === "object" &&
-        err !== null &&
-        "response" in err &&
-        typeof (err as { response?: { data?: unknown } }).response?.data === "object"
-      ) {
-        const body = (err as { response: { data: { code?: string; message?: string } } }).response.data;
-        throw new ApiError(
-          (body.code as AuthErrorCode) ?? "SERVER_ERROR",
-          body.message ?? "Failed to reset password.",
-        );
-      }
-      throw new ApiError("NETWORK_ERROR", "Unable to reach the server. Check your connection.");
+      handleAuthError(err, "Failed to reset password.");
     }
   },
 
@@ -211,20 +201,7 @@ export const authService = {
         newPassword: payload.newPassword,
       });
     } catch (err) {
-      if (err instanceof ApiError) throw err;
-      if (
-        typeof err === "object" &&
-        err !== null &&
-        "response" in err &&
-        typeof (err as { response?: { data?: unknown } }).response?.data === "object"
-      ) {
-        const body = (err as { response: { data: { code?: string; message?: string } } }).response.data;
-        throw new ApiError(
-          (body.code as AuthErrorCode) ?? "SERVER_ERROR",
-          body.message ?? "Failed to change password.",
-        );
-      }
-      throw new ApiError("NETWORK_ERROR", "Unable to reach the server. Check your connection.");
+      handleAuthError(err, "Failed to change password.");
     }
   },
 
@@ -259,6 +236,7 @@ type AuthErrorCode =
   | "INVALID_CREDENTIALS"
   | "ACCOUNT_NOT_FOUND"
   | "EMAIL_TAKEN"
+  | "EMAIL_CONFIRMATION_REQUIRED"
   | "INVALID_REQUEST"
   | "TOKEN_INVALID"
   | "NETWORK_ERROR"
