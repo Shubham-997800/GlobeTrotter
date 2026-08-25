@@ -2,7 +2,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, Shield } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 import { AuthError } from "@/components/auth/AuthError";
@@ -60,7 +60,6 @@ type AdminRegisterValues = z.infer<typeof adminRegisterSchema>;
 
 export function AdminRegisterForm() {
   const { register: registerUser } = useAuth();
-  const navigate = useNavigate();
 
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const [status, setStatus] = React.useState<"idle" | "submitting" | "success" | "confirm_email">("idle");

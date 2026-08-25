@@ -9,6 +9,10 @@ import {
   MapPin,
   Luggage,
   Plane,
+  Globe,
+  Shield,
+  Zap,
+  BarChart3,
 } from "lucide-react";
 
 import type { LandingConfig } from "@/lib/types";
@@ -151,6 +155,45 @@ export const landingConfig: LandingConfig = {
       points: ["Track Your Journey", "Manage Your Budget"],
     },
   ],
+  benefits: {
+    badge: "Why GlobeTrotter",
+    title: (
+      <>
+        Why travelers
+        <br />
+        <span className="text-primary">love GlobeTrotter.</span>
+      </>
+    ),
+    description:
+      "Everything you need to plan, track and enjoy your trip — without the spreadsheet chaos.",
+    items: [
+      {
+        icon: Globe,
+        title: "Multi-City Planning",
+        description: "Plan complex itineraries across multiple cities and countries in one place.",
+      },
+      {
+        icon: Shield,
+        title: "Budget Tracking",
+        description: "Track every rupee and stay on top of your travel expenses in real time.",
+      },
+      {
+        icon: Zap,
+        title: "AI Suggestions",
+        description: "Get personalized recommendations based on your interests and travel style.",
+      },
+      {
+        icon: BarChart3,
+        title: "Travel Analytics",
+        description: "See your travel patterns, spending habits and trip summaries at a glance.",
+      },
+    ],
+    stats: [
+      { value: "15+", label: "Destinations" },
+      { value: "50+", label: "Activities" },
+      { value: "100%", label: "Free" },
+    ],
+  },
   discover: {
     heading: {
       badge: "Explore Destinations",

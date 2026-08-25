@@ -63,7 +63,6 @@ import type {
 } from "@/features/trips/itinerary.types";
 import type { ActivityFormValues } from "@/features/trips/schemas/itinerary.schema";
 import type { ActivitySuggestion } from "@/features/trips/trips.types";
-import { destinations } from "@/features/trips/trips.data";
 import {
   findOverlaps,
   itineraryProgress,

@@ -1,5 +1,5 @@
 import { apiClient } from "@/services/api/client";
-import { DEFAULT_SETTINGS, mergeSettings, type SettingsState } from "./settings.types";
+import { mergeSettings, type SettingsState } from "./settings.types";
 
 /**
  * Real settings service — backend-backed via /api/users/me/settings.

@@ -190,11 +190,7 @@ export const authService = {
       const updated: User = {
         ...session.user,
         ...patch,
-        ...(patch.avatarUrl === null
-          ? { avatarUrl: undefined }
-          : patch.avatarUrl !== undefined
-            ? { avatarUrl: patch.avatarUrl }
-            : {}),
+        avatarUrl: patch.avatarUrl === null ? undefined : (patch.avatarUrl ?? session.user.avatarUrl),
       };
       refreshSessionUser(updated);
       return updated;

@@ -49,7 +49,6 @@ import type {
 } from "@/features/trips/itinerary.types";
 import type { TripBadgeStatus } from "@/features/trips/components/my-trips/trip-status-badge";
 
-import { shareTripLink } from "@/features/trips/components/my-trips/share-trip";
 import { TripStatusBadge } from "@/features/trips/components/my-trips/trip-status-badge";
 
 import {

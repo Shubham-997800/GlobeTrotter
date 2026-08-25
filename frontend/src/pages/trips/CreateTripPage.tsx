@@ -55,7 +55,7 @@ import {
   estimateSpendingInr,
   tripDuration,
 } from "@/features/trips/trips.utils";
-import { budgetTier, interestLabel } from "@/features/trips/trips.data";
+import { budgetTier } from "@/features/trips/trips.data";
 import { tripsService } from "@/features/trips/trips.service";
 import { useCreateTrip, useSaveDraft, useUpdateTrip } from "@/features/trips/useTrips";
 import { useDraftAutosave } from "@/features/trips/useDraftAutosave";
@@ -86,15 +86,20 @@ export function CreateTripPage() {
   const navigate = useNavigate();
   const { tripId } = useParams<{ tripId: string }>();
   const isEdit = Boolean(tripId);
-  const existingTrip = tripsService.readTripById(tripId ?? "");
+  const [existingTrip, setExistingTrip] = useState<TripRecord | null>(null);
   const createTrip = useCreateTrip();
   const saveDraft = useSaveDraft();
   const updateTrip = useUpdateTrip();
 
+  useEffect(() => {
+    if (!isEdit || !tripId) return;
+    void tripsService.readTripById(tripId).then(setExistingTrip);
+  }, [isEdit, tripId]);
+
   /* ── Form ─────────────────────────────────────────────────── */
   const form = useForm<TripFormValues>({
     resolver: zodResolver(createTripSchema("create")) as never,
-    defaultValues: isEdit && existingTrip ? recordToFormValues(existingTrip) : readInitialValues(),
+    defaultValues: isEdit ? (existingTrip ? recordToFormValues(existingTrip) : emptyTripDraft()) : readInitialValues(),
     mode: "onTouched",
   });
   const { register, handleSubmit, setValue, watch, formState } = form;

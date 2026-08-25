@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Bookmark,
-  Compass,
   Loader2,
   MapPin,
   PenLine,

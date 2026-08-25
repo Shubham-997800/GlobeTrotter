@@ -4,8 +4,6 @@ import { ArrowRight, Globe, Sparkles } from "lucide-react";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/shared/PageHeader";
-import { SearchInput } from "@/components/shared/SearchInput";
 import { SectionHeader } from "@/components/shared/SectionHeader";
 import { DestinationSearch } from "@/features/explore/components/DestinationSearch";
 import { ExploreHero } from "@/features/explore/components/ExploreHero";

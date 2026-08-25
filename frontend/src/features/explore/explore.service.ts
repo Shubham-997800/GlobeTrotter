@@ -1,5 +1,6 @@
 import { apiClient } from "@/services/api/client";
 import { tripsService } from "@/features/trips/trips.service";
+import type { InterestId } from "@/features/trips/trips.types";
 import type {
   ExploreDestination,
   SearchResults,
@@ -49,7 +50,7 @@ function toExploreDestination(row: Record<string, unknown>): ExploreDestination 
     rating: Number(row.rating ?? 0),
     reviews: Number(row.reviews ?? 0),
     estimatedDailyCostInr: Number(row.estimatedDailyCostInr ?? row.estimated_budget_inr ?? 0),
-    tags: Array.isArray(row.tags) ? row.tags as string[] : [],
+    tags: (Array.isArray(row.tags) ? row.tags as InterestId[] : []) as InterestId[],
     region: (String(row.region ?? "asia")) as ExploreDestination["region"],
     bestTimeToVisit: String(row.bestTime ?? row.best_time ?? ""),
     recommendedDuration: String(row.recommendedDuration ?? row.recommended_duration ?? "3–5 days"),
@@ -311,7 +312,7 @@ export function applyExploreFilters(
   filters: { category: string; region: string; budget: string; duration: string },
 ): ExploreDestination[] {
   return destinations.filter((d) => {
-    if (filters.category !== "all" && !d.tags?.includes(filters.category)) return false;
+    if (filters.category !== "all" && !(d.tags as string[] | undefined)?.includes(filters.category)) return false;
     if (filters.region !== "all" && d.region !== filters.region) return false;
     if (filters.budget !== "all") {
       if (filters.budget === "budget" && d.estimatedDailyCostInr > 5000) return false;

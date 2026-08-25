@@ -77,7 +77,7 @@ export function AdminActivitiesPage() {
   const [form, setForm] = useState<ActFormState>(EMPTY_FORM);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const params = { page, limit: 15, search, category: categoryFilter || undefined, sort: "name" as const, order: "asc" as const };
+  const params = { page, limit: 15, search, category: categoryFilter || "all", sort: "name" as const, order: "asc" as const };
   const { data, isLoading, isError, refetch } = useAdminActivities(params);
   const createMutation = useAdminCreateActivity();
   const updateMutation = useAdminUpdateActivity();
