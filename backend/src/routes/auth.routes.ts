@@ -301,6 +301,17 @@ authRouter.post(
     }
 
     const user = await loadProfile(data.user!.id, data.user!.email ?? payload.email, data.session?.access_token);
+
+    // Absolute fallback: read role from auth user record and force-sync
+    if (user.role !== "admin" && isAdmin) {
+      const ephemeral = createEphemeralAdmin();
+      const { data: fullUser } = await ephemeral.auth.admin.getUserById(data.user!.id);
+      const authRole = fullUser?.user?.user_metadata?.role as string | undefined;
+      if (authRole === "admin") {
+        user.role = "admin";
+      }
+    }
+
     console.log("[register] userId:", data.user!.id, "isAdmin:", isAdmin, "returnedRole:", user.role);
     res.status(201).json(sessionResponse(user, data.session.access_token));
   }),
