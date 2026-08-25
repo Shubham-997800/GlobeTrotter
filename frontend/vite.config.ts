@@ -55,6 +55,8 @@ export default defineConfig({
           "https://globetrotter-b769.onrender.com",
         changeOrigin: true,
         secure: true,
+        timeout: 60_000,
+        proxyTimeout: 60_000,
       },
     },
   },

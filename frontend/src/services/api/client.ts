@@ -6,7 +6,7 @@ export const AUTH_TOKEN_STORAGE_KEY = "globetrotter.auth.token";
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 15_000,
+  timeout: 60_000,
   headers: { "Content-Type": "application/json" },
 });
 
