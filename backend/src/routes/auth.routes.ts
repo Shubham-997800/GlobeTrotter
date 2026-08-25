@@ -339,6 +339,90 @@ authRouter.get(
   }),
 );
 
+const updateProfileSchema = z.object({
+  name: z.string().trim().min(1).max(200).optional(),
+  firstName: z.string().trim().min(1).max(80).optional(),
+  lastName: z.string().trim().max(80).optional(),
+  phone: z.string().trim().max(40).optional(),
+  city: z.string().trim().max(120).optional(),
+  country: z.string().trim().max(120).optional(),
+  bio: z.string().trim().max(500).optional(),
+  avatarUrl: z.string().trim().url().max(2048).optional().nullable(),
+  dateOfBirth: z.string().trim().optional().nullable(),
+  gender: z.string().trim().max(30).optional().nullable(),
+  stateRegion: z.string().trim().max(120).optional().nullable(),
+  timezone: z.string().trim().max(60).optional().nullable(),
+  preferences: z.record(z.string(), z.unknown()).optional().nullable(),
+});
+
+authRouter.patch(
+  "/me",
+  requireAuth,
+  asyncHandler(async (req: Request, res) => {
+    const body = req.body as Record<string, unknown>;
+    const admin = getSupabaseAdmin();
+    const userId = req.userId!;
+
+    const updateData: Record<string, unknown> = {};
+    if (body.name !== undefined) updateData.name = body.name;
+    if (body.firstName !== undefined || body.lastName !== undefined) {
+      const current = await loadProfile(userId, req.authEmail!);
+      const first = (body.firstName as string) ?? current.name.split(" ")[0] ?? "";
+      const last = (body.lastName as string) ?? current.name.split(" ").slice(1).join(" ") ?? "";
+      updateData.name = `${first} ${last}`.trim();
+    }
+    if (body.phone !== undefined) updateData.phone = body.phone;
+    if (body.city !== undefined) updateData.city = body.city;
+    if (body.country !== undefined) updateData.country = body.country;
+    if (body.bio !== undefined) updateData.bio = body.bio;
+    if (body.avatarUrl !== undefined) updateData.avatar_url = body.avatarUrl;
+    if (body.dateOfBirth !== undefined) updateData.date_of_birth = body.dateOfBirth;
+    if (body.gender !== undefined) updateData.gender = body.gender;
+    if (body.stateRegion !== undefined) updateData.state_region = body.stateRegion;
+    if (body.timezone !== undefined) updateData.timezone = body.timezone;
+    if (body.preferences !== undefined) updateData.preferences = body.preferences;
+
+    if (Object.keys(updateData).length === 0) {
+      throw new ApiError("INVALID_REQUEST", "No fields to update.");
+    }
+
+    const { error } = await admin
+      .from("profiles")
+      .update(updateData)
+      .eq("id", userId);
+
+    if (error) throw new ApiError("SERVER_ERROR", error.message);
+
+    const user = await loadProfile(userId, req.authEmail!);
+    const header = req.headers.authorization ?? "";
+    res.json({ user, token: header.replace(/^Bearer\s+/i, "") });
+  }),
+);
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8).max(72),
+});
+
+authRouter.post(
+  "/change-password",
+  requireAuth,
+  asyncHandler(async (req: Request, res) => {
+    const payload = parseBody(changePasswordSchema, req.body);
+    const userId = req.userId!;
+    const email = req.authEmail!;
+
+    const admin = getSupabaseAdmin();
+
+    const { error: pwError } = await admin.auth.admin.updateUserById(userId, {
+      password: payload.newPassword,
+    });
+    if (pwError) throw new ApiError("SERVER_ERROR", pwError.message);
+
+    res.status(200).json({ message: "Password updated successfully." });
+  }),
+);
+
 // DEBUG: returns all role sources so we can diagnose the issue
 authRouter.get(
   "/debug-role",

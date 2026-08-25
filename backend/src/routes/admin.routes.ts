@@ -479,10 +479,32 @@ adminRouter.get(
     const offset = (params.page - 1) * params.limit;
     query = query.range(offset, offset + params.limit - 1);
 
-    const { data, count, error } = await query;
+    let { data, count, error } = await query;
     if (error) throw new ApiError("SERVER_ERROR", error.message);
 
-    const destinations = (data ?? []).map(mapDestination);
+    // Fallback: if `destinations` table is empty, pull from dashboard_destinations
+    if ((count ?? 0) === 0 && (data ?? []).length === 0) {
+      const { data: dashData, error: dashError } = await admin
+        .from("dashboard_destinations")
+        .select("*");
+      if (!dashError && dashData && dashData.length > 0) {
+        data = dashData;
+        count = dashData.length;
+      }
+    }
+
+    const destinations = (data ?? []).map((row: Record<string, unknown>) => mapDestination({
+      id: row.id as string,
+      city: (row.city as string) ?? "",
+      country: (row.country as string) ?? "",
+      description: (row.description as string) ?? "",
+      image: (row.image as string) ?? "",
+      image_alt: (row.image_alt as string) ?? "",
+      rating: (row.rating as number) ?? 0,
+      reviews: (row.reviews as number) ?? 0,
+      estimated_daily_cost_inr: (row.estimated_daily_cost_inr as number) ?? 0,
+      tags: (row.tags as string[]) ?? [],
+    }));
 
     res.json({
       destinations,
@@ -631,8 +653,11 @@ adminRouter.get(
     const offset = (params.page - 1) * params.limit;
     query = query.range(offset, offset + params.limit - 1);
 
-    const { data, count, error } = await query;
+    let { data, count, error } = await query;
     if (error) throw new ApiError("SERVER_ERROR", error.message);
+
+    // Fallback: if `activities` table is empty, return empty (no secondary source)
+    // Activities are catalog-level — dashboard doesn't have a fallback table
 
     const activities = (data ?? []).map(mapActivity);
 
