@@ -17,6 +17,8 @@ import { ApiError } from "@/features/auth/auth.types";
 import { useAuth } from "@/features/auth/useAuth";
 import { z } from "zod";
 
+const REDIRECT_DELAY_MS = 1200;
+
 const adminRegisterSchema = z
   .object({
     firstName: z
@@ -55,8 +57,6 @@ const adminRegisterSchema = z
   });
 
 type AdminRegisterValues = z.infer<typeof adminRegisterSchema>;
-
-const REDIRECT_DELAY_MS = 900;
 
 export function AdminRegisterForm() {
   const { register: registerUser } = useAuth();
@@ -102,7 +102,9 @@ export function AdminRegisterForm() {
       setStatus("success");
       toast.success(`Admin account created. Welcome, ${user.name.split(" ")[0]}!`);
       window.setTimeout(
-        () => navigate("/admin", { replace: true }),
+        () => {
+          window.location.replace("/admin");
+        },
         REDIRECT_DELAY_MS,
       );
     } catch (error) {

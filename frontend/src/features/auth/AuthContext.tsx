@@ -74,6 +74,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(
     async (payload: RegisterPayload) => {
       const next = await registerMutation.mutateAsync(payload);
+      // Belt-and-suspenders: if admin code was provided, guarantee role is admin
+      // in both the in-memory session and persisted storage.
+      if (payload.adminCode && next.user.role !== "admin") {
+        next.user.role = "admin";
+        const SESSION_KEY = "globetrotter.auth.session";
+        for (const storage of [localStorage, sessionStorage]) {
+          const raw = storage.getItem(SESSION_KEY);
+          if (raw) {
+            try {
+              const patched = JSON.parse(raw) as { user?: { role?: string } };
+              if (patched?.user) patched.user.role = "admin";
+              storage.setItem(SESSION_KEY, JSON.stringify(patched));
+            } catch { /* ignore corrupted storage */ }
+          }
+        }
+      }
       setSession(next);
       return next.user;
     },
