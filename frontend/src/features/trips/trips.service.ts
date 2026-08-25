@@ -66,6 +66,11 @@ export const tripsService = {
     }
   },
 
+  async readTripById(tripId: string): Promise<TripRecord | null> {
+    if (!tripId) return null;
+    return this.getTrip(tripId);
+  },
+
   async createTrip(
     draft: TripDraftValues,
     activityIds: string[] = [],
