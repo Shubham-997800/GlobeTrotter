@@ -36,7 +36,7 @@ const tripDraftSchema = z.object({
   budgetTier: z.enum(BUDGET_TIERS),
   currency: z.string().trim().length(3),
   budgetAmount: z.coerce.number().min(0).max(1_000_000_000),
-  status: z.enum(["draft", "planned"]).optional(),
+  status: z.enum(["draft", "planned", "completed"]).optional(),
   activityIds: z.array(z.string().trim().min(1).max(160)).max(500).optional(),
 });
 
@@ -56,7 +56,7 @@ const tripPatchSchema = z.object({
   budgetTier: z.enum(BUDGET_TIERS).optional(),
   currency: z.string().trim().length(3).optional(),
   budgetAmount: z.coerce.number().min(0).max(1_000_000_000).optional(),
-  status: z.enum(["draft", "planned"]).optional(),
+  status: z.enum(["draft", "planned", "completed"]).optional(),
   activityIds: z.array(z.string().trim().min(1).max(160)).max(500).optional(),
 });
 
