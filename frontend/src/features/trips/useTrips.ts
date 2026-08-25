@@ -64,7 +64,7 @@ export function useSuggestedActivities(category: ActivityCategoryId) {
 export function useSavedActivityIds() {
   return useQuery({
     queryKey: tripsKeys.savedActivities,
-    queryFn: () => Promise.resolve(tripsService.readSavedActivityIds()),
+    queryFn: () => tripsService.readSavedActivityIds(),
     staleTime: Infinity,
   });
 }
@@ -72,8 +72,7 @@ export function useSavedActivityIds() {
 export function useToggleSavedActivity() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (activityId: string) =>
-      Promise.resolve(tripsService.toggleSavedActivity(activityId)),
+    mutationFn: (activityId: string) => tripsService.toggleSavedActivity(activityId),
     onSuccess: (ids) => {
       queryClient.setQueryData(tripsKeys.savedActivities, ids);
     },

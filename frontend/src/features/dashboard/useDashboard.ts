@@ -24,7 +24,7 @@ export function useDashboardData() {
 export function useSavedDestinationIds() {
   return useQuery({
     queryKey: dashboardKeys.savedDestinations(),
-    queryFn: async () => readSavedDestinations(),
+    queryFn: readSavedDestinations,
   });
 }
 
@@ -32,8 +32,7 @@ export function useToggleSavedDestination() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (destinationId: string) =>
-      Promise.resolve(toggleSavedDestination(destinationId)),
+    mutationFn: toggleSavedDestination,
     onSuccess: (ids) => {
       queryClient.setQueryData(dashboardKeys.savedDestinations(), ids);
     },

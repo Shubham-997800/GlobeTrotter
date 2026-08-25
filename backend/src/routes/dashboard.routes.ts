@@ -84,7 +84,15 @@ function recordToDashboardTrip(record: ReturnType<typeof toRecord>, catalog: Cat
 }
 
 async function loadCatalog(): Promise<CatalogDestination[]> {
-  const { data, error } = await getSupabaseAdmin()
+  const admin = getSupabaseAdmin();
+  // Try dashboard_destinations first (curated data).
+  const { data: dashData, error: dashError } = await admin
+    .from("dashboard_destinations")
+    .select("id, city, country, image, image_alt");
+  if (dashError) throw new ApiError("SERVER_ERROR", dashError.message);
+  if (dashData && dashData.length > 0) return dashData as CatalogDestination[];
+  // Fallback to raw catalog table.
+  const { data, error } = await admin
     .from("destinations")
     .select("id, city, country, image, image_alt");
   if (error) throw new ApiError("SERVER_ERROR", error.message);
@@ -212,7 +220,8 @@ dashboardRouter.post(
   requireAuth,
   asyncHandler(async (req, res) => {
     const { id } = parseToggle(toggleSchema, req.body);
-    res.json(await toggleBookmark(req.userId!, "saved_destination_ids", id));
+    const savedDestinations = await toggleBookmark(req.userId!, "saved_destination_ids", id);
+    res.json({ savedDestinations });
   }),
 );
 
@@ -221,7 +230,8 @@ dashboardRouter.post(
   requireAuth,
   asyncHandler(async (req, res) => {
     const { id } = parseToggle(toggleSchema, req.body);
-    res.json(await toggleBookmark(req.userId!, "saved_activity_ids", id));
+    const savedActivities = await toggleBookmark(req.userId!, "saved_activity_ids", id);
+    res.json({ savedActivities });
   }),
 );
 

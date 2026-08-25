@@ -509,7 +509,7 @@ itineraryRouter.post(
     const trip = await fetchOwnedTrip(req.userId!, req.params.id);
     const { data, error } = await getSupabaseAdmin()
       .from("trips")
-      .update({ status: "planned", updated_at: new Date().toISOString() })
+      .update({ status: "completed", updated_at: new Date().toISOString() })
       .eq("id", trip.id)
       .eq("user_id", req.userId!)
       .select("*")

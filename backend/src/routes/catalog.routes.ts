@@ -18,7 +18,8 @@ interface DestinationRow {
   image_alt: string;
   rating: number;
   reviews: number;
-  estimated_daily_cost_inr: number;
+  estimated_daily_cost_inr?: number;
+  estimated_budget_inr?: number;
   tags: string[] | null;
 }
 
@@ -53,7 +54,7 @@ function mapDestination(row: DestinationRow) {
     imageAlt: row.image_alt,
     rating: Number(row.rating),
     reviews: Number(row.reviews),
-    estimatedDailyCostInr: Number(row.estimated_daily_cost_inr),
+    estimatedDailyCostInr: Number(row.estimated_daily_cost_inr ?? row.estimated_budget_inr ?? 0),
     tags: (row.tags ?? []) as string[],
   };
 }
@@ -74,11 +75,17 @@ function mapActivity(row: ActivityRow) {
 }
 
 async function listDestinations(): Promise<DestinationRow[]> {
-  const { data, error } = await getSupabaseAdmin()
-    .from("destinations")
+  const admin = getSupabaseAdmin();
+  // Primary source: dashboard_destinations (editorial/curated data).
+  const { data: dashData, error: dashError } = await admin
+    .from("dashboard_destinations")
     .select("*");
+  if (dashError) throw new ApiError("SERVER_ERROR", dashError.message);
+  if (dashData && dashData.length > 0) return dashData as DestinationRow[];
+  // Fallback to raw catalog table.
+  const { data, error } = await admin.from("destinations").select("*");
   if (error) throw new ApiError("SERVER_ERROR", error.message);
-  return data ?? [];
+  return (data ?? []) as DestinationRow[];
 }
 
 /* ── Routes (public — catalog is read-only shared data) ─────────── */
@@ -124,7 +131,7 @@ catalogRouter.get(
     switch (filter) {
       case "budget":
         result = [...rows].sort(
-          (a, b) => a.estimated_daily_cost_inr - b.estimated_daily_cost_inr,
+          (a, b) => (a.estimated_daily_cost_inr ?? a.estimated_budget_inr ?? 0) - (b.estimated_daily_cost_inr ?? b.estimated_budget_inr ?? 0),
         );
         break;
       case "popular":
