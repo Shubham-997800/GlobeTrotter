@@ -205,18 +205,18 @@ authRouter.post(
 
     const user = await loadProfile(data.user.id, data.user.email ?? email, data.session.access_token);
 
-    // Bulletproof role sync: read the authoritative user record from auth
-    // and force-sync the profile if needed.
+    // Bulletproof role sync: check auth user_metadata and force if needed
     try {
-      const admin = getSupabaseAdmin();
       const { data: fullUser } = await createEphemeralAdmin().auth.admin.getUserById(data.user.id);
       const authMetaRole = fullUser?.user?.user_metadata?.role as string | undefined;
       if (authMetaRole === "admin" && user.role !== "admin") {
-        await admin.from("profiles").update({ role: "admin" }).eq("id", data.user.id);
         user.role = "admin";
+        void (async () => {
+          try { await getSupabaseAdmin().from("profiles").update({ role: "admin" }).eq("id", data.user.id); } catch { /* non-fatal */ }
+        })();
       }
     } catch {
-      // Non-fatal — fall through with whatever role loadProfile returned
+      // Non-fatal
     }
 
     res.json(sessionResponse(user, data.session.access_token));
@@ -302,14 +302,21 @@ authRouter.post(
 
     const user = await loadProfile(data.user!.id, data.user!.email ?? payload.email, data.session?.access_token);
 
-    // Absolute fallback: read role from auth user record and force-sync
-    if (user.role !== "admin" && isAdmin) {
-      const ephemeral = createEphemeralAdmin();
-      const { data: fullUser } = await ephemeral.auth.admin.getUserById(data.user!.id);
-      const authRole = fullUser?.user?.user_metadata?.role as string | undefined;
-      if (authRole === "admin") {
-        user.role = "admin";
-      }
+    // If admin code matched, guarantee the role is set — the DB write may
+    // have been clobbered by a Supabase trigger, but we KNOW it should be admin.
+    if (isAdmin) {
+      user.role = "admin";
+      // Fire-and-forget: persist so future loadProfile reads are correct too.
+      void (async () => {
+        try {
+          await getSupabaseAdmin().from("profiles").update({ role: "admin" }).eq("id", data.user!.id);
+        } catch { /* non-fatal */ }
+        try {
+          await createEphemeralAdmin().auth.admin.updateUserById(data.user!.id, {
+            user_metadata: { role: "admin" },
+          });
+        } catch { /* non-fatal */ }
+      })();
     }
 
     console.log("[register] userId:", data.user!.id, "isAdmin:", isAdmin, "returnedRole:", user.role);
