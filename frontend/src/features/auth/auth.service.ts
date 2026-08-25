@@ -12,6 +12,7 @@ import {
 import { apiClient } from "@/services/api/client";
 
 const SESSION_KEY = "globetrotter.auth.session";
+const AUTH_TOKEN_KEY = "globetrotter.auth.token";
 
 function readSession(): AuthSession | null {
   const raw =
@@ -19,7 +20,14 @@ function readSession(): AuthSession | null {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as AuthSession;
-    return parsed?.user?.id && parsed?.token ? parsed : null;
+    if (!parsed?.user?.id || !parsed?.token) return null;
+    // Sync the separate token key so the apiClient interceptor can find it.
+    const isRemember = localStorage.getItem(SESSION_KEY) !== null;
+    const store = isRemember ? localStorage : sessionStorage;
+    if (!store.getItem(AUTH_TOKEN_KEY)) {
+      store.setItem(AUTH_TOKEN_KEY, parsed.token);
+    }
+    return parsed;
   } catch {
     return null;
   }
@@ -30,8 +38,10 @@ function writeSession(session: AuthSession, remember: boolean): void {
   const json = JSON.stringify(session);
   if (remember) {
     localStorage.setItem(SESSION_KEY, json);
+    localStorage.setItem(AUTH_TOKEN_KEY, session.token);
   } else {
     sessionStorage.setItem(SESSION_KEY, json);
+    sessionStorage.setItem(AUTH_TOKEN_KEY, session.token);
   }
 }
 
@@ -80,8 +90,8 @@ function handleAuthError(err: unknown, fallback: string): never {
 function clearSession(): void {
   localStorage.removeItem(SESSION_KEY);
   sessionStorage.removeItem(SESSION_KEY);
-  localStorage.removeItem("globetrotter.auth.token");
-  sessionStorage.removeItem("globetrotter.auth.token");
+  localStorage.removeItem(AUTH_TOKEN_KEY);
+  sessionStorage.removeItem(AUTH_TOKEN_KEY);
 }
 
 function refreshSessionUser(user: User): void {
