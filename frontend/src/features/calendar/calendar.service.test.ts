@@ -27,12 +27,13 @@ function makeDefaultItinerary(tripId: string): ItineraryRecord {
   return {
     tripId,
     days: [
-      { id: "day_2026-09-01", tripId, date: startDate, notes: "" },
-      { id: "day_2026-09-02", tripId, date: "2026-09-02", notes: "" },
-      { id: "day_2026-09-03", tripId, date: "2026-09-03", notes: "" },
+      { id: "day_2026-09-01", date: startDate, destinationId: null, notes: "" },
+      { id: "day_2026-09-02", date: "2026-09-02", destinationId: null, notes: "" },
+      { id: "day_2026-09-03", date: "2026-09-03", destinationId: null, notes: "" },
     ],
     activities: [],
     stops: [],
+    updatedAt: new Date().toISOString(),
   };
 }
 
@@ -59,7 +60,6 @@ vi.mock("@/services/api/client", () => ({
       // Create trip
       if (url === "/trips") {
         const id = `trip_${++tripSeq}`;
-        const days = 3;
         const record: TripRecord = {
           id,
           name: String(body?.name ?? ""),
@@ -74,7 +74,7 @@ vi.mock("@/services/api/client", () => ({
           status: (body?.status as string) ?? "planned",
           createdAt: new Date().toISOString(),
         } as TripRecord;
-        mockTrips.set(id, record);
+        mockTrips.set(id, record as unknown as Record<string, unknown>);
 
         // Auto-create itinerary with days
         const itin = makeDefaultItinerary(id);
@@ -101,6 +101,7 @@ vi.mock("@/services/api/client", () => ({
           startTime: String(body.startTime ?? "09:00"),
           endTime: String(body.endTime ?? "10:00"),
           estimatedCostInr: Number(body.estimatedCostInr ?? 0),
+          order: record.activities.length,
           source: "custom",
         } as ItineraryActivity;
         record.activities.push(act);
@@ -134,7 +135,7 @@ vi.mock("@/services/api/client", () => ({
       const putItinMatch = url.match(/^\/trips\/([^/]+)\/itinerary$/);
       if (putItinMatch && body) {
         const tid = putItinMatch[1];
-        const record = body as ItineraryRecord;
+        const record = body as unknown as ItineraryRecord;
         mockItineraries.set(tid, record);
         localStorage.setItem(
           `globetrotter.itinerary-cache.${tid}`,
