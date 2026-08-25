@@ -21,6 +21,7 @@ export const env = {
     "PASSWORD_RESET_REDIRECT_URL",
     "http://localhost:5173/reset-password",
   ),
+  adminSecretCode: withFallback("ADMIN_SECRET_CODE", "globetrotter-admin-2026"),
 } as const;
 
 export type Env = typeof env;

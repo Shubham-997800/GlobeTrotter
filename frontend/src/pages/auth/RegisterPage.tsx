@@ -13,7 +13,7 @@ export function RegisterPage() {
         <CardContent className="space-y-6 p-6 sm:p-8">
           <AuthHeader
             title="Create Your Account"
-            description={`Start Planning Your Journey with ${landingConfig.appName}.`}
+            description={`Start Planning Your Journey with ${landingConfig.appName}. Have an admin secret code? Use the option below to create an admin account.`}
           />
           <RegisterForm />
           <Separator />

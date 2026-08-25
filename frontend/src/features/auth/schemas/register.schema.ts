@@ -37,6 +37,7 @@ export const registerSchema = z
       .regex(/[A-Za-z]/, "Include at least one letter.")
       .regex(/[0-9]/, "Include at least one number."),
     confirmPassword: z.string().min(1, "Confirm your password."),
+    adminCode: z.string().trim().optional().or(z.literal("")),
     acceptTerms: z.boolean(),
   })
   .refine((data) => data.password === data.confirmPassword, {

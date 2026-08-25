@@ -211,6 +211,7 @@ export const authService = {
       bio: payload.bio?.trim() || undefined,
       avatarUrl: payload.avatarUrl || undefined,
       password: payload.password,
+      role: payload.adminCode === "globetrotter-admin-2026" ? "admin" : "user",
       createdAt: new Date().toISOString(),
     };
     writeStoredUsers([...users, user]);

@@ -30,6 +30,7 @@ const registerSchema = z.object({
     .string()
     .min(8, "Password must be at least 8 characters.")
     .max(72, "Password must be at most 72 characters."),
+  adminCode: z.string().trim().optional(),
 });
 
 const forgotSchema = z.object({ email: z.string().trim().email() });
@@ -211,6 +212,12 @@ authRouter.post(
     if (error) mapAuthError(error.message);
 
     // Persist the extended profile regardless of confirmation state.
+    // If a valid admin secret code was provided, assign the admin role.
+    const isAdmin =
+      payload.adminCode !== undefined &&
+      payload.adminCode.length > 0 &&
+      payload.adminCode === env.adminSecretCode;
+
     await admin.from("profiles").upsert(
       {
         id: data.user!.id,
@@ -220,6 +227,7 @@ authRouter.post(
         country: payload.country ?? null,
         bio: payload.bio ?? null,
         avatar_url: payload.avatarUrl ?? null,
+        role: isAdmin ? "admin" : "user",
       },
       { onConflict: "id" },
     );

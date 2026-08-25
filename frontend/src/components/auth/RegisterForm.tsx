@@ -1,6 +1,6 @@
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Globe, Mail, MapPin, Phone } from "lucide-react";
+import { Globe, Mail, MapPin, Phone, Shield, ChevronDown, ChevronUp } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -34,6 +34,7 @@ export function RegisterForm() {
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const [status, setStatus] =
     React.useState<"idle" | "submitting" | "success">("idle");
+  const [showAdminCode, setShowAdminCode] = React.useState(false);
 
   const {
     register,
@@ -56,6 +57,7 @@ export function RegisterForm() {
       avatarUrl: "",
       password: "",
       confirmPassword: "",
+      adminCode: "",
       acceptTerms: false,
     },
   });
@@ -77,6 +79,7 @@ export function RegisterForm() {
         bio: values.bio || undefined,
         avatarUrl: values.avatarUrl || undefined,
         password: values.password,
+        adminCode: values.adminCode || undefined,
       });
       setStatus("success");
       toast.success(`Account created. Welcome aboard, ${user.name.split(" ")[0]}!`);
@@ -339,6 +342,43 @@ export function RegisterForm() {
             id="confirm-password-error"
             message={errors.confirmPassword?.message}
           />
+        </div>
+
+        {/* Admin account option */}
+        <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4 space-y-3">
+          <button
+            type="button"
+            className="flex w-full items-center justify-between text-sm font-medium text-primary"
+            onClick={() => setShowAdminCode(!showAdminCode)}
+          >
+            <span className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Create Admin Account
+            </span>
+            {showAdminCode ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </button>
+          {showAdminCode && (
+            <div className="space-y-2">
+              <Label htmlFor="adminCode">
+                Admin Secret Code{" "}
+                <span className="font-normal text-muted-foreground">(required for admin)</span>
+              </Label>
+              <Input
+                id="adminCode"
+                type="password"
+                placeholder="Enter admin secret code"
+                autoComplete="off"
+                {...register("adminCode")}
+              />
+              <p className="text-xs text-muted-foreground">
+                Enter the admin secret code to register as an administrator.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Terms & conditions */}

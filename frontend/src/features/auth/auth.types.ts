@@ -75,6 +75,7 @@ export interface RegisterPayload {
   bio?: string;
   avatarUrl?: string;
   password: string;
+  adminCode?: string;
 }
 
 export interface ForgotPasswordPayload {
