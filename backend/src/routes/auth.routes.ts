@@ -339,6 +339,37 @@ authRouter.get(
   }),
 );
 
+// DEBUG: returns all role sources so we can diagnose the issue
+authRouter.get(
+  "/debug-role",
+  requireAuth,
+  asyncHandler(async (req: Request, res) => {
+    const admin = getSupabaseAdmin();
+    const userId = req.userId!;
+
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("id, name, role")
+      .eq("id", userId)
+      .maybeSingle();
+
+    let metaRole: string | undefined;
+    try {
+      const { data: fullUser } = await createEphemeralAdmin().auth.admin.getUserById(userId);
+      metaRole = fullUser?.user?.user_metadata?.role as string | undefined;
+    } catch (e) {
+      metaRole = `ERROR: ${(e as Error).message}`;
+    }
+
+    res.json({
+      userId,
+      profileRole: profile?.role ?? "NO_PROFILE",
+      userMetadataRole: metaRole ?? "NOT_SET",
+      authEmail: req.authEmail,
+    });
+  }),
+);
+
 authRouter.post(
   "/forgot-password",
   asyncHandler(async (req, res) => {
