@@ -102,6 +102,7 @@ Trip planning should feel like **composing a story, not filling forms**. Three p
 | Feature | Details |
 |---------|---------|
 | **Supabase GoTrue Auth** | Register, login, logout, session restore, forgot/reset password |
+| **Admin Registration** | Register with admin secret code (`ADMIN_SECRET_CODE`) to get admin role instantly |
 | **JWT Bearer Verification** | Every protected route verifies the token against GoTrue — not just signature shape |
 | **Verified-Token Cache** | SHA-256-keyed 60-second identity cache (max 1,000 entries) to survive refetch bursts under rate limits |
 | **Rate-Limit Retry** | Paced single retry on transient GoTrue throttling before surfacing `429` |
@@ -133,7 +134,7 @@ Trip planning should feel like **composing a story, not filling forms**. Three p
 | 👤 **Profile / Settings** | `/profile` · `/settings` | Personal info, avatar upload, sessions, preferences |
 | ❓ **Help & Support** | `/help` | FAQ + contact surface |
 | 🛡️ **System States** | `/404` · `/403` · `/500` · `/maintenance` · `/offline` | Dedicated error/maintenance/network pages |
-| 🔒 **Admin** | `/admin` | Role-gated console placeholder (`roles={["admin"]}` guard) |
+| 🔒 **Admin** | `/admin` | Role-gated admin console — dashboard stats, user/trip/destination/activity management, analytics, role promotions (register with admin secret code to access) |
 
 ---
 
@@ -237,6 +238,9 @@ Per hackathon-organization instructions, the frontend runs locally while the API
 │   │ Auth │ │Trips │ │ Itinerary │ │Explore + │ │ Notifications │  │
 │   │Router│ │Router│ │  Router   │ │ Catalog  │ │  + Settings   │  │
 │   └──────┘ └──────┘ └───────────┘ └──────────┘ └───────────────┘  │
+│   ┌──────────────────┐ ┌──────────────────────────────────────┐   │
+│   │ Admin Router     │ │ Dashboard + Explore Router           │   │
+│   └──────────────────┘ └──────────────────────────────────────┘   │
 │                                                                     │
 │   Health check: GET /api/health                                     │
 └──────────────────────────────┬──────────────────────────────────────┘
@@ -349,7 +353,7 @@ GlobeTrotter/
 │   │   ├── middleware/
 │   │   │   ├── auth.ts              # GoTrue JWT verify + 60s identity cache
 │   │   │   └── errorHandler.ts      # Normalized API errors
-│   │   ├── routes/                  # 8 route modules + health
+│   │   ├── routes/                  # 9 route modules + health
 │   │   └── lib/                     # supabase admin client, ApiError
 │   ├── sql/                         # schema.sql + 3 migrations
 │   ├── scripts/
@@ -527,7 +531,7 @@ Base URL: `https://<render-service>.onrender.com/api` (all responses are JSON; p
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/register` | Create account (GoTrue signup + profile row) |
+| POST | `/register` | Create account (GoTrue signup + profile row); pass `adminCode` to register as admin |
 | POST | `/login` | Identifier login (email **or** username via secure email lookup) |
 | POST | `/logout` | Revoke session server-side |
 | GET | `/me` | Current authenticated profile |
@@ -613,6 +617,26 @@ Base URL: `https://<render-service>.onrender.com/api` (all responses are JSON; p
 | DELETE | `/notifications` | Clear notifications |
 | GET/PUT | `/users/me/settings` | Persisted per-account preferences |
 
+### Admin — `/admin` *(auth + admin role required)*
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/stats` | Dashboard stats — user/trip/destination/activity counts, trends, activity feed |
+| GET | `/users` | Paginated user list with search, role filter, sort |
+| GET | `/users/:userId` | Single user detail with trip count |
+| PATCH | `/users/:userId/role` | Promote or demote user role |
+| GET | `/trips` | Paginated trip list with search, status filter, sort |
+| GET | `/trips/:tripId` | Single trip detail with itinerary |
+| GET | `/destinations` | Paginated destination list |
+| POST | `/destinations` | Create destination |
+| PATCH | `/destinations/:destId` | Update destination |
+| DELETE | `/destinations/:destId` | Delete destination |
+| GET | `/activities` | Paginated activity list with category filter |
+| POST | `/activities` | Create activity |
+| PATCH | `/activities/:activityId` | Update activity |
+| DELETE | `/activities/:activityId` | Delete activity |
+| GET | `/analytics` | User growth, trip trends, budget distribution, status breakdown |
+
 ---
 
 ## 🔐 Authentication & Security
@@ -635,6 +659,7 @@ Base URL: `https://<render-service>.onrender.com/api` (all responses are JSON; p
 | Authorization | `req.userId` scoping on **every** query + RLS underneath |
 | Input | Zod schema parsing with precise `path: message` errors |
 | Secrets | `service_role` never leaves the server; blueprint uses `sync: false`; `.env` gitignored |
+| Admin Access | Register with `ADMIN_SECRET_CODE` env var; role enforced server-side via `requireAdmin` middleware |
 | CORS | Explicit origin allow-list (localhost dev origins by default) |
 | Errors | Normalized `{ code, message }` envelopes — no stack traces leaked |
 | Frontend tokens | Stored in `localStorage` ("remember me") or `sessionStorage`; cleared on logout |
@@ -645,9 +670,10 @@ Base URL: `https://<render-service>.onrender.com/api` (all responses are JSON; p
 Client route guard (ProtectedRoute)
   └── Axios Bearer header
         └── Express requireAuth (GoTrue verify)
-              └── Zod body validation
-                    └── Handler scopes query by req.userId
-                          └── Postgres RLS final gate
+              └── requireAdmin (profiles.role check on every admin request)
+                    └── Zod body validation
+                          └── Handler scopes query by req.userId
+                                └── Postgres RLS final gate
 ```
 
 ---
@@ -704,6 +730,41 @@ Sign up with any email + password (min 8 chars) and start planning.
 
 > First request after API idle can take ~60s (free-tier cold start). Fast afterwards.
 
+### 🔐 Creating an Admin Account
+
+Admin accounts get access to the **Admin Console** (`/admin`) — a full management dashboard for users, trips, destinations, activities, analytics, and roles.
+
+**During Registration:**
+
+1. Go to `/register`
+2. Scroll down and click **"Create Admin Account"** (expandable section)
+3. Enter the admin secret code: `globetrotter-admin-2026`
+4. Complete the rest of the form and submit
+5. Your account is created with admin privileges
+
+**Changing the Admin Secret Code:**
+
+Set the `ADMIN_SECRET_CODE` environment variable in your backend `.env`:
+
+```bash
+ADMIN_SECRET_CODE=your-custom-secret-code
+```
+
+The default code is `globetrotter-admin-2026` — change this in production.
+
+**What Admins Can Do:**
+
+| Feature | Route | Description |
+|---------|-------|-------------|
+| Dashboard | `/admin` | Platform stats, popular destinations, activity feed, role breakdown |
+| Users | `/admin/users` | List, search, filter, promote/demote roles |
+| Trips | `/admin/trips` | Browse all trips across users |
+| Destinations | `/admin/destinations` | Full CRUD — add, edit, delete destinations |
+| Activities | `/admin/activities` | Full CRUD — add, edit, delete activities |
+| Analytics | `/admin/analytics` | User growth, trip trends, budget distribution charts |
+| Activity Feed | `/admin/activity` | Real-time feed of registrations and trip creations |
+| Roles | `/admin/roles` | Permissions matrix and current role display |
+
 ### What to test
 
 | Flow | Try this |
@@ -715,6 +776,7 @@ Sign up with any email + password (min 8 chars) and start planning.
 | **Dashboard** | Progress, insights, quick actions |
 | **Explore** | Search, filter by region/category, open detail, save |
 | **Isolation** | Two accounts in two browser profiles — neither sees the other's data |
+| **Admin Console** | Register with admin code → visit `/admin` → manage users, destinations, activities, view analytics |
 
 ### Full-stack local development
 
@@ -760,6 +822,7 @@ The repo ships a [`render.yaml`](./render.yaml) Blueprint — secrets stay out o
    - `SUPABASE_URL`
    - `SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
+   - `ADMIN_SECRET_CODE` *(default: `globetrotter-admin-2026`)*
    
    *(supabase.com/dashboard → project → Settings → API)*
 4. Run SQL migrations from `backend/sql/` in order via the Supabase SQL Editor.
