@@ -218,7 +218,7 @@ authRouter.post(
       payload.adminCode.length > 0 &&
       payload.adminCode === env.adminSecretCode;
 
-    await admin.from("profiles").upsert(
+    const { error: upsertError } = await admin.from("profiles").upsert(
       {
         id: data.user!.id,
         name,
@@ -231,6 +231,21 @@ authRouter.post(
       },
       { onConflict: "id" },
     );
+    if (upsertError) {
+      console.error("[register] profile upsert failed:", upsertError.message);
+    }
+
+    // Belt-and-suspenders: explicitly set the role via UPDATE in case the
+    // upsert silently failed or a Supabase trigger overwrote it.
+    if (isAdmin) {
+      const { error: roleError } = await admin
+        .from("profiles")
+        .update({ role: "admin" })
+        .eq("id", data.user!.id);
+      if (roleError) {
+        console.error("[register] explicit role update failed:", roleError.message);
+      }
+    }
 
     if (!data.session) {
       // Email confirmation is enabled on the project.
