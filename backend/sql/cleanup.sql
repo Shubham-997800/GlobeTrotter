@@ -1,0 +1,9 @@
+TRUNCATE public.profiles CASCADE;
+TRUNCATE public.trips CASCADE;
+TRUNCATE public.destinations CASCADE;
+TRUNCATE public.activities CASCADE;
+TRUNCATE public.budget_tiers CASCADE;
+TRUNCATE public.interests CASCADE;
+TRUNCATE public.currencies CASCADE;
+TRUNCATE public.app_config CASCADE;
+DELETE FROM auth.users;

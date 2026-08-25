@@ -205,13 +205,18 @@ authRouter.post(
 
     const user = await loadProfile(data.user.id, data.user.email ?? email, data.session.access_token);
 
-    // Final fallback: if the signIn response itself has admin in user_metadata,
-    // ensure the profile reflects it (handles edge cases where profile sync lagged).
-    const signInMetaRole = data.user.user_metadata?.role as string | undefined;
-    if (signInMetaRole === "admin" && user.role !== "admin") {
+    // Bulletproof role sync: read the authoritative user record from auth
+    // and force-sync the profile if needed.
+    try {
       const admin = getSupabaseAdmin();
-      await admin.from("profiles").update({ role: "admin" }).eq("id", data.user.id);
-      user.role = "admin";
+      const { data: fullUser } = await createEphemeralAdmin().auth.admin.getUserById(data.user.id);
+      const authMetaRole = fullUser?.user?.user_metadata?.role as string | undefined;
+      if (authMetaRole === "admin" && user.role !== "admin") {
+        await admin.from("profiles").update({ role: "admin" }).eq("id", data.user.id);
+        user.role = "admin";
+      }
+    } catch {
+      // Non-fatal — fall through with whatever role loadProfile returned
     }
 
     res.json(sessionResponse(user, data.session.access_token));
@@ -296,6 +301,7 @@ authRouter.post(
     }
 
     const user = await loadProfile(data.user!.id, data.user!.email ?? payload.email, data.session?.access_token);
+    console.log("[register] userId:", data.user!.id, "isAdmin:", isAdmin, "returnedRole:", user.role);
     res.status(201).json(sessionResponse(user, data.session.access_token));
   }),
 );
