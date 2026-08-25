@@ -245,19 +245,19 @@ adminRouter.get(
     const { data, count, error } = await query;
     if (error) throw new ApiError("SERVER_ERROR", error.message);
 
-    // Fetch auth emails for these users
+    // Fetch auth emails for these users — parallel instead of serial
     const userIds = (data ?? []).map((r) => r.id);
     let emailMap: Record<string, string> = {};
     if (userIds.length > 0) {
-      // We need to use the admin client to list users and get their emails
-      // Supabase admin auth API doesn't support bulk email lookup, so we
-      // store a best-effort approach: try the RPC function if available
       try {
-        for (const uid of userIds) {
-          const { data: emailData } = await admin.rpc("get_auth_email", { profile_id: uid });
-          if (typeof emailData === "string") {
-            emailMap[uid] = emailData;
-          }
+        const emailResults = await Promise.all(
+          userIds.map(async (uid) => {
+            const { data: emailData } = await admin.rpc("get_auth_email", { profile_id: uid });
+            return [uid, typeof emailData === "string" ? emailData : ""] as const;
+          }),
+        );
+        for (const [uid, email] of emailResults) {
+          if (email) emailMap[uid] = email;
         }
       } catch {
         // RPC might not exist — graceful fallback
@@ -606,7 +606,7 @@ const activityListSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   search: z.string().trim().optional(),
-  category: z.string().trim().optional(),
+  category: z.enum(["all", "adventure", "cultural", "relaxation", "nightlife"]).default("all"),
   sort: z.enum(["name", "city", "cost_inr", "duration_hours"]).default("name"),
   order: z.enum(["asc", "desc"]).default("asc"),
 });
@@ -622,7 +622,7 @@ adminRouter.get(
     if (params.search) {
       query = query.or(`name.ilike.%${params.search}%,city.ilike.%${params.search}%`);
     }
-    if (params.category) {
+    if (params.category !== "all") {
       query = query.eq("category", params.category);
     }
 
