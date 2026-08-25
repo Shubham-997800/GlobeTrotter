@@ -1,7 +1,10 @@
 import {
   getAdminDashboard,
   getAdminUsers,
+  getAdminUser,
+  updateAdminUserRole,
   getAdminTrips,
+  getAdminTrip,
   getAdminDestinations,
   createDestination,
   updateDestination,
@@ -23,17 +26,12 @@ export const adminService = {
   },
 
   async getUser(userId: string) {
-    const { users } = getAdminUsers({});
-    const user = users.find(u => u.id === userId);
-    if (!user) throw new Error("User not found");
+    const { user } = await getAdminUser(userId);
     return user;
   },
 
   async updateUserRole(userId: string, role: string) {
-    const { users } = getAdminUsers({});
-    const user = users.find(u => u.id === userId);
-    if (!user) throw new Error("User not found");
-    user.role = role as "user" | "admin";
+    const { user } = await updateAdminUserRole(userId, role);
     return user;
   },
 
@@ -42,9 +40,7 @@ export const adminService = {
   },
 
   async getTrip(tripId: string) {
-    const { trips } = getAdminTrips({});
-    const trip = trips.find(t => t.id === tripId);
-    if (!trip) throw new Error("Trip not found");
+    const { trip } = await getAdminTrip(tripId);
     return trip;
   },
 
@@ -53,15 +49,17 @@ export const adminService = {
   },
 
   async createDestination(payload: Record<string, unknown>) {
-    return createDestination(payload);
+    const { destination } = await createDestination(payload);
+    return destination;
   },
 
   async updateDestination(destId: string, payload: Record<string, unknown>) {
-    return updateDestination(destId, payload);
+    const { destination } = await updateDestination(destId, payload);
+    return destination;
   },
 
   async deleteDestination(destId: string) {
-    return deleteDestination(destId);
+    await deleteDestination(destId);
   },
 
   async getActivities(params: Record<string, string | number>) {
@@ -69,15 +67,17 @@ export const adminService = {
   },
 
   async createActivity(payload: Record<string, unknown>) {
-    return createActivity(payload);
+    const { activity } = await createActivity(payload);
+    return activity;
   },
 
   async updateActivity(activityId: string, payload: Record<string, unknown>) {
-    return updateActivity(activityId, payload);
+    const { activity } = await updateActivity(activityId, payload);
+    return activity;
   },
 
   async deleteActivity(activityId: string) {
-    return deleteActivity(activityId);
+    await deleteActivity(activityId);
   },
 
   async getAnalytics() {

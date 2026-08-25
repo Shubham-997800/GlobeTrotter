@@ -39,6 +39,7 @@ import {
   useAdminUpdateDestination,
   useAdminDeleteDestination,
 } from "../useAdmin";
+import type { AdminDestination } from "../admin.types";
 
 interface DestFormState {
   id: string;
@@ -88,9 +89,9 @@ export function AdminDestinationsPage() {
     setDialogOpen(true);
   };
 
-  const openEdit = (dest: DestFormState) => {
+  const openEdit = (dest: AdminDestination) => {
     setEditingId(dest.id);
-    setForm({ ...dest, tags: dest.tags?.join(", ") || "" });
+    setForm({ ...dest, tags: Array.isArray(dest.tags) ? dest.tags.join(", ") : "" });
     setDialogOpen(true);
   };
 
@@ -158,7 +159,7 @@ export function AdminDestinationsPage() {
             <SelectItem value="city">City</SelectItem>
             <SelectItem value="country">Country</SelectItem>
             <SelectItem value="rating">Rating</SelectItem>
-            <SelectItem value="estimatedDailyCostInr">Cost</SelectItem>
+            <SelectItem value="reviews">Reviews</SelectItem>
           </SelectContent>
         </Select>
         <Button
@@ -277,7 +278,7 @@ export function AdminDestinationsPage() {
                               size="icon"
                               className="h-8 w-8"
                               aria-label="Edit"
-                              onClick={() => openEdit(dest as unknown as DestFormState)}
+                              onClick={() => openEdit(dest)}
                             >
                               <Pencil className="h-3.5 w-3.5" />
                             </Button>
@@ -329,7 +330,7 @@ export function AdminDestinationsPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => openEdit(dest as unknown as DestFormState)}
+                      onClick={() => openEdit(dest)}
                     >
                       <Pencil className="h-4 w-4 mr-1" />
                       Edit

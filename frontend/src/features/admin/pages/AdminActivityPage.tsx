@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { Activity, AlertCircle, Inbox, UserPlus, Map } from "lucide-react";
 import { useAdminDashboard } from "../useAdmin";
 
-const TYPE_CONFIG: Record<string, { icon: React.ReactNode; badgeVariant: "default" | "secondary" | "destructive" | "outline"; label: string; borderColor: string }> = {
+const TYPE_CONFIG: Record<string, { icon: React.ReactNode; badgeVariant: "default" | "secondary" | "outline"; label: string; borderColor: string }> = {
   user_registered: { icon: <UserPlus className="h-4 w-4" />, badgeVariant: "default", label: "User", borderColor: "border-l-blue-500" },
   trip_created: { icon: <Map className="h-4 w-4" />, badgeVariant: "secondary", label: "Trip", borderColor: "border-l-emerald-500" },
 };

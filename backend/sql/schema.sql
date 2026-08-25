@@ -101,7 +101,7 @@ create table if not exists public.activities (
   name           text not null,
   city           text not null,
   country        text not null,
-  category       text not null check (category in ('adventure', 'culture', 'food', 'nature')),
+  category       text not null check (category in ('adventure', 'culture', 'food', 'nature', 'relaxation', 'nightlife')),
   duration_hours numeric(4, 1) not null default 0,
   cost_inr       integer not null default 0,
   description    text not null default '',
