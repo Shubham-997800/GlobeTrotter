@@ -98,23 +98,38 @@ async function loadProfile(userId: string, email: string, jwt?: string) {
     .eq("id", userId)
     .maybeSingle<ProfileRow>();
 
-  if (data) return mapUser(data, email);
+  if (data) {
+    // Fallback: if profile role is missing/default but user_metadata has admin, sync it.
+    if (data.role !== "admin" && jwt) {
+      const resp = await createEphemeralAdmin().auth.getUser(jwt);
+      const metaUser = resp.data.user as unknown as Record<string, unknown> | null;
+      const metaRole = (metaUser as Record<string, unknown>)?.user_metadata
+        ? ((metaUser as Record<string, unknown>).user_metadata as Record<string, unknown>)?.role as string | undefined
+        : undefined;
+      if (metaRole === "admin" && data.role !== "admin") {
+        await admin.from("profiles").update({ role: "admin" }).eq("id", userId);
+        return mapUser({ ...data, role: "admin" }, email);
+      }
+    }
+    return mapUser(data, email);
+  }
 
   // Self-heal: auth user exists but profile row missing.
-  const meta = (
-    await createEphemeralAdmin().auth.getUser(jwt)
-  ).data.user?.user_metadata as Record<string, unknown> | undefined;
+  const resp = await createEphemeralAdmin().auth.getUser(jwt);
+  const metaUser = resp.data.user as unknown as Record<string, unknown> | null;
+  const meta = (metaUser as Record<string, unknown>)?.user_metadata as Record<string, unknown> | undefined;
   const name =
     (meta?.full_name as string | undefined) ??
     (meta?.name as string | undefined) ??
     "";
+  const metaRole = (meta?.role as string | undefined) ?? "user";
   const inserted = await admin
     .from("profiles")
-    .upsert({ id: userId, name }, { onConflict: "id" })
+    .upsert({ id: userId, name, role: metaRole }, { onConflict: "id" })
     .select("*")
     .single<ProfileRow>();
   return mapUser(
-    inserted.data ?? { id: userId, name, created_at: null } as ProfileRow,
+    inserted.data ?? { id: userId, name, role: metaRole, created_at: null } as ProfileRow,
     email,
   );
 }
@@ -189,6 +204,16 @@ authRouter.post(
     }
 
     const user = await loadProfile(data.user.id, data.user.email ?? email, data.session.access_token);
+
+    // Final fallback: if the signIn response itself has admin in user_metadata,
+    // ensure the profile reflects it (handles edge cases where profile sync lagged).
+    const signInMetaRole = data.user.user_metadata?.role as string | undefined;
+    if (signInMetaRole === "admin" && user.role !== "admin") {
+      const admin = getSupabaseAdmin();
+      await admin.from("profiles").update({ role: "admin" }).eq("id", data.user.id);
+      user.role = "admin";
+    }
+
     res.json(sessionResponse(user, data.session.access_token));
   }),
 );
@@ -202,21 +227,24 @@ authRouter.post(
     const name =
       `${payload.firstName} ${payload.lastName}`.trim() || payload.firstName;
 
+    const isAdmin =
+      payload.adminCode !== undefined &&
+      payload.adminCode.length > 0 &&
+      payload.adminCode === env.adminSecretCode;
+
     const { data, error } = await createEphemeralAdmin().auth.signUp({
       email: payload.email.toLowerCase(),
       password: payload.password,
       options: {
-        data: { full_name: name },
+        data: {
+          full_name: name,
+          role: isAdmin ? "admin" : "user",
+        },
       },
     });
     if (error) mapAuthError(error.message);
 
     // Persist the extended profile regardless of confirmation state.
-    // If a valid admin secret code was provided, assign the admin role.
-    const isAdmin =
-      payload.adminCode !== undefined &&
-      payload.adminCode.length > 0 &&
-      payload.adminCode === env.adminSecretCode;
 
     const { error: upsertError } = await admin.from("profiles").upsert(
       {
@@ -244,6 +272,16 @@ authRouter.post(
         .eq("id", data.user!.id);
       if (roleError) {
         console.error("[register] explicit role update failed:", roleError.message);
+      }
+
+      // Also store role in auth user_metadata as a bulletproof fallback.
+      // This survives any trigger that might recreate/overwrite the profile row.
+      try {
+        await createEphemeralAdmin().auth.admin.updateUserById(data.user!.id, {
+          user_metadata: { role: "admin" },
+        });
+      } catch (metaErr) {
+        console.error("[register] user_metadata role update failed:", (metaErr as Error).message);
       }
     }
 

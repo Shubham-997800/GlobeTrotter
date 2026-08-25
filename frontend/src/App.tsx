@@ -116,6 +116,9 @@ const LoginPage = lazy(() =>
 const RegisterPage = lazy(() =>
   import("@/pages/auth/RegisterPage").then((m) => ({ default: m.RegisterPage })),
 );
+const AdminRegisterPage = lazy(() =>
+  import("@/pages/auth/AdminRegisterPage").then((m) => ({ default: m.AdminRegisterPage })),
+);
 const ResetPasswordPage = lazy(() =>
   import("@/pages/auth/ResetPasswordPage").then((m) => ({
     default: m.ResetPasswordPage,
@@ -185,6 +188,14 @@ export default function App() {
               element={
                 <GuestRoute>
                   <RegisterPage />
+                </GuestRoute>
+              }
+            />
+            <Route
+              path="/register/admin"
+              element={
+                <GuestRoute>
+                  <AdminRegisterPage />
                 </GuestRoute>
               }
             />
