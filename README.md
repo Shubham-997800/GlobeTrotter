@@ -393,7 +393,7 @@ Feature folder (e.g. features/trips/)
 | **Components** | No direct fetch/service calls — props in, events out |
 
 > [!NOTE]
-> The service layer is deliberately persistence-abstracted: identical function signatures serve either browser-backed storage (instant demo/offline mode) or HTTP endpoints. The backend implements each corresponding route under `/api/v1` (see [API Reference](#-api-reference)), and the central Axios instances (`lib/api.ts`, `services/api/client.ts`) ship with Bearer-token interceptor wiring ready for cutover.
+> All core services (auth, dashboard, trips, itinerary, explore, settings, notifications) are fully wired to the real backend API via the central Axios instance (`services/api/client.ts`). Community and calendar modules use localStorage composition since no backend routes exist for those features yet.
 
 ---
 
@@ -435,7 +435,7 @@ erDiagram
         text budget_tier "budget|moderate|premium|custom"
         text currency
         numeric budget_amount ">= 0"
-        text status "draft | planned"
+        text status "draft | planned | completed"
         timestamptz created_at
     }
 
@@ -456,7 +456,7 @@ erDiagram
         text name
         text city
         text country
-        text category "adventure|culture|food|nature"
+        text category "adventure|culture|food|nature|relaxation|nightlife"
         numeric duration_hours
         integer cost_inr
         text image
@@ -481,6 +481,7 @@ Applied in order via Supabase SQL Editor:
 2. `sql/migration-v2.sql` — itinerary documents (JSONB), bookmarks, dashboard content
 3. `sql/migration-v3.sql` — explore catalog, community feed, calendar events
 4. `sql/migration-v3-notifications.sql` — notifications table + per-user settings blob
+5. `sql/migration-v4-fix-categories.sql` — fix `activities_category_check` + `trips_status_check` constraints
 
 All scripts are **idempotent** — safe to re-run (`IF NOT EXISTS` / `OR REPLACE` throughout).
 
@@ -869,7 +870,8 @@ npm run smoke --prefix backend   # API smoke suite
 
 | Phase | Item |
 |-------|------|
-| Next | Wire remaining feature-service bodies to their live `/api/v1` counterparts (contracts already documented above) |
+| Done | All core frontend services wired to real backend API (auth, dashboard, trips, itinerary, explore, settings, notifications) |
+| Next | Community + calendar backend routes (currently localStorage composition from API-backed trip data) |
 | Next | Real-time collaboration on shared itineraries (Supabase Realtime) |
 | Later | Map-first itinerary planning (Leaflet dependency already declared) |
 | Later | Offline-first PWA packaging with background sync |
